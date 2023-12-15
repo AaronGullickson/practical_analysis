@@ -1,0 +1,51 @@
+project:
+  type: book
+  pre-render:
+    - scripts/check_packages.R
+  execute-dir: project
+
+book:
+  title: "Practical Data Analysis in Sociology"
+  author: "Aaron Gullickson"
+  chapters:
+    - index.qmd
+    - chapters/working_workflow.qmd
+    - chapters/using_git.qmd
+    - part: "R Basics"
+      chapters:
+        - chapters/creating_objects.qmd
+        - chapters/using_functions.qmd
+        - chapters/making_scripts.qmd
+        - chapters/adding_packages.qmd
+    - part: "The Tidyverse"
+      chapters: 
+        - chapters/learning_tidyverse.qmd
+        - chapters/piping_power.qmd
+        - chapters/making_pictures.qmd
+        - chapters/writing_quarto.qmd
+    - part: "Data Wrangling"
+      chapters:
+        - chapters/reading_data.qmd
+        - chapters/recoding_variables.qmd
+        - chapters/reshaping_data.qmd
+        - chapters/merging_data.qmd
+    - part: "Programmming"
+      chapters:
+        - chapters/iterating_speed.qmd
+        - chapters/writing_functions.qmd
+  appendices:
+        - appendices/useful_code_snippets.qmd
+
+
+bibliography: bibliography/references.bib
+
+format:
+  html:
+    theme: cyborg
+    css: styles.css
+execute:
+  freeze: auto
+  warning: false
+  message: false
+number-depth: 1
+
