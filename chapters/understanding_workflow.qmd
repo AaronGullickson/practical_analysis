@@ -1,0 +1,111 @@
+# Understanding Your Workflow {#working-workflow}
+
+We are often implicitly trained in academia to treat each of our research projects as a unique, bespoke thing and to approach it in that fashion. After all, one of the defining characteristics of academic work is that it should provide a unique contribution to our existing knowledge. If the research question is unique, shouldn't the research process also be unique? 
+
+The answer is an emphatic no. While any given research question may be unique, our attempt to answer it will often involve similar procedures governed by the data and methodologies that we will employ. When you work with quantitative data, you will often be following a workflow. This workflow is a set of (semi-)routinized procedures that you will be following. Understanding this workflow will help you to be more efficient and productive in your approach and will make it easier to collaborate with others.
+
+What does the basic workflow of quantitative data look like? In most cases, we can divide this workflow into three distinct phases. In brief, these phases are: 
+
+1. Generating an Analytical Dataset
+2. Performing the Analysis
+3. Creating Final Products
+
+I discuss each of these phases in more detail below.
+
+## Workflow Phases
+
+### Generating an Analytical Dataset
+
+Data is essential for almost all research in sociology, not just quantitative research. In the majority of cases in sociology, we use secondary data when conducting a quantitative analysis. By secondary data, I mean data that we as the researcher did not directly collect. There are many sources of secondary data available such as the [American Community Survey](https://www.census.gov/programs-surveys/acs), conducted by the US Census Bureau, or large scale panel surveys like the [National Longitudinal Surveys](https://www.bls.gov/nls/) or the [Add Health](https://addhealth.cpc.unc.edu/). Designing and implementing a survey of sufficient size to enable good analysis is expensive and timely. Although the internet has made survey data collection easier and cheaper, secondary data sources are still the dominant data source for most sociologists working with quantitative data. 
+
+I will generally assume that you are working with secondary data for the remainder of this book. If you are working with primary data that you have collected it doesn't make much practical difference to your workflow, although it may simplify some of the work needed in this phase.
+
+The data that you start with is what we call your *raw data*. This raw data should always be kept in exactly the form that you received it and never modified. However, this data is rarely in a form fit for analysis from the beginning. A variety of data cleaning and data transformation tasks will need to be performed to convert this *raw data* into the *analytical data*. The *analytical data* is the data structured in such a way to enable the analysis that you want to conduct. Converting from raw data to analytical data may require a variety of different tasks, such as:
+
+1. Encoding categorical data from numeric responses (e.g. 1="Yes", 2="No").
+2. Recoding or creating new variables from existing variables by combining, collapsing, transforming, etc. (also called *mutating*).
+3. Subsetting the dataset to particular kinds of observations (e.g. only those in the workforce).
+4. Aggregating data from one level to another (e.g. from individuals to states).
+5. Reshaping data from a long to a wide format or vice versa.
+6. Merging multiple raw data sources together.
+7. Imputing missing values.
+
+If you are unsure what some of these things mean, don't worry, as we will cover each of these operations later in the book. The important thing is that collectively all of these operations will transform your often untidy, large, and complicated raw data into a tidy analytical data with *just* the variables you need to perform your analysis.
+
+This phase is often derided as the boring "data cleaning" phase, but don't believe it! This phase is critically important. The decisions you make here are not just logistical ones. How you code and structure your data is a reflection of how you are conceptually and theoretically approaching your research questions. Taking the time to do it right at this stage will make the later analysis much easier.
+
+### Performing the Analysis
+
+In this phase, we take our *analytical data* and use it to address the research question. This may include, among other things, exploratory work using data visualizations, the creation of simple statistical summaries, the creation of complex models, and performing sensitivity tests. 
+
+We generally think of this phase as the most important part of the project because it directly answers the research question. In fact, many of us are trained to think of this phase as the entire project and for what comes before and after as "nuisances." We won't do that in this class! I have less to say about this phase than the other two phases in this book, because so much of what you do here is the bread and butter of most basic statistics courses.
+
+This phase will often lead to a lot of output in the form of graphs, model results, and other statistics. Researchers often collect this output and treasure it as the product of their work. This is a mistake! These are not the products, but rather artifacts of your actual work. Artifacts are dangerous because they can be out of date and therefore misleading. Learn not to treasure your output, but rather to suspect it. The real product of your work is the scripts that produce your output. 
+
+### Creating Final Products
+
+In this phase, we use the insights gained from our analysis to produce final products that we will share with others. Canonically, this final product is the manuscript that you will hopefully submit to a journal for publication, but other final products include presentation slides, a poster, and a research report. 
+
+Typically, this phase involves some transcription of the output from the prior phase into high quality tables and figures. Such transcription is also a point of danger for the analysis because the possibility of transcription errors is high, as is concern that the final products are always using the most up to data analysis. In this book, we will use *reproducible reports* via [Quarto](https://quarto.org) to eliminate this concern. 
+
+## Think Iteratively
+
+The way I describe the phases above may lead you to think that there is a simple linear progress through these phases to the conclusion of your project. Nothing could be further from the truth! Any research project will often involve moving back to prior phases and forward again. For example, journal reviewers may ask you to include additional variables and models into your analysis which will require you to revisit both of the prior phases before revising your manuscript. 
+
+In fact, to use this workflow most effectively, you should embrace its iterative nature and be willing and flexible enough to move back and forth across these phases. Beginning graduate students often spend way too much time in the first phase as they grab and code every variable they conceivably think they might need later in the project. the result is a bloated overly complex analytical dataset with a bunch of unnecessary variables. Instead, I encourage students to think about building the skeleton of the project they want by quickly moving through each of these initial phases. Pull only the most critical variables you absolutely must have from the data source into your analytical data, then run a very basic "proof of concept" model (and maybe figure). Now that you have the groundworrk (and importantly code) established, adding in more variables and complicating your models and analysis is as easy as falling off a log. By setting up the skeleton of your project properly, you can use this workflow more easily build up into something interesting.
+
+## What is Your Work?
+
+Lets say you just had a fantastic session of coding and busted out some really interesting models and figures. Now its late in the evening and time to call it a day. You need to make sure you save your work, right? But what is your work, exactly? 
+
+The temptation is to save the output. If you made some cool figures. You can export them to PNG of PDF files and store them someplace. If you ran some helpful models, you can dump the output of those models into text log files or even copy and paste it to a word document. This is how many starting graduate students approach their work (and unfortunately more than a few experienced professors).
+
+This approach is worse than wrong. All of those files you are saving are not the output of your work, but rather *artifacts* from your analysis at one specific point in time. But your analysis will evolve and change, and you will then end up with a large collection of output from different states of your analysis. Keeping track of which files document the most current state of your project is tricky work in and of itself. Its very easy to end up using results from out of date artifacts. Rather than the product of your work, you must learn to think of all this output as dangerous and suspect. You should feel comfortable in deleting these artifacts entirely from your project at any point in your workflow. In fact, you should do this regularly to make sure you don't end up with out of date artifacts.
+
+I know your objection to this approach - but what if I lose something important? If you have coded things correctly, you won't. Here is the truth, the most important thing I can teach you about this workflow:
+
+> Your work is the code that you write.
+
+If you write your code in a reproducible way, then you can always re-run that code to get back the output (e.g. figures, model output) and ensure that it reflects the most recent state of your project. There are two things that matter in your project:
+
+1. The raw data
+2. The code
+
+Everything else is a product of those two things. As long as you still have your raw data and your code, everything else can be reproduced with the click of a button (or a few buttons, at most).
+
+## Coding is Reproducibility
+
+This aspect of reproducibility is why we use code to conduct a quantitative analysis. When we hear the term "reproducible", we often associate it with the replication crisis and calls for making scientific practices more open and transparent. Reproducibility is important for these reasons, but its also important for a much more pragmatic and selfish reason - your most important research partner is your future self. In the same way that open and transparent practices make your research easier to understand and reproduce by others, they also make it easer to undersand reproduce by your future self.
+
+Imagine for a moment that you had conducted the most Amazing Research Project with a most Astounding Result. However, you did everything in Microsoft Excel spreadsheets, or even worse, by SPSS. Both of these approaches encourage you to use a click-and-point interface to do your analysis. All of the labor that goes into the analysis is now embedded in the actual physical motions of your clicking and pointing and is utterly unreproducible. But who cares, right? You got a great result! 
+
+Lets say you send your paper off to a prestigious journal and it gets an R&R, but the recommendation is that the reviewers would like to see the results replicated on a more recent wave of data that just came out. Now what? If you hade used code, you could simply download the new wave, make a few modest changes to your script to make sure had the right variables, and re-run everything. But because you labor was embedded into a click-and-point interface, you now have to do *all* of that clicking and pointing all over again. Your future self will now loathe your past self. Don't do analysis this way.
+
+In this book, I will teach you how to use *R* to code, but its the principle of coding that matters not the specific language. Once you learn the procedures in *R* you can easily transport them to other statistical coding languages like Stata, Python, or SAS.
+
+## A Practical Outline of a Workflow
+
+In @fig-workflow, I outline a practical workflow based on the principles discussed above. We use coding scripts in two ways. The first set of scripts reads in the raw data and transforms it into analytical data which is then output. A second set of scripts then performs the analysis, possibly producing some intermediate output such as log files or figure images. In both cases, I describe a "set" of scripts, but in practice you should always start with one script each: a data cleaning script and an analysis script. As the project becomes more complex, you may consider breaking those single scripts into multiple scripts, but only as needed.
+
+```{mermaid}
+%%| label: fig-workflow
+%%| fig-cap: A Practical Data Analysis Workflow in R. Circles represent data, ovals represent code, and squares represent output. Orange indicates artifacts, while green indicates the real work of the workflow.
+flowchart LR
+    A((Raw Data)):::real --> B[Data Organization\nScripts]:::real
+    B([Data Organization\nScripts]):::real --> C((Analytical\nData)):::artifact
+    C((Analytical\nData)):::artifact --> D([Analysis Scripts]):::real
+    C((Analytical\nData)):::artifact --> E([Reproducible Reports]):::real
+    D([Analysis Scripts]):::real -->  F[Intermediate Output]:::artifact
+    E([Reproducible Reports]):::real --> G[Final Products]:::artifact
+    D([Analysis Scripts]):::real --> E([Reproducible Reports]):::real
+    
+    classDef real fill:green,color:#fff
+    classDef artifact fill:orange,color:#000
+```
+
+For many researchers, coding ends at the second phase and the transition to final products would be done using some form of [WYSIWYG](https://en.wikipedia.org/wiki/WYSIWYG) product like Microsoft Word or Powerpoint. However, in this book, we will use reproducible coding practices throughout all three phases. To produce full manuscripts or presentations, we will use quarto documents which provide a way to render code and text into a single final document such as a PDF document. This removes any concern over transcription errors and makes it much easier and faster to update the paper when necessary. 
+
+Notice the parts of this workflow marked in orange. These are all artifacts from the scripts. If you are following good practices, you should feel confident in deleting all the files associated with these parts on demand. They can always be reproduced by re-running the analysis.
+
+This is the workflow that we will learn for the remainder of this book.
+

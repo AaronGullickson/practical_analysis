@@ -9,7 +9,7 @@ book:
   author: "Aaron Gullickson"
   chapters:
     - index.qmd
-    - chapters/working_workflow.qmd
+    - chapters/understanding_workflow.qmd
     - chapters/using_git.qmd
     - part: "R Basics"
       chapters:
