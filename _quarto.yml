@@ -41,7 +41,7 @@ bibliography: bibliography/references.bib
 
 format:
   html:
-    theme: cyborg
+    theme: darkly
     css: styles.css
 execute:
   freeze: auto
