@@ -1,1 +1,374 @@
 # Using Git for Sanity {#using-git}
+
+This book will focus on using *R* for data analysis, but we aren't going to start with learning *R*. Instead we are first going to learn *git*. What is a git, you ask? Git is a version control system. If you have never used a version control system before, it will initially seem esoteric and confusing. However, after a bit of practice you will quickly see the many benefits of using a version control system in your work.
+
+Version control systems allow you to track changes to files within a directory and to distribute changes to files to other collaborators. They also allow you to revert changes and to merge any changes made by different collaborators. Version control systems have been used by developers for decades to manage collaborative projects and to keep track of changes.
+
+For academics, version control systems have a lot to offer. This is particularly true for academics doing quantitative work, because much of our daily workflow resembles that of developers. We write code, edit code, and work with our collaborators. Briefly here are some of the benefits of implementing version control for your projects.
+
+Keep a research log
+: All changes to your project are "committed" to a repository with a brief description of your changes. You can look over the history of these commits to get a record of all the things you have done on your project.
+
+Nothing is lost
+: All changes that you commit to your repository are recoverable. If you realize that the code you changed isn't working right, you can easily revert back to a prior commit or find the text/code that was changed and get it back.
+
+Keep files tidy
+: The typical project folder for most academics will contain multiple versions of the same document, perhaps entitled something like “paper-1.docx”, “paper-v2.1_06272017.docx”, “paper_conference_revision.docx”, “paper_FINAL.docx”, “paper_FINAL_REALLY_THIS_TIME.docx”, and so on. Similarly, scripts are often littered throughout the directory without a clear indication of what scripts will do what and which ones are actually essential to the project. This is a mess. With version control, all of that messiness can go away. Because all changes are tracked by the version control system, there is no need to hang on to older versions of files.
+
+Collaborate intelligently
+: Because changes can be shared among multiple users, version control systems make collaboration much simpler. I don’t have to hunt through my emails to find a version of the file that my co-author sent me. I don’t have to remember to send out my changes to everyone and hope they also didn't make changes. I just “push” my changes directly and “pull” in the changes of others.
+
+Back up your system
+: If you push your changes to another repository (highly encouraged), then you effectively back up your project. It also makes it easy to work on the same project across multiple computers because you can push and pull changes between the computers.
+
+
+## Introduction to Git
+
+Git is a version control system designed by the legendary open-source programmer Linus Torvalds. It has become the de facto standard for version control in recent years. It is open-source, lightweight, free to use, and runs on all major platforms.
+
+Git should not be confused with a commercial service like [GitHub](https://github.com). GitHub provides users with remote git repositories for sharing and collaborating on projects, but it is not git itself.
+
+Git itself is a command-line program which means you type in commands to a terminal, but I am going to primarily show you how to interact with it through the RStudio interface. However, all of the basic commands that I will discuss below can be run by opening up a console/terminal on your operating system and typing them in. At the bottom of this document, I discuss the basic commands you can run from the command line with git as well as some additional useful commands.
+
+@fig-workflow shows a basic git workflow as illustrated by the amazing [Allison Horst](https://allisonhorst.com). Lets walk briefly walk through what this illustration is showing us.
+
+![A Basic Git Workflow, as illustrated by Allison Horst](../images/git_workflow.png){#fig-workflow}
+
+We start with our *working directory*. This is the directory on our local computer that contains all of the files for our project, including scripts, data, and other assorted files. Living inside of this working directory is a local *git repository* (or "repo" for short). This git repository keeps track of all the files and when it notes that files have been changed, added, or deleted, it will let us know. We can then add those changes to a *staging area*. When we are ready, we *commit* all of the changes in the staging area to our local repo. our local repository will then have a history of all the changes to our project, including a brief commit message that accompanies every commit.
+
+All of this is happening on our local computer. However, we will also have a *remote* repo somewhere else. In our case, that repo will live on GitHub. That repo may be shared with other collaborators. To ensure that those collaborators get any changes that we have made, we then *push* all changes from our local repo to the remote repo. Its also possible that our collaborators made changes that we don't have, so we also can *pull* changes from the remote repo to our local repo and working directory.
+
+This commit-push-pull routine is the basic git workflow. It all may seem like a lot to take in, but with a little practice, it will quickly become second nature and habitual.
+
+## Using `usethis`
+
+We are going to use an R package called `usethis` to simplify some of the tasks involved with setting up git on your local computer. Later in this book, I will talk about *R* packages in more detail and how to install and use them. For now, you simply need to type the command below into the *R* console to install the `usethis` package. You can also see how this process should look illustrated in @fig-usethis.
+
+```r
+install.packages("usethis")
+```
+
+![Installing the `usethis` package in RStudio](../images/rstudio_usethis.gif){#fig-usethis}
+
+Later instructions will give you similar code using `usthis` to copy into your R console.
+
+## Installing Git
+
+You can install git on your system by downloading the appropriate files [here](https://git-scm.com/downloads) and installing them on your computer. On most computers, this will not give you a graphical client to open, but it will install git "under the hood" of your computer and make it accessible to RStudio. You may need to restart RStudio to get it to recognize your new git installation.
+
+In order to use git properly, you will need to do configure it. Most importantly, you need to provide a user name and a user email. This name and email will be associated with any commits that you make. 
+
+The easiest way to configure this information is via the `usethis` package, specifically the `use_git_config` command. You can copy and paste the command below, changing the name and email as appropriate.
+
+```r
+usethis::use_git_config(user.name = "Your Name Here", 
+                        user.email = "myemail@uoregon.edu")
+```
+
+::: {.callout-tip}
+## Sync your email with GitHub
+
+I would recommend that you use the same email as the one you use to register with GitHub as this will help to link your commits on GitHub to your GitHub user name. 
+:::
+
+While we are here, we will go ahead and run a command called `git_vaccinate` that will set up some standard files that git should ignore:
+
+```r
+usethis::git_vaccinate()
+```
+
+You can check to make sure your configuration was set up correctly with the very useful `git_sitrep` command. 
+
+```r
+usethis::git_sitrep()
+```
+
+@fig-git-config illustrates the process of configuring git and checking the configuration.
+
+![Initial configuration of git using `usethis` in RStudio](../images/rstudio_git_config.gif){#fig-git-config}
+
+## Connecting to GitHub
+
+If you are taking this course from me, we will use GitHub for shared remote repositories. Its important to keep in mind the distinction between git and GitHub. GitHub is just a service that provides free remote git repositories and a variety of additional bells and whistles like wiki's and issue tracking (mostly associated with software development, but also useful for researchers). There are other git repository service providers such as [GitLab](https://gitlab.com/) and [BitBucket](https://bitbucket.org). You can even run remote git repositories off of your own server, if you are daring enough.
+
+When you set up a repository on GitHub, you can decide whether to make it public or private. Public repositories are accessible by anyone on the internet. Private repositories are only accessible by the owner and any specified collaborators. 
+
+
+::: {.callout-caution}
+## Pay attention to GitHub file size limits 
+
+The maximum size for a single file in a GitHub repository is 100 megabytes. This can create problems because git will allow you to commit a file larger than this size but you will not be able to push it up to GitHub, which means you will have to remove it from your commit history to push. If you are writing a script over 100MB, then you are doing it wrong. However, datasets can often be larger than 100MB. R can usually read datasets that have been compressed (e.g. .zip, .gz, .bz2 extension) so keeping your datasets zipped is a good practice to avoid this problem. For really big datasets, you may need to either break up the dataset or host it somewhere else and read it remotely.
+:::
+
+The first step to setting up [GitHub](https://github.com) is to register a free user account. You can then create unlimited private and public repositories.
+
+The trickiest part of working with remote repositories on GitHub is authentication. To push or pull with the remote repo, you will need to be authenticated with GitHub. Unfortunately, GitHub no longer allows you to do this by entering your password. Instead, you will need to create a Personal Access Token (PAT) and cache it on your local computer. This PAT has an expiration to it, so you will need to repeat this process periodically (or when you switch to a new computer). However, you can always use the instructions here to help make the process easier.
+
+To set up your PAT, follow these steps. First, from RStudio, enter the following command:
+
+```r
+usethis::create_github_token()
+```
+
+This command will open a browser window on GitHub. You may have to log in on the web interface. Once you are logged in, you will be on the page to create a new PAT, which will look something like @fig-gh-pat.
+
+![GitHub page for creating a new Personal Access Token. be sure to name it and set an expiration date.](../images/gh_create_pat.png){#fig-gh-pat}
+
+You will want to name your PAT and I would recommend using a longer expiration date than 30 days. You should not need to change any of the scopes as these are set properly by `usethis`. At the bottom of this page, click the "Generate Token" button and then copy the provided PAT to your clipboard.
+
+Once we have the PAT, we will return to RStudio and type the following:
+
+```r
+gitcreds::gitcreds_set()
+```
+
+This will bring up an option to enter the new credentials. When prompted to do so, you will paste in the PAT. Your PAT will then be cached on your local system and you will authenticate with GitHub automatically.
+
+To check that it worked correctly, you can run `git_sitrep` again:
+
+```r
+usethis::git_sitrep()
+```
+
+You should see a line like this:
+
+```r
+Personal access token for 'https://github.com': '<discovered>'
+```
+
+## Cloning a Repository
+
+Now that we have everything set up on our local computer and GitHub, we can copy a remote repository on GitHub to our local computer. This process is called *cloning*. As an exercise, you can try cloning this appropriately named [example git repo](https://github.com/AaronGullickson/git_example_repo) from my account.
+
+The first step to cloning is to get the address of the remote repository. On the main page of any GitHub repository, you will see a green button titled "Code." Clicking this button will provide a dropdown with the https address we want. Just copy it as I show in @fig-clone-address.
+
+![Copying the https address of a GitHub repository for cloning.](../images/gh_clone_address.gif){#fig-clone-address}
+
+Now I can use RStudio to clone the repository on my local computer. To do this, we need to create a new project in RStudio. Go to "File > New Project" from the menu (or click the gelatinous cube icon). This will bring up the new project wizard dialog. We will choose the following options: Version Control > Git. From here, you can paste the address we copied earlier. You can also specify a name and location for the project directory. Be sure to remember where you put your git repo! @fig-rstudio-clone illustrates the process of cloning a new repository.
+
+![Cloning a repository from RStudio. Don't forget to specify where you want the project to be on your system in the final step.](../images/rstudio_clone.gif){#fig-rstudio-clone}
+You now have an identical copy of the repository from GitHub on your local computer. Additionally, the local git repository recognizes the remote repository on GitHub as the "origin" repository and so it will already know where to push and pull. 
+
+To use the git tools in RStudio, you will need to open the RStudio project you just created within RStudio. You can do this from the drop down project menu in the upper right of RStudio or from the File menu. The easiest way to open up a project however is to navigate to it in your computer's filesystem and double click the "*.Rproj" file located in the project directory. This will open up RStudio with the project loaded.
+
+When you are within a project in RStudio, you will see a "Git" tab in the upper right panel. This tab has all the functionality we need for working with git. If you do not see this tab, then you are not in the project and will need to open it up in order to access the project. @fig-open-project illustrates the process of opening an RStudio project.
+
+![Opening an RStudio Project in RStudio. Notice that initially no git tab is shown because I am not in my project. Opening the project directly allows me to see the git tab.](../images/rstudio_open_project.gif){#fig-open-project}
+
+## The Basic Git Workflow
+
+We are now set up to use the basic git workflow. This workflow is as follows:
+
+1. *Commit* changes to your local files to the local repository.
+2. *Push* committed changes from the local repository to the remote repository.
+3. *Pull* other changes from the remote repository to your local repository.
+
+Lets dive into each of these elements in detail.
+
+
+### Commit Changes
+
+Any time you make a change to a file in your project directory, that change will be noted by git. However, the change will not be automatically added to your repository. To get those changes to show up in the repository, you have to commit those changes. You can commit changes from multiple files in a single commit. When you make the commit you will also write a brief commit message about those changes.
+
+It is best to make commits in small logical chunks. A single commit shouldn't include changes that are doing several different things at once. This will make it easier to read and understand your commit log later and it will also make it easier to back out changes you made if you decide you don't like them. A poor approach, but often common among novices, would be to simply commit everything you worked on over the day in one big batch. Your future self will not appreciate this approach! Instead, make it a habit to commit regularly, as you move from one task to another, so that the commits have a logical structure.
+
+You will be able to see files that have changes to them (or new/deleted files) in the git tab in RStudio. This is git telling you that you have changes that are currently uncommitted. You may have noticed that at the end of @fig-open-project, there was one new file entitled `git_example_repo.Rproj`. This is the RStudio project file that was created when we cloned the repository. Lets go ahead and commit that now as I show in @fig-commit.
+
+![Making a commit from within RStudio. Don't forget to click the stage button and write a commit message. If you forget these two things, the commit won't happen.](../images/rstudio_commit.gif){#fig-commit}
+
+As @fig-commit shows, committing is as simple as clicking the "Commit" button from the git tab. You can then choose which file changes you want to commit by clicking the "Stage" check box. You also must write a commit message. Notice how I then use the "History" dialog to check to make sure my commit went through. Thats all there is to it. If you make it a practice, it will become habitual.
+
+Lets linger for a moment on the commit message that I wrote. A good commit message should be short and start with a verb (whether past or present tense I leave to you). Make it a practice to start all of your commit messages with verbs and to explain briefly what the commit does. Don't be in such a hurry that you just starting writing "stuff" or "things." Again, your future self will not appreciate it.
+
+::: {.callout-caution}
+## Committing is Local Only
+
+Remember that all you are doing when you commit is telling your *local* git repository to commit the changes to its repository. You are not interacting with the remote repository at all. We do that later using a *push*. It is common for students to tell me they made a change that I should be able to see it, but I cannot see it because they only committed and did not push.
+:::
+
+### Pushing Changes
+
+Now that I have made a commit to my local machine that the remote does not have, I am "ahead" of the remote repository. You may have noticed in @fig-commit that the git tab told me this as well. The next step in the basic git workflow is to push all of my new commits up to the remote repository. Luckily, this step is super easy. On the git tab, you will see a green up arrow. Clicking that button will push your changes as shown in @fig-push.
+
+![Pushing changes to my remote repository is as simple as pushing a button.](../images/rstudio_push.gif){#fig-push}
+
+Although this process is usually simple, there is one important issue you may encounter that thankfully has a simple solution. The remote repository may also contain work that *you* do not have, possibly by a collaborator. If it does, you will not be allowed to push until you have pulled down those changes. When you try to push, you will see a message to this effect. The simple solution is to first pull (as described below) and then you will be able to push.
+
+### Pulling Changes
+
+If you are working with collaborators, they may also be pushing up changes to the remote repository. You won't automatically have access to those changes until you *pull* them down from the remote repository. Again, as @fig-pull shows, this is as easy as pushing a button.
+
+![Pulling changes from the remote repository is also as simple as pushing a button.](../images/rstudio_pull.gif){#fig-pull}
+
+As you can see from @fig-pull, there were no changes to be applied in this case. If there were changes my files would now reflect those changes. 
+
+One important issue you can run into when you pull is a conflict. A conflict occurs when you have made a change to your local repository that changes the same line of code as another change you pull down from the remote repository. When this happens, you will need to resolve the conflict on your local machine and then commit and push the resolution. Generally, conflicts can be avoided in bigger projects by branching and pull requests which I discuss below in the Advanced Git section.
+
+## Thinking in Git
+
+### Plain Text is Better
+
+Version control systems work best when your files are written in a simple plain text format rather than as binary files. Version control systems can get inside of a plain text file and document changes line to line. Version control can only tell that a binary file was changed, without information about the changes within the binary file. This makes is much easier to log, document, and merge changes in plain text files than in binary files.
+
+All of the scripts that we typically write are plain text files. A lot of the datasets that we use (but not all) are in plain text CSV or fixed-width format. Most academics, however, are more familiar with writing their papers in a WYSIWIG document processing format like Microsoft Word, which saves files as a binary. You can still use binary documents like Word documents in a version control system but will not see as much benefit. However, later in this book, we will learn how to write papers using Quarto which will allow you to use plain text throughout your project.
+
+### Stop Making Messes
+
+### Organize Your Work in Discrete Chunks
+
+## Advanced Git
+
+### Setting Up a Local Repo
+
+The basic idea of git is that your project directory is stored in a repository. This repository keeps a record of all changes made to the project. The repository lives in the same place as your project directory, but it is not the same as the project directory.
+
+You can set up a new git repository from within RStudio using the “File > New Project” menu option. From the dialog window that opens, select “New Directory” and then “New Project.” On the “Create New Project” window, be sure to check “Create a git repository” and then give the directory a name and location. You can see from the screenshot below that I am creating a new test_project on my desktop.
+
+![Setting up new project with Git](resources/using_git_screenshots/git_new_project.png)
+
+You will now see a couple of files in your new directory. The .gitignore file contains a list of files that you want git to ignore (i.e. not track changes). The Rproj file keeps track of this directory as a project in RStudio. You can double-click this file from your file browser to open up the project in RStudio.
+
+![Git Project View](resources/using_git_screenshots/git_tab.png)
+
+Most importantly, you will notice a new “Git” tab in the upper right panel. This is where the magic happens. This tab is already listing two files in the workspace as different from the repository. Next we will learn how to commit these changed files to the
+
+### Branching
+
+### Merging Pull Requests
+
+### Using the Command Line
+
+We will use the git tab interface in RStudio for all of our gitting needs this term, but its useful to know the actual command line interface as well for potential problem shooting. For this section, I will use the same "test_project" I described above as an example. 
+
+
+You should be able to access a command line interface with the "Terminal" tab in the main window of RStudio. This will probably show up by default in MacOSX. If not, you should be able to bring up a new one with Tools > Terminal > New Terminal. It may not show up in Windows, but you can also get a command line interface in Windows using the "git-bash" application that came with Git. 
+
+The terminal will look very similar to the command line interface of R, but this command line is actually interfacing directly with the command line of your computer, not R. Like R, it expects the commands to be executed in the correct working directory. You can change working directories with the *cd* command (short for "change directory").
+
+Once in the correct directory, you can run git commands. All git commands are two words with the first word being "git". The first and most useful git command is **git status**.
+
+```bash
+git status
+```
+
+```bash
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        .gitignore
+        test_project.Rproj
+
+nothing added to commit but untracked files present (use "git add" to track)
+```
+
+This command tells me the current state of my repository. It shows here that I have two untracked files that have not been committed to the repository. Committing these files is a two-step process. First I need to use the **git add** command followed by the file names (and paths if in sub-directories) to the staging area:
+
+```bash
+git add .gitignore test_project.Rproj
+git status
+```
+
+```bash
+On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+
+        new file:   .gitignore
+        new file:   test_project.Rproj
+```
+
+The status command now shows the files are staged and ready to be committed. I can now commit them with the **git commit** command. I will use the "-m" option to specify a log message.
+
+```bash
+git commit -m "initial commit of project files"
+git status
+```
+
+```bash
+On branch master
+nothing to commit, working tree clean
+```
+
+Git is now telling me that everything looks good. I have no other uncommitted changes in my repository. If I make new files or edit existing files, I can then repeat this two step process of adding and committing files.
+
+I can also use **git log** to show the history of all my commits:
+
+```bash
+git log
+```
+
+```bash
+commit 35a0940b190dab64a08a5cad5025eb045ac7d353 (HEAD -> master)
+Author: Aaron Gullickson <aarong@uoregon.edu>
+Date:   Mon Jan 27 10:17:40 2020 -0800
+
+    initial commit of project files
+```
+
+In this case its showing me the only commit that I made, when I made it and the commit message that I included. It also gives a unique ID for the commit. 
+
+I can also push and pull my changes but first I need a remote repository. You can set up a new empty repository on GitHub through the GitHub web interface. GitHub will then nicely give you information on how to get your local repository up the remote one:
+
+![Creating project from GitHub](resources/using_git_screenshots/github_new_repo.png)
+
+The first thing we have to do is create a new "origin" remote repository. We can do this with the **git remote** command:
+
+```bash
+git remote add origin https://github.com/AaronGullickson/test_project.git
+```
+
+Note that I could have called this anything I wanted, but "origin" is the general practice. Now that I have the remote repository's address set up, I can use the **git push** command to upload the contents of my local repository to GitHub:
+
+```bash
+git push -u origin master
+```
+
+```bash
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 12 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (4/4), 457 bytes | 457.00 KiB/s, done.
+Total 4 (delta 0), reused 0 (delta 0)
+To https://github.com/AaronGullickson/test_project.git
+ * [new branch]      master -> master
+Branch 'master' set up to track remote branch 'master' from 'origin'.
+```
+
+It looks like everything worked. The first time I do this I need to specify the names of the repositories involved ("origin master"), but I  also include the "-u" command which will tell git to treat the origin remote repository as my default "upstream" repository in the future. In the future, I will then just need to type "git push" to do the same operation.
+
+If someone else were to make changes to the remote repository, I could then use the *git pull* command to integrate them into my local repository.
+
+
+
+## Relics
+
+
+
+I am going to make one simple change to the analysis.R file in this directory. I am going to add the following simple comment right below the file header:
+
+```
+#This is an example comment for Sociology 512
+```
+
+I then commit those changes:
+
+Its important to understand clearly what I have and have not done at this point. I **have** made a change to my **local** workspace and committed that change to my **local** repository. But nobody else in the world knows about this change yet because I **have not** made any changes to the **remote** repository from GitHub. The Git tab in RStudio provides me an important reminder of this fact:
+
+![Git reminder](resources/using_git_screenshots/git_reminder.png)
+
+It is telling me that my repository is one commit ahead of the origin repository on GitHub. Let me pause for an important note on nomenclature. The master repository is always your own local repository. The origin repository is the place from which you cloned your local repository. You can change this name and you can link to multiple remote repositories but we won’t get that complex at the moment.
+
+What we want to do is **push** the changes in our repository to the remote repository on GitHub. We can do this as easy as falling off a log by clicking the big green button in the Git tab. The first time you do this, you will be asked for your GitHub password. I give the password, and git pushes my changes. If you now look at this file on the GitHub repository, you will see the new comment.
+
+What if I want to get any changes that might have been made by someone else to the GitHub repository? I can get those changes easily enough by **pulling** from the GitHub repository. RStudio makes this easy with the big blue button pointing down.
+
+Sometimes you may need to merge in changes from someone else when you push and pull. This can usually be handled gracefully, but occasionally you may run into conflicts if you both changed the same line of code. In those cases, git will leave both versions of the code in the document and you will have to make a decision about how to integrate them. If you are working on some big changes with collaborators then a better solution is to create a separate [branch](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) and then use the [pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) system in GitHub to help manage conflicts, but that is beyond what we will learn for the basics. 
+
