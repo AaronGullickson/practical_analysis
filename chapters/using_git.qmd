@@ -238,23 +238,33 @@ All of the scripts that we typically write are plain text files. A lot of the da
 
 ## Advanced Git
 
+The information above gives you a basic foundation for working with git, but as you develop your skills you will likely want to know how to do more with git. You can revisit this section to learn more about some advanced git features.
+
 ### Setting Up a Local Repo
 
-The basic idea of git is that your project directory is stored in a repository. This repository keeps a record of all changes made to the project. The repository lives in the same place as your project directory, but it is not the same as the project directory.
+I showed you above how to clone an existing repository from GitHub to your local computer. What if you have an existing local project directory that you want to turn into a git repository with an associated remote repository on GitHub? It turns out that we can do this very easily with the `usethis` package.
 
-You can set up a new git repository from within RStudio using the “File > New Project” menu option. From the dialog window that opens, select “New Directory” and then “New Project.” On the “Create New Project” window, be sure to check “Create a git repository” and then give the directory a name and location. You can see from the screenshot below that I am creating a new test_project on my desktop.
+I am assuming that you already have an existing project directory on your computer with associated scripts and data files. The first step is to navigate to your project using the Files tab in RStudio and then to set this directory as your working directory. @fig-working-directory shows you how to do this with an example.
 
-![Setting up new project with Git](resources/using_git_screenshots/git_new_project.png)
+![You can set the working directory for your project from the "More" button in the Files tab of RStudio. The current working directory will appear above the R console.](../images/rstudio_working_directory.gif){#fig-working-directory}
 
-You will now see a couple of files in your new directory. The .gitignore file contains a list of files that you want git to ignore (i.e. not track changes). The Rproj file keeps track of this directory as a project in RStudio. You can double-click this file from your file browser to open up the project in RStudio.
+Now that we have the working directory set up we can use commands from the usethis package to do the following:
 
-![Git Project View](resources/using_git_screenshots/git_tab.png)
+1. `usethis::create_project(".")` to turn the working directory into a RStudio project.
+2. `usethis::use_git()` to initialize a git repository for the project. You can choose from the options to have all files committed in an initial commit, or you can make the first commit yourself manually.
+3. `usethis::use_github(private=TRUE)` to create a GitHub remote repository and push your commits to it. You can set `private=FALSE` if you want to make it public.
 
-Most importantly, you will notice a new “Git” tab in the upper right panel. This is where the magic happens. This tab is already listing two files in the workspace as different from the repository. Next we will learn how to commit these changed files to the
+@fig-setup-repo shows the entire process in action. Note that `usethis` will also create a `.gitignore` file and an `Rproj` file as part of this process.
+
+![Turn a project directory into a local git repository and create a mirrored remote repository on GitHub. Make sure you are in the correct working directory before you start.](../images/rstudio_setup_repo.gif){#fig-setup-repo}
+
+With these tools, its almost too easy to create a new git repository. However, in practice, I would recommend that you start new projects from GitHub and then clone them down rather than use this approach. The reason I recommend that you start on GitHub is that you can create a template repository on GitHub and then use that template to create new repositories on GitHub. As an example, you can view the [template](https://github.com/AaronGullickson/research-template) that I use to start all of my research projects. Just by clicking the "Use this template" button on that page, you can create your own repository with this basic project skeleton. To create your own template, you can just turn any repository on GitHub into a template from the repository settings tab.
 
 ### Branching
 
 ### Merging Pull Requests
+
+### Ignoring Stuff
 
 ### Using the Command Line
 
@@ -267,128 +277,9 @@ The terminal will look very similar to the command line interface of R, but this
 
 Once in the correct directory, you can run git commands. All git commands are two words with the first word being "git". The first and most useful git command is **git status**.
 
-```bash
-git status
-```
-
-```bash
-On branch master
-
-No commits yet
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-
-        .gitignore
-        test_project.Rproj
-
-nothing added to commit but untracked files present (use "git add" to track)
-```
-
-This command tells me the current state of my repository. It shows here that I have two untracked files that have not been committed to the repository. Committing these files is a two-step process. First I need to use the **git add** command followed by the file names (and paths if in sub-directories) to the staging area:
-
-```bash
-git add .gitignore test_project.Rproj
-git status
-```
-
-```bash
-On branch master
-
-No commits yet
-
-Changes to be committed:
-  (use "git rm --cached <file>..." to unstage)
-
-        new file:   .gitignore
-        new file:   test_project.Rproj
-```
-
-The status command now shows the files are staged and ready to be committed. I can now commit them with the **git commit** command. I will use the "-m" option to specify a log message.
-
-```bash
-git commit -m "initial commit of project files"
-git status
-```
-
-```bash
-On branch master
-nothing to commit, working tree clean
-```
-
-Git is now telling me that everything looks good. I have no other uncommitted changes in my repository. If I make new files or edit existing files, I can then repeat this two step process of adding and committing files.
-
-I can also use **git log** to show the history of all my commits:
-
-```bash
-git log
-```
-
-```bash
-commit 35a0940b190dab64a08a5cad5025eb045ac7d353 (HEAD -> master)
-Author: Aaron Gullickson <aarong@uoregon.edu>
-Date:   Mon Jan 27 10:17:40 2020 -0800
-
-    initial commit of project files
-```
-
-In this case its showing me the only commit that I made, when I made it and the commit message that I included. It also gives a unique ID for the commit. 
-
-I can also push and pull my changes but first I need a remote repository. You can set up a new empty repository on GitHub through the GitHub web interface. GitHub will then nicely give you information on how to get your local repository up the remote one:
-
-![Creating project from GitHub](resources/using_git_screenshots/github_new_repo.png)
-
-The first thing we have to do is create a new "origin" remote repository. We can do this with the **git remote** command:
-
-```bash
-git remote add origin https://github.com/AaronGullickson/test_project.git
-```
-
-Note that I could have called this anything I wanted, but "origin" is the general practice. Now that I have the remote repository's address set up, I can use the **git push** command to upload the contents of my local repository to GitHub:
-
-```bash
-git push -u origin master
-```
-
-```bash
-Enumerating objects: 4, done.
-Counting objects: 100% (4/4), done.
-Delta compression using up to 12 threads
-Compressing objects: 100% (3/3), done.
-Writing objects: 100% (4/4), 457 bytes | 457.00 KiB/s, done.
-Total 4 (delta 0), reused 0 (delta 0)
-To https://github.com/AaronGullickson/test_project.git
- * [new branch]      master -> master
-Branch 'master' set up to track remote branch 'master' from 'origin'.
-```
-
-It looks like everything worked. The first time I do this I need to specify the names of the repositories involved ("origin master"), but I  also include the "-u" command which will tell git to treat the origin remote repository as my default "upstream" repository in the future. In the future, I will then just need to type "git push" to do the same operation.
-
-If someone else were to make changes to the remote repository, I could then use the *git pull* command to integrate them into my local repository.
-
-
-
-## Relics
-
-
-
-I am going to make one simple change to the analysis.R file in this directory. I am going to add the following simple comment right below the file header:
-
-```
-#This is an example comment for Sociology 512
-```
-
-I then commit those changes:
-
-Its important to understand clearly what I have and have not done at this point. I **have** made a change to my **local** workspace and committed that change to my **local** repository. But nobody else in the world knows about this change yet because I **have not** made any changes to the **remote** repository from GitHub. The Git tab in RStudio provides me an important reminder of this fact:
-
-![Git reminder](resources/using_git_screenshots/git_reminder.png)
-
-It is telling me that my repository is one commit ahead of the origin repository on GitHub. Let me pause for an important note on nomenclature. The master repository is always your own local repository. The origin repository is the place from which you cloned your local repository. You can change this name and you can link to multiple remote repositories but we won’t get that complex at the moment.
-
-What we want to do is **push** the changes in our repository to the remote repository on GitHub. We can do this as easy as falling off a log by clicking the big green button in the Git tab. The first time you do this, you will be asked for your GitHub password. I give the password, and git pushes my changes. If you now look at this file on the GitHub repository, you will see the new comment.
-
-What if I want to get any changes that might have been made by someone else to the GitHub repository? I can get those changes easily enough by **pulling** from the GitHub repository. RStudio makes this easy with the big blue button pointing down.
-
-Sometimes you may need to merge in changes from someone else when you push and pull. This can usually be handled gracefully, but occasionally you may run into conflicts if you both changed the same line of code. In those cases, git will leave both versions of the code in the document and you will have to make a decision about how to integrate them. If you are working on some big changes with collaborators then a better solution is to create a separate [branch](https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) and then use the [pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests) system in GitHub to help manage conflicts, but that is beyond what we will learn for the basics. 
+1. git status
+2. git commit -m "commit message"
+3. git push
+4. git pull
+5. git log 
 
