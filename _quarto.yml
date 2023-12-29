@@ -5,12 +5,14 @@ project:
   execute-dir: project
 
 book:
-  title: "Practical Data Analysis in Sociology"
+  title: "Practical Data Analysis in Sociology Using R"
   author: "Aaron Gullickson"
   chapters:
     - index.qmd
-    - chapters/understanding_workflow.qmd
-    - chapters/using_git.qmd
+    - part: "Preliminaries"
+      chapters:
+        - chapters/understanding_workflow.qmd
+        - chapters/using_git.qmd
     - part: "R Basics"
       chapters:
         - chapters/creating_objects.qmd
@@ -19,7 +21,7 @@ book:
         - chapters/adding_packages.qmd
     - part: "The Tidyverse"
       chapters: 
-        - chapters/learning_tidyverse.qmd
+        - chapters/becoming_tidyversant.qmd
         - chapters/piping_power.qmd
         - chapters/making_pictures.qmd
         - chapters/writing_quarto.qmd
