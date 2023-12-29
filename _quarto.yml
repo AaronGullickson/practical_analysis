@@ -9,20 +9,14 @@ book:
   author: "Aaron Gullickson"
   chapters:
     - index.qmd
-    - part: "Preliminaries"
+    - part: "Foundations"
       chapters:
         - chapters/understanding_workflow.qmd
         - chapters/using_git.qmd
-    - part: "R Basics"
-      chapters:
-        - chapters/creating_objects.qmd
-        - chapters/using_functions.qmd
-        - chapters/making_scripts.qmd
-        - chapters/adding_packages.qmd
+        - chapters/learning_r.qmd
     - part: "The Tidyverse"
       chapters: 
         - chapters/becoming_tidyversant.qmd
-        - chapters/piping_power.qmd
         - chapters/making_pictures.qmd
         - chapters/writing_quarto.qmd
     - part: "Data Wrangling"
@@ -34,7 +28,7 @@ book:
     - part: "Programmming"
       chapters:
         - chapters/iterating_speed.qmd
-        - chapters/writing_functions.qmd
+        - chapters/creating_functions.qmd
   appendices:
         - appendices/useful_code_snippets.qmd
 
