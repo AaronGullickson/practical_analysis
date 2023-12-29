@@ -34,7 +34,7 @@ Git itself is a command-line program which means you type in commands to a termi
 
 @fig-workflow shows a basic git workflow as illustrated by the amazing [Allison Horst](https://allisonhorst.com). Lets walk briefly walk through what this illustration is showing us.
 
-![A Basic Git Workflow. Artwork by [\@allison_horst](https://twitter.com/allison_horst)](../images/git_workflow.png){#fig-workflow}
+![A Basic Git Workflow. Artwork by [\@allison_horst](https://twitter.com/allison_horst).](../images/git_workflow.png){#fig-workflow}
 
 We start with our *working directory*. This is the directory on our local computer that contains all of the files for our project, including scripts, data, and other assorted files. Living inside of this working directory is a local *git repository* (or "repo" for short). This git repository keeps track of all the files and when it notes that files have been changed, added, or deleted, it will let us know. We can then add those changes to a *staging area*. When we are ready, we *commit* all of the changes in the staging area to our local repo. our local repository will then have a history of all the changes to our project, including a brief commit message that accompanies every commit.
 
@@ -42,7 +42,7 @@ All of this is happening on our local computer. However, we will also have a *re
 
 This commit-push-pull routine is the basic git workflow. It all may seem like a lot to take in, but with a little practice, it will quickly become second nature and habitual.
 
-## Using `usethis`
+## You Should `usethis`
 
 We are going to use an R package called `usethis` to simplify some of the tasks involved with setting up git on your local computer. Later in this book, I will talk about *R* packages in more detail and how to install and use them. For now, you simply need to type the command below into the *R* console to install the `usethis` package. You can also see how this process should look illustrated in @fig-usethis.
 
@@ -208,15 +208,33 @@ One important issue you can run into when you pull is a conflict. A conflict occ
 
 ## Thinking in Git
 
-### Plain Text is Better
-
-Version control systems work best when your files are written in a simple plain text format rather than as binary files. Version control systems can get inside of a plain text file and document changes line to line. Version control can only tell that a binary file was changed, without information about the changes within the binary file. This makes is much easier to log, document, and merge changes in plain text files than in binary files.
-
-All of the scripts that we typically write are plain text files. A lot of the datasets that we use (but not all) are in plain text CSV or fixed-width format. Most academics, however, are more familiar with writing their papers in a WYSIWIG document processing format like Microsoft Word, which saves files as a binary. You can still use binary documents like Word documents in a version control system but will not see as much benefit. However, later in this book, we will learn how to write papers using Quarto which will allow you to use plain text throughout your project.
+I know that git can seem confusing if you have never used anything like it before. However, learning the basic workflow is surprisingly easy and if you truly embrace a git way of thinking, it can dramatically improve your research practices. Below I describe some ways that you can start to "think in git" to improve your practices.
 
 ### Stop Making Messes
 
-### Organize Your Work in Discrete Chunks
+In practice, academics often practice a form of version control that I call "horizontal version control." You want to try something out but not sure if it will work out? Just make a copy of the script and ad something like "V2" or the date or some other way of tracking differences. Although it may seem initially like an easy and quick fix to a problem, this approach will lead over time to a very messy workspace. Your directory will be littered with nearly identical scripts all with slightly different names (and an often inconsistent version naming system). Figuring what is what can become nearly impossible - only you know the correct way through this thicket of scripts and files to produce your results. And over time, even you may forget how to navigate the jungle. 
+
+This approach to version control is fear-based. The fear is that if we make changes to an existing script we may lost something valuable and the new thing that we are trying may not work. The illustration at the top of this chapter uses the analogy of rock climbing. Your fear comes from the fact that you are scaling a cliff without any protection. But if you practice proper "vertical" version control, then you can code without fear. Every change to your project has been recorded in the git repository and can be retrieved at any point. Your commits are like your pitons - you can always fall back on them.
+
+In fact, let me show you two ways you can recover your project state at any point when you use git. @fig-browse-git-history shows how you can use GitHub to browse your project at any given state. You simply click on the commit history and then the `<>` icon for a given commit and you will be able to browse your project as it was at that state. Nothing is every lost.
+
+![You can browse your project at any commit state on GitHub.](../images/gh_browse_history.gif){#fig-browse-git-history}
+
+Second, if you are trying to do something with a script and you decide you don't like it, you can very easily roll back the state of that script to the last commit. @fig-git-rollback shows you how to do that in RStudio.
+
+![You can roll back changes in your script to the last git commit by right-clicking on the file in the git tab and selecting "Revert."](../images/rstudio_rollback.gif){#fig-git-rollback}
+
+There are other ways that we can recover changes to, some of which are covered in the Advanced Git section below. But the fundamental lesson is that you should never make duplicates of files because you are afraid of losing something. Git has your back and that allows you to maintain a minimalistic project directory with only the files you need.
+
+### Work Discretely
+
+What do I mean by discrete? I mean that you should organize your work with a care to producing logical and thematic commits to your repository. These commits can often be small, and there is power in the feeling of a small victory when you push that commit button. By thinking through your to-do list in terms of "what commits can I do today?" you can organize your work more efficiently. As you get used to this style of work, you will find that you will begin to habitually organize your work into small discrete tasks.
+
+### Plain Text is Better
+
+Version control systems like git work best when your files are written in a simple plain text format rather than as binary files. Git can get inside of a plain text file and document changes line to line. Git can only tell that a binary file was changed, without information about the changes within the binary file. This makes is much easier to log, document, and merge changes in plain text files than in binary files.
+
+All of the scripts that we typically write are plain text files. A lot of the datasets that we use (but not all) are in plain text CSV or fixed-width format. Most academics, however, are more familiar with writing their papers in a WYSIWIG document processing format like Microsoft Word, which saves files as a binary. You can still use binary documents like Word documents in a version control system but will not see as much benefit. To fully embrace the git approach to project managaement, you should use plain text documents whenever possible. Later in this book, we will learn how to write papers using Quarto which will allow you to use plain text throughout your project, including for writing manuscripts and making presentations.
 
 ## Advanced Git
 
