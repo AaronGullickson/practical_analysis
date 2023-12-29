@@ -1,5 +1,7 @@
 # Using Git for Sanity {#using-git}
 
+![Illustration from the [Openscapes](https://www.openscapes.org) blog [GitHub for supporting, contributing, and failing safely](https://www.openscapes.org/blog/2022/05/27/github-illustrated-series/) by Allison Horst and Julia Lowndes](../images/git_climbing.png)
+
 This book will focus on using *R* for data analysis, but we aren't going to start with learning *R*. Instead we are first going to learn *git*. What is a git, you ask? Git is a version control system. If you have never used a version control system before, it will initially seem esoteric and confusing. However, after a bit of practice you will quickly see the many benefits of using a version control system in your work.
 
 Version control systems allow you to track changes to files within a directory and to distribute changes to files to other collaborators. They also allow you to revert changes and to merge any changes made by different collaborators. Version control systems have been used by developers for decades to manage collaborative projects and to keep track of changes.
@@ -32,7 +34,7 @@ Git itself is a command-line program which means you type in commands to a termi
 
 @fig-workflow shows a basic git workflow as illustrated by the amazing [Allison Horst](https://allisonhorst.com). Lets walk briefly walk through what this illustration is showing us.
 
-![A Basic Git Workflow, as illustrated by Allison Horst](../images/git_workflow.png){#fig-workflow}
+![A Basic Git Workflow. Artwork by [\@allison_horst](https://twitter.com/allison_horst)](../images/git_workflow.png){#fig-workflow}
 
 We start with our *working directory*. This is the directory on our local computer that contains all of the files for our project, including scripts, data, and other assorted files. Living inside of this working directory is a local *git repository* (or "repo" for short). This git repository keeps track of all the files and when it notes that files have been changed, added, or deleted, it will let us know. We can then add those changes to a *staging area*. When we are ready, we *commit* all of the changes in the staging area to our local repo. our local repository will then have a history of all the changes to our project, including a brief commit message that accompanies every commit.
 
