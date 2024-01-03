@@ -258,13 +258,93 @@ Now that we have the working directory set up we can use commands from the useth
 
 ![Turn a project directory into a local git repository and create a mirrored remote repository on GitHub. Make sure you are in the correct working directory before you start.](../images/rstudio_setup_repo.gif){#fig-setup-repo}
 
-With these tools, its almost too easy to create a new git repository. However, in practice, I would recommend that you start new projects from GitHub and then clone them down rather than use this approach. The reason I recommend that you start on GitHub is that you can create a template repository on GitHub and then use that template to create new repositories on GitHub. As an example, you can view the [template](https://github.com/AaronGullickson/research-template) that I use to start all of my research projects. Just by clicking the "Use this template" button on that page, you can create your own repository with this basic project skeleton. To create your own template, you can just turn any repository on GitHub into a template from the repository settings tab.
+With these tools, its almost too easy to create a new git repository. However, in practice, I would recommend that you start new projects from GitHub and then clone the project down rather than start local and push up, because you can create a template repository on GitHub and then use that template to create new repositories on GitHub. As an example, you can view the [template](https://github.com/AaronGullickson/research-template) that I use to start all of my research projects. Just by clicking the "Use this template" button on that page, you can create your own repository with this basic project skeleton. To create your own template, you can just turn any repository on GitHub into a template from the repository settings tab.
 
-### Branching
+### Branching and Pull Requests
 
-### Merging Pull Requests
+So far, I have shown you how to commit and push your changes. But what if other people are also making changes, committing, and pushing them. Sooner or later, you will run into a conflict where two different commits change the same line of code. Such conflicts can be resolved, but the easier approach is to avoid them by branching and pull request. If you are working on a solo project or one with a clear division of labor, branching might not be necessary. However, if you are working on a project with even a small number of collaborators contributing code, you should probably branch and use pull requests to make changes. If you are taking this course from me, then the primary way you will see pull requests is when I make corrections to your code.
+
+By default, when you commit to your git repository, you are working on a "main" or "master" branch. This is the default branch, but at any given commit you can create a separate branch of the code and make commits to it. Once you are satisfied with your code, you can then *merge* the changes in that branch back into to the main/master branch (handling conflicts at that point). In practice, most people do the merging via a *pull request* on GitHub. @fig-branch visualizes a simple case of branching and merging.
+
+```{mermaid}
+%%| label: fig-branch
+%%| fig-cap: Visualization of branching in a git repository.A separate branch is created off of commit `1-6e992e3`. Two commits are then made to this branch while an additional commit (`4-107fae6`) is made to the main branch. The commits from the try-a-thing branch are then merged back into the main branch.
+%%{init: { 'logLevel': 'debug', 'theme': 'default' , 'themeVariables': {
+              'git0': '#87ceeb',
+              'git1': '#FFD700',
+              'git2': '#32CD32'
+       } } }%%
+gitGraph
+   commit
+   commit
+   branch try-a-thing
+   checkout try-a-thing
+   commit
+   commit
+   checkout main
+   commit
+   merge try-a-thing
+   commit
+```
+
+Creating and switching branches is easy in RStudio. The most important thing to remember is that you will always branch off of whatever branch you are currently on. So, always make sure you are on the main/master branch when you create a new branch (unless you are getting really fancy and branching off other branches). The git tab in RStudio has a dropdown menu of branches that will allow you to switch the branch. When you want to create a new branch just click the "New Branch" button in the git tab and name your branch. @fig-rstudio-branch shows how creating branches works in RStudio.
+
+![You can use the tools in the git tab to create new branches. Note that RStudio will sync your new local branch with the same branch on your remote repo, so you can start committing and pushing right away.](../images/rstudio_branch.gif){#fig-rstudio-branch}
+
+When you are satisfied that the code in your branch is working, you can merge it back into the main/master branch. While you can merge your branch back into the main branch using command line tools, the easiest approach is to use a *pull request* on GitHub. On GitHub, you can create a pull request from any branch of your repository. This will create a web page for your branch where you can write a summary of what the code does and others can review the code. Typically developers use this to review code before merging it into the main branch. One of the most useful features of the pull request is that it will tell you whether there is a conflict with the main/master branch before you merge. It will also offers tools to help resolve the conflict. 
+
+![How to create and merge a pull request on GitHub. If there is a conflict, the button for merging will not be available. Remember to pull down the changes to your main/master branch after merging the pull request.](../images/gh_create_pr.gif){#fig-create-pr}
+
+@fig-create-pr shows how to create and merge a pull request on GitHub. If you are taking this course from me, then the pull request screen will show you changes that I have made to your code along with a variety of comments that you can review. More generally, pull requests are great for when you want to work on a large task that will likely take multiple commits. Even if you are working on a solo project, pull requests can help you keep different tasks organized and well-documented.
+
+::: {.callout-caution}
+## Don't Forget to Pull after you Merge
+
+When you merge the pull request on GitHub, the code is *only* merged into the main/master branch of the GitHub remote repository. To get access to all of that good code on your local repository, remember to switch back over to the master/main branch locally and pull. 
+
+:::
 
 ### Ignoring Stuff
+
+In most cases, you will not want to commit every file in your project directory to your git repository (or "put under version control" to use git lingo). A few common cases are:
+
+1. Junk files created by your operating system like the .DS_Store file that is created in OSX anytime you navigate into a director in the finder, or the temporary backup files that are created as you work in Microsoft Office applications.
+2. "Invisible" files like .Rhistory or .bashrc that are specific to your local system.
+3. Files (often data) that due to privacy concerns you don't want to share in the repository.
+4. Files that are generated by scripts like image PNGs or HTML/PDF documents from quarto.
+
+You can just ignore these files in the git tab manually, but over time, your git tab will become quite cluttered with stuff you are not committing and it will be hard to track and easy to accidentally commit something you did not want to. The solution is the `.gitignore` file. This is a simple text file that lives in your project home directory and lists all of the files that are being ignored. The path to each file that you want ignored should be listed on a single line. You can also [globbing parameters](https://web.mit.edu/racket_v612/amd64_ubuntu1404/racket/doc/file/glob.html) to identify types of files or groups of files by wildcards.
+
+Remember when I had you run `git_vaccinate()` way up above? That command creates a standard .gitignore file that is created in time you clone a git repository using RStudio's new project feature. So, you should see a `.gitignore` file already on any cloned repo. That file will look something like:
+
+```bash
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+.quarto
+```
+
+You can add to this list any additional files you don't want to be tracked. Lets say that you had some Word documents with the `docx` suffix that you want to be ignored. You can add another line with:
+
+```bash
+*.docx
+```
+
+The `*` will match any document in your directory with a `.docx` suffix. You will never see a Word document in your git tab. If later you realize you do want to track a word document you can remove this line (or comment it out with a #).
+
+Another quick and easy way to ignore a document is to right click on it in the git tab. This will bring up a context menu with "Ignore" as one of the options. This will add a line to your `.gitignore` file to start ignoring the file.
+
+::: {.callout-warning}
+## You Cannot Ignore What You Already Track
+
+You can only ignore new files. If you have already committed a file to your git repo, and then later decide to ignore files of its type, changes to that file will still be noticed by git and it will show up as modified in your git tab. The only way to stop tracking files that you are currently tracking is with some more advanced git commands that are beyond the scope of what we cover here. 
+
+The important lesson to take from this is that you should be careful about what you commit. You only want the important stuff up in your repository not the junk, so don't just mindlessly check everything into version control.
+
+:::
+
 
 ### Using the Command Line
 
