@@ -348,18 +348,46 @@ The important lesson to take from this is that you should be careful about what 
 
 ### Using the Command Line
 
-We will use the git tab interface in RStudio for all of our gitting needs this term, but its useful to know the actual command line interface as well for potential problem shooting. For this section, I will use the same "test_project" I described above as an example. 
+I have shown you how to use git through the RStudio interface, but at its core, bit is a *command line* driven program. Just like R, you execute commands by typing them into a console interface. All of the tools in RStudio are just a shell for running that command line interface. You can also interact directly with git from the command line. In most cases, you don't need to do so to do basic tasks, but for more complicated git commands, you may need to use the command line. Thus, it pays to know how to use it.
 
+You can't type git commands from the R console - git commands are run directly from the command line of your operating system. On an OSX or unix-based machine, you can open up a "terminal" to run such commands. The equivalent on Windows is the DOS prompt, but git is designed to work with a unix-style command line inteface. So instead of the command line, git installs a program called "git bash" onto Windows machines that can be used to run unix-style commands. 
 
-You should be able to access a command line interface with the "Terminal" tab in the main window of RStudio. This will probably show up by default in MacOSX. If not, you should be able to bring up a new one with Tools > Terminal > New Terminal. It may not show up in Windows, but you can also get a command line interface in Windows using the "git-bash" application that came with Git. 
+The easiest way to access the prompt you need to run git commands is within RStudio. In the lower left panel where the *R* console lives, you will also see a tab for a "Terminal." If you click on this tab, you will now have access to the operating system command line and you can use it to run git commands (among other things).
 
-The terminal will look very similar to the command line interface of R, but this command line is actually interfacing directly with the command line of your computer, not R. Like R, it expects the commands to be executed in the correct working directory. You can change working directories with the *cd* command (short for "change directory").
+Generally, this terminal will have the same working directory as your *R* console. This is important because git commands should be run from the top-level directory of your repository. You should see the path of your working directory at the top of the terminal. If its not correct, be sure to change your working directory. 
 
-Once in the correct directory, you can run git commands. All git commands are two words with the first word being "git". The first and most useful git command is **git status**.
+All git commands are at least two words and start with "git." Here are the most important git commands and how to use them.
 
-1. git status
-2. git commit -m "commit message"
-3. git push
-4. git pull
-5. git log 
+`git status`
+: Probably the most used command, this command will give you a report of the current status of your git repository, including modified or new files that need to be committed.
 
+`git add`
+: This command will stage files for committing. Its like pushing the checkbox button in RStudio. The command needs to be followed by the names and paths to all files you want to commit. You can use `*` wildcards to stage multiple files at once. Using `git add *` is generally considered bad practice as you can easily end up committing some junk files.
+
+`git commit -m "A commit message"`
+: This command will commit files that you have staged. Note that if you have not run `git add` yet, this command will have nothing to commit. I use the `-m` flag to add a commit message here. If you don't you will end up in a vim text editor (by default) for writing the commit message. Unless you are a real nerd, you want to avoid this, as the vi, text editor is infamous for being [inescapable](https://tutorials.releaseworksacademy.com/learn/how-the-hell-do-i-exit-a-beginners-guide-to-vim). 
+
+`git push`
+: This will push commits up to your remote repository. Technically, you should tell it the name of your remote repository which will usually be "origin" and the name of the branch you are pushing. However, in most cases you should be set up to already push to origin by default and you will push from your current branch, so generally `git push` will work. 
+
+`git pull`
+: This will pull down commits from your default remote repository into your current branch.
+
+`git log`
+: This command will return a history of your commits starting with the most recent one. To get a more compact display of this history you can use the `--oneline` flag for `git log --oneline`. 
+
+`git branch`
+: List all your branches with the current one marked by an `*`. 
+
+`git checkout branch-name`
+: Switch to an existing branch. If you want to create a new branch add a `-b` flag like  `git checkout -b branch-name`.
+
+`git merge branch-name`
+: Merge commits from `branch-name` on to your current branch. I would recommend you generally use pull requests to merge instead.
+
+`git remote -v`
+: This will list your remote repositories. It can be useful if for some reason pushing and pulling aren't working.
+ 
+ @fig-git-cli shows how to use the command line interface to commit and push a change.
+ 
+ ![Committing and pushing changes from the command line within R. Note that you may need to use the refresh button on the git tab to get up-to-date information after using the command line.](../images/rstudio_git_cli.gif){#fig-git-cli}
