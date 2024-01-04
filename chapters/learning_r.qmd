@@ -291,7 +291,7 @@ my_data[,c("age","height")] # age and height of all observations
 
 ## Boolean Statements
 
-One of the most important features in all computer programming languages is the ability to create statements that will evaluate to a "boolean" value of TRUE or FALSE (a "logical" value in *R* parlance). These kinds of statements are called boolean statements. The following basic operators will allow you to make boolean statements in R.  
+One of the most important features in all computer programming languages is the ability to create statements that will evaluate to a "boolean" value of TRUE or FALSE (a "logical" value in *R* parlance). These kinds of statements are called boolean statements. @tbl-boolean-ops shows the basic operators you can use to make boolean statements in *R*.  
 
 | Operator | Meaning               |
 |----------|-----------------------|
@@ -301,6 +301,8 @@ One of the most important features in all computer programming languages is the 
 | >        | greater than          |
 | >=       | less than or equal    |
 | <=       | greater than or equal |
+
+: Boolean operators in *R* {#tbl-boolean-ops}
 
 Note that the "equal to" syntax is two equal signs together. This syntax is necessary because a single equal sign can used for assignment of values to objects. 
 
@@ -351,20 +353,3 @@ Another useful option is the ability to put a `!` sign in front of a logical var
 ## Following Norms
 
 
-
-
-#### The `lapply` command is awesome
-
-Lets say that I just want to get a summary of each object in my list:
-
-```{r}
-summary(my_list)
-```
-
-Well, that was not super helpful. R is giving me a summary of the list itself rather than a summary of each object in the list. What if I want to apply the same function to every object in the list? This is exactly what the `lapply` command does. Feed in a list and a function (even a custom function) and it will sequentally apply that function to each object in the list:
-
-```{r}
-lapply(my_list, summary)
-```
-
-Thats much better. It won't be immediately obvious, but `lapply` turns out to be a very powerful and helpful tool. We will learn more about it later this term. 
