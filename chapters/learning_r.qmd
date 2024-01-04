@@ -1,9 +1,370 @@
 # Learning R Basics {#learning-r-basics}
 
+In this chapter, I will cover the basics of "vanilla" *R*. In the next chapter, we will build on this foundation to learn additional features available from a set of packages known as the "tidyverse." If you have not done so already, it may be useful to review the @using-rstudio appendix to understand the basic structure of RStudio and how to interact with *R*.
+
 ## Creating Objects
+
+*R* is an object-oriented language. In simple terms, that means we can create a variety of different "objects" and then apply commands or methods to these objects. To create an object, we use the assign syntax of `<-` to assign something to a named object. For example:
+
+```{r}
+a <- 3
+```
+
+I have now assigned the numeric value of 3 to an object called `a`. Note that I could have called this object anything I wanted so long as it was one word (e.g. `bob`, `value`). This object will now show up in the environment tab of RStudio as an object loaded into memory. I can then use this variable in other ways, such as:
+
+```{r}
+a+2
+```
+
+*R* is smart enough to realize that I want to add 2 to the value in `a`, and reports that the result is 5.
+
+If you are looking for the `<-` key on your keyboard, you are searching in vain. This symbol is created by combining the less than `<` and dash `-` signs. You can also use a single equals sign `=` to indicate assignment. The `=` is a more common assignment operator in many computer languages, but using `<-` is the norm in *R*.
+
+Objects can come in many different forms. By far the most common object you will use throughout this book and in your daily practice is some form of a `data.frame` which has the typical format we expect of a dataset - observations on the row and variables on the columns. However, the `data.frame` object is a complex object composed of several other different object types. Its useful to build from the ground up the different kinds of standard object types that you will encounter in *R*.
+
+### Atomic Types
+
+The atomic types are the building blocks for other more complex objects. The three most important atomic types for our purposes are:
+
+`numeric`
+: records a numeric value.
+
+`character`:
+records a set of characters. This is often called a *string* or *character string* in computer science parlance. 
+
+`logical`:
+records either a TRUE or FALSE value. In computer science parlance, this is called a *boolean*.
+
+Lets try creating one of each of these types in *R*.
+
+```{r}
+a <- 3.14        # numeric type
+b <- "bob said"  # character string type
+c <- TRUE        # logical type, must be TRUE or FALSE
+```
+
+Note that to create a character string, you must surround it in either single or double quotation marks.
+
+In some cases, you can force, or *recast*, one type into another with commands that start with `as.`. For example, lets say I want to turn object `a` into a character string.
+
+```{r}
+as.character(a)
+```
+
+It still looks like a number but the quotes give us a hint that it is actually a character string. As a result you cannot perform math on it as we did above:
+
+```{r}
+#| error: true
+as.character(a)+2
+```
+
+We can also force logicals into numeric values where TRUE=1 and FALSE=0. Alternatively, if we have a 1 or 0 numeric value, we can recast it as a logical.
+
+```{r}
+as.numeric(c)
+as.logical(0)
+```
+
+However, you can't recast a character string as anything else:
+
+```{r}
+as.numeric(b)
+```
+
+The result here is an `NA` value which is a special value tracked in *R* and generally used for missing values.
+
+### Vectors
+
+You can combine a bunch of values of the same atomic type together into a single *vector*. A vector is what we use to record all of the values for a single variable. 
+
+To manually construct a vector, you can use the concatenation function `c()`. Inside the parenthesis we put all the values we want separated by commas. Lets do that to create several variables for a fictitious dataset.
+
+```{r}
+name <- c("Bob", "Juan", "Maria", "Jane", "Howie")
+age <- c(15, 25, 19, 12, 21)
+ate_breakfast <- c(TRUE, FALSE, TRUE, TRUE, FALSE)
+```
+
+One thing to note is that the atomic type of each value must be the same. if you feed in different atomic types, *R* will recast them to a shared common type. For example:
+
+```{r}
+x <- c(TRUE, "bob", 3)
+x
+```
+
+All of the values became character strings, because that was the only thing they could all be recast into.
+
+Many functions that we use in data analysis expect a vector of values as input. A useful example is the `mean` which will calculate the mean of a vector of values:
+
+```{r}
+mean(age)
+mean(ate_breakfast)
+```
+
+A mean for the age variable makes sense, but how did *R* calculate the mean of the `ate_breakfast` vector? *R* attempted to recast the vector into a numeric type, which led to a vector of zeroes and ones. The mean here is equivalent to the proportion of ones or true values. So 60% of respondents ate breakfast. 
+
+Vectors are one-dimensional objects with a length (i.e. the number of values). The `length` function will tell you how many values are in a given vector.
+
+```{r}
+length(age)
+```
+
+You can also include `NA` values in a vector to indicate missing values:
+
+```{r}
+height <- c(67, NA, 64, 66, 72)
+```
+
+Notice that I do *not* surround the NA value with quotation marks, which would convert the entire vector into a character string type. The raw `NA` value is a special value that *R* knows how to store in memory.
+
+If you want to retrieve a specific value from your vector, you can do it by the *index*. You do this by including square brackets after the name of the vector and inside of the square brackets, you include the index number of the value. The index number starts at 1 in *R* and goes up. So, if I wanted to identify the name of the third respondent:
+
+```{r}
+name[3]
+```
+
+You can also use a vector of numbers here to identify multiple indices at once:
+
+```{r}
+name[c(1,4)]
+```
+
+One useful shortcut in *R* is the `a:b` syntax which will give you each integer between `a` and `b`. For example, if I wanted the third through fifth respondent:
+
+```{r}
+name[3:5]
+```
+
+### Matrices
+
+A `matrix` is just an extention of a vector into two dimensions. We can use the `matrix` command to turn a vector into a matrix, by specifying the number of rows and columns.
+
+```{r}
+x <- matrix(c(4,5,3,9,7,8), 3, 2)
+x
+```
+
+I can also create a matrix by binding together vectors into different rows (`rbind`) or columns (`cbind`). 
+
+```{r}
+a <- c(4,5,3)
+b <- c(9,7,8)
+cbind(a,b)
+rbind(a,b)
+```
+
+A matrix may seem like a natural way to represent a full dataset. However, there is an immediate problem if I attempt to do this by using `cbind` on the variables I created earlier.
+
+```{r}
+cbind(name, age, ate_breakfast)
+```
+
+Like a vector, all the values in a matrix must be of the same atomic type. In most cases, if there is any character vector in the binding, everything will be recast into character stings which is not every useful. We will see a better way to create a dataset with the `data.frame` object below. 
+
+You can extract values from a matrix by indexing just like a vector. Because a matrix is two dimensional you need to include a comma inside the square brackets. Values before the comma indicate row indices and values after the comma indicate column indices. If you leave the values in one dimension blank you will get all of the rows/columns.
+
+```{r}
+#value in 2nd row, 1st column
+x[2,1]
+#2nd row
+x[2,]
+#1st column
+x[,1]
+#1st and 2nd row
+x[1:2,]
+```
+
+### Factors
+
+You can easily represent quantitative variables with a numeric type vector, but how do you represent categorical variables? Lets say for example that I wanted to include highest degree received for my respondents from above. I could create this as a character variable:
+
+```{r}
+high_degree <- c("Less than HS", "College", "HS Diploma", "HS Diploma", 
+                 "College")
+summary(high_degree)
+```
+
+The values of the character string indicate categories of my categorical variable. However, *R* will not be able to do much with this variable as you can see from the `summary` command. Toe represent categorical variables we instead want to use a `factor`. 
+
+A factor in *R* is the standard object for coding categorical variables. Each value is actually recorded as a numeric value but the factor object also contains a set of labels that links the numeric values to a category name. Most functions in *R* will then know how to handle factors intelligently.
+
+To create a factor object, I can just apply the `factor` function to my vector:
+
+```{r}
+high_degree_fctr <- factor(high_degree)
+levels(high_degree_fctr) # return levels of factor
+summary(high_degree_fctr)
+```
+
+Now the `summary` command gives me a table of frequencies for each category. 
+
+The only problem with my factor is that this is an ordinal variable and the categories are backwards with "College" first and "Less than HS" last. This is because R sorts alphabetically by default. In order to ensure a specific order to the categories in the factor, I will need to specify the `levels` argument in the `factor` function and explicitly write out the order I want:
+
+```{r}
+high_degree_fctr <- factor(high_degree,
+                           levels=c("Less than HS","HS Diploma","College"))
+levels(high_degree_fctr)
+summary(high_degree_fctr)
+```
+
+The factor levels are now appearing in my desired order.
+
+### Lists
+
+Lists are one of the most flexible types of standard objects. Lists are just collections of objects and the objects can be of different types and dimensions. You can even put lists into lists and end up with lists of lists.
+
+Lets put the five variables we have created so far into a list:
+
+```{r}
+my_list <- list(name, age, ate_breakfast, high_degree_fctr, height)
+my_list
+```
+
+In this case, each item in the list is a vector of the same length but that is not required. 
+
+You will notice a lot of brackets in the list output above. To access an object at a specific index of the list, I need to use double square brackets. Lets say, I wanted to access the third object (ate_breakfast):
+
+```{r}
+my_list[[3]]
+```
+
+If I want to access a specific element of that vector, I can follow up that double bracket indexing with single indexing:
+
+```{r}
+my_list[[3]][4]
+```
+
+My fourth respondent did eat breakfast. Good to know. 
+
+There is another way to access objects within the list but to do this, I need to provide a name for each object in the list. I can do this within the initial list command by using a `name=value` syntax for each object:
+
+```{r}
+my_list <- list(name=name, age=age, ate_breakfast=ate_breakfast, 
+                high_degree=high_degree_fctr, height=height)
+```
+
+Now, I can call up any object by its name with the basic syntax `list_name$object_name`. Lets do that for age:
+
+```{r}
+my_list$age
+mean(my_list$age)
+```
+
+You will notice in RStudio that when you type the "$", it brings up a list of all the names you could want. You can select the one you want and tab to complete. Thanks, RStudio!
+
+### Data Frames
+
+The list was not an ideal way to represent my dataset because it didn't represent data in the two-dimensional observations-on-the-row and variables-on-the-columns way we expect most datasets to be organized. This is where the `data.frame` object comes in. This is the object that we work most directly with for data analysis. In practice, when we move to the tidyverse approach in the next chapter, we will use an extension of the `data.frame` called a `tibble` but we will start in this chapter with the basic `data.frame`.
+
+The `data.frame` object is basically a special form of a list in which each object in the list is required to be a vector of the same length, but not necessarily of the same type The results are displayed like a matrix and the same kinds of options for indexing that are available for matrices can be used on data.frames. 
+
+Lets put our variables into a `data.frame`:
+
+```{r}
+my_data <- data.frame(name, age, ate_breakfast, high_degree=high_degree_fctr,
+                      height)
+my_data
+```
+
+Now that looks like a dataset! The display shows us the expected "spreadsheet" look with observations on the rows and variables on the columns. The type of each variable has been preserved. Note that by default, it just used the name of the object as the column name. However, I specifically changed this behavior for high_degree with the same `name=object` syntax I used for lists.
+
+We can run a summary on the whole dataset now and get some nice output.
+
+```{r}
+summary(my_data)
+```
+
+I can also access any specific variable with the same `$` syntax I used for lists:
+
+```{r}
+my_data$age
+mean(my_data$age)
+```
+
+I can also use the same indexing as for matrices to retrieve particular values. Columns can also be referenced by their name rather than index.
+
+```{r}
+my_data[c(1,3),] # first and third observations
+my_data[c(1,4), "height"] # height of first and fourth observations
+my_data[,c("age","height")] # age and height of all observations
+```
+
+## Boolean Statements
+
+One of the most important features in all computer programming languages is the ability to create statements that will evaluate to a "boolean" value of TRUE or FALSE (a "logical" value in *R* parlance). These kinds of statements are called boolean statements. The following basic operators will allow you to make boolean statements in R.  
+
+| Operator | Meaning               |
+|----------|-----------------------|
+| ==       | equal to              |
+| !=       | not equal to          |
+| <        | less than             |
+| >        | greater than          |
+| >=       | less than or equal    |
+| <=       | greater than or equal |
+
+Note that the "equal to" syntax is two equal signs together. This syntax is necessary because a single equal sign can used for assignment of values to objects. 
+
+As a simple example, lets say that I wanted to identify all respondents from my data above that were 18 years of age or older:
+
+```{r}
+my_data$age>=18
+```
+
+I can see that the second, third, and fifth respondents were 18 years or older.
+
+You can use factor variables in boolean statements of equality as well, but you need to use character strings matching the names of the levels. Lets say I want to identify all respondents with a college degree:
+
+```{r}
+high_degree=="College"
+```
+
+A very important feature of boolean statements is the ability to string together multiple boolean statements with an `&` (AND) or `|` (OR) to make a compound statement. Lets say I wanted to identify all respondents who had either a high school diploma or a college degree:
+
+```{r}
+high_degree=="College" | high_degree=="HS Diploma"
+```
+
+Lets say I want to find all respondents who are between the ages of [20,25):
+
+```{r}
+age>=20 & age<25
+```
+
+You can (and generally should) use parenthesis to ensure that your compound boolean statements are interpreted in the correct order.
+
+```{r}
+(age>=20 & age<25) & (high_degree=="College" | high_degree=="HS Diploma")
+```
+
+Another useful option is the ability to put a `!` sign in front of a logical variable to indicate "not". Lets say I wanted to find all respondents who had NOT eaten breakfast:
+
+```{r}
+!ate_breakfast
+```
 
 ## Using Functions
 
 ## Making Scripts
 
 ## Adding Packages
+
+## Following Norms
+
+
+
+
+#### The `lapply` command is awesome
+
+Lets say that I just want to get a summary of each object in my list:
+
+```{r}
+summary(my_list)
+```
+
+Well, that was not super helpful. R is giving me a summary of the list itself rather than a summary of each object in the list. What if I want to apply the same function to every object in the list? This is exactly what the `lapply` command does. Feed in a list and a function (even a custom function) and it will sequentally apply that function to each object in the list:
+
+```{r}
+lapply(my_list, summary)
+```
+
+Thats much better. It won't be immediately obvious, but `lapply` turns out to be a very powerful and helpful tool. We will learn more about it later this term. 
