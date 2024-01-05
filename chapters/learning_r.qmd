@@ -281,6 +281,12 @@ my_data$age
 mean(my_data$age)
 ```
 
+I can also define new variables in my dataset with the same `$` syntax and the assignment operator:
+
+```{r}
+my_data$age_squared <- my_data$age^2
+```
+
 I can also use the same indexing as for matrices to retrieve particular values. Columns can also be referenced by their name rather than index.
 
 ```{r}
@@ -317,31 +323,32 @@ I can see that the second, third, and fifth respondents were 18 years or older.
 You can use factor variables in boolean statements of equality as well, but you need to use character strings matching the names of the levels. Lets say I want to identify all respondents with a college degree:
 
 ```{r}
-high_degree=="College"
+my_data$high_degree=="College"
 ```
 
 A very important feature of boolean statements is the ability to string together multiple boolean statements with an `&` (AND) or `|` (OR) to make a compound statement. Lets say I wanted to identify all respondents who had either a high school diploma or a college degree:
 
 ```{r}
-high_degree=="College" | high_degree=="HS Diploma"
+my_data$high_degree=="College" | my_data$high_degree=="HS Diploma"
 ```
 
 Lets say I want to find all respondents who are between the ages of [20,25):
 
 ```{r}
-age>=20 & age<25
+my_data$age>=20 & my_data$age<25
 ```
 
 You can (and generally should) use parenthesis to ensure that your compound boolean statements are interpreted in the correct order.
 
 ```{r}
-(age>=20 & age<25) & (high_degree=="College" | high_degree=="HS Diploma")
+(my_data$age>=20 & my_data$age<25) & 
+  (my_data$high_degree=="College" | my_data$high_degree=="HS Diploma")
 ```
 
 Another useful option is the ability to put a `!` sign in front of a logical variable to indicate "not". Lets say I wanted to find all respondents who had NOT eaten breakfast:
 
 ```{r}
-!ate_breakfast
+!my_data$ate_breakfast
 ```
 
 ## Using Functions
