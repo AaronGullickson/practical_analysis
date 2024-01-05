@@ -516,8 +516,7 @@ Here is the script from above, but now with some helpful commenting:
 
 # Data Organization --------------------------------------------------------
 
-#load the politics dataset. Note that this command will not work if 
-#you have the dataset loaded into a different directory. 
+#load the politics dataset directly from its GitHub repository
 load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/politics.RData"))
 
 #dichotomize both the support for gay marriage and the religious variable
