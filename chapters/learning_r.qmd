@@ -1,6 +1,6 @@
-# Learning R Basics {#learning-r-basics}
+# Learning R Basics {#sec-learning-r}
 
-In this chapter, I will cover the basics of "vanilla" *R*. In the next chapter, we will build on this foundation to learn additional features available from a set of packages known as the "tidyverse." If you have not done so already, it may be useful to review the @using-rstudio appendix to understand the basic structure of RStudio and how to interact with *R*.
+In this chapter, I will cover the basics of "base" *R*. In the next chapter, we will build on this foundation to learn additional features available from a set of packages known as the "tidyverse." If you have not done so already, it may be useful to review the @using-rstudio appendix to understand the basic structure of RStudio and how to interact with *R*.
 
 ## Creating Objects
 
@@ -10,7 +10,7 @@ In this chapter, I will cover the basics of "vanilla" *R*. In the next chapter, 
 a <- 3
 ```
 
-I have now assigned the numeric value of 3 to an object called `a`. Note that I could have called this object anything I wanted so long as it was one word (e.g. `bob`, `value`). This object will now show up in the environment tab of RStudio as an object loaded into memory. 
+I have now assigned the numeric value of 3 to an object called `a`. Note that I could have called this object anything I wanted so long as it was one word (e.g. `bob`, `value`). This object will now show up in the environment tab of RStudio as an object loaded into memory.
 
 Note that when you type this into the console, the console will just move on to the next prompt without further output. That is because you assigned the value to an object. If you want to see what is in the object, you can just provide the object name itself and hit return to print its contents to the screen.
 
@@ -35,13 +35,16 @@ Objects can come in many different forms. By far the most common object you will
 The atomic types are the building blocks for other more complex objects. The three most important atomic types for our purposes are:
 
 `numeric`
-: records a numeric value.
+
+:   records a numeric value.
 
 `character`
-:records a set of characters. This is often called a *string* or *character string* in computer science parlance. 
+
+:   records a set of characters. This is often called a *string* or *character string* in computer science parlance.
 
 `logical`
-:records either a TRUE or FALSE value. In computer science parlance, this is called a *boolean*.
+
+:   records either a TRUE or FALSE value. In computer science parlance, this is called a *boolean*.
 
 Lets try creating one of each of these types in *R*.
 
@@ -83,7 +86,7 @@ The result here is an `NA` value which is a special value tracked in *R* and gen
 
 ### Vectors
 
-You can combine a bunch of values of the same atomic type together into a single *vector*. A vector is what we use to record all of the values for a single variable. 
+You can combine a bunch of values of the same atomic type together into a single *vector*. A vector is what we use to record all of the values for a single variable.
 
 To manually construct a vector, you can use the concatenation function `c()`. Inside the parenthesis we put all the values we want separated by commas. Lets do that to create several variables for a fictitious dataset.
 
@@ -109,7 +112,7 @@ mean(age)
 mean(ate_breakfast)
 ```
 
-A mean for the age variable makes sense, but how did *R* calculate the mean of the `ate_breakfast` vector? *R* attempted to recast the vector into a numeric type, which led to a vector of zeroes and ones. The mean here is equivalent to the proportion of ones or true values. So 60% of respondents ate breakfast. 
+A mean for the age variable makes sense, but how did *R* calculate the mean of the `ate_breakfast` vector? *R* attempted to recast the vector into a numeric type, which led to a vector of zeroes and ones. The mean here is equivalent to the proportion of ones or true values. So 60% of respondents ate breakfast.
 
 Vectors are one-dimensional objects with a length (i.e. the number of values). The `length` function will tell you how many values are in a given vector.
 
@@ -152,7 +155,7 @@ x <- matrix(c(4,5,3,9,7,8), 3, 2)
 x
 ```
 
-I can also create a matrix by binding together vectors into different rows (`rbind`) or columns (`cbind`). 
+I can also create a matrix by binding together vectors into different rows (`rbind`) or columns (`cbind`).
 
 ```{r}
 a <- c(4,5,3)
@@ -167,7 +170,7 @@ A matrix may seem like a natural way to represent a full dataset. However, there
 cbind(name, age, ate_breakfast)
 ```
 
-Like a vector, all the values in a matrix must be of the same atomic type. In most cases, if there is any character vector in the binding, everything will be recast into character stings which is not every useful. We will see a better way to create a dataset with the `data.frame` object below. 
+Like a vector, all the values in a matrix must be of the same atomic type. In most cases, if there is any character vector in the binding, everything will be recast into character stings which is not every useful. We will see a better way to create a dataset with the `data.frame` object below.
 
 You can extract values from a matrix by indexing just like a vector. Because a matrix is two dimensional you need to include a comma inside the square brackets. Values before the comma indicate row indices and values after the comma indicate column indices. If you leave the values in one dimension blank you will get all of the rows/columns.
 
@@ -192,7 +195,7 @@ high_degree <- c("Less than HS", "College", "HS Diploma", "HS Diploma",
 summary(high_degree)
 ```
 
-The values of the character string indicate categories of my categorical variable. However, *R* will not be able to do much with this variable as you can see from the `summary` command. Toe represent categorical variables we instead want to use a `factor`. 
+The values of the character string indicate categories of my categorical variable. However, *R* will not be able to do much with this variable as you can see from the `summary` command. Toe represent categorical variables we instead want to use a `factor`.
 
 A factor in *R* is the standard object for coding categorical variables. Each value is actually recorded as a numeric value but the factor object also contains a set of labels that links the numeric values to a category name. Most functions in *R* will then know how to handle factors intelligently.
 
@@ -204,7 +207,7 @@ levels(high_degree_fctr) # return levels of factor
 summary(high_degree_fctr)
 ```
 
-Now the `summary` command gives me a table of frequencies for each category. 
+Now the `summary` command gives me a table of frequencies for each category.
 
 The only problem with my factor is that this is an ordinal variable and the categories are backwards with "College" first and "Less than HS" last. This is because R sorts alphabetically by default. In order to ensure a specific order to the categories in the factor, I will need to specify the `levels` argument in the `factor` function and explicitly write out the order I want:
 
@@ -228,7 +231,7 @@ my_list <- list(name, age, ate_breakfast, high_degree_fctr, height)
 my_list
 ```
 
-In this case, each item in the list is a vector of the same length but that is not required. 
+In this case, each item in the list is a vector of the same length but that is not required.
 
 You will notice a lot of brackets in the list output above. To access an object at a specific index of the list, I need to use double square brackets. Lets say, I wanted to access the third object (ate_breakfast):
 
@@ -242,7 +245,7 @@ If I want to access a specific element of that vector, I can follow up that doub
 my_list[[3]][4]
 ```
 
-My fourth respondent did eat breakfast. Good to know. 
+My fourth respondent did eat breakfast. Good to know.
 
 There is another way to access objects within the list but to do this, I need to provide a name for each object in the list. I can do this within the initial list command by using a `name=value` syntax for each object:
 
@@ -258,13 +261,13 @@ my_list$age
 mean(my_list$age)
 ```
 
-You will notice in RStudio that when you type the "$", it brings up a list of all the names you could want. You can select the one you want and tab to complete. Thanks, RStudio!
+You will notice in RStudio that when you type the "\$", it brings up a list of all the names you could want. You can select the one you want and tab to complete. Thanks, RStudio!
 
 ### Data Frames
 
 The list was not an ideal way to represent my dataset because it didn't represent data in the two-dimensional observations-on-the-row and variables-on-the-columns way we expect most datasets to be organized. This is where the `data.frame` object comes in. This is the object that we work most directly with for data analysis. In practice, when we move to the tidyverse approach in the next chapter, we will use an extension of the `data.frame` called a `tibble` but we will start in this chapter with the basic `data.frame`.
 
-The `data.frame` object is basically a special form of a list in which each object in the list is required to be a vector of the same length, but not necessarily of the same type The results are displayed like a matrix and the same kinds of options for indexing that are available for matrices can be used on data.frames. 
+The `data.frame` object is basically a special form of a list in which each object in the list is required to be a vector of the same length, but not necessarily of the same type The results are displayed like a matrix and the same kinds of options for indexing that are available for matrices can be used on data.frames.
 
 Lets put our variables into a `data.frame`:
 
@@ -305,20 +308,20 @@ my_data[,c("age","height")] # age and height of all observations
 
 ## Boolean Statements
 
-One of the most important features in all computer programming languages is the ability to create statements that will evaluate to a "boolean" value of TRUE or FALSE (a "logical" value in *R* parlance). These kinds of statements are called boolean statements. @tbl-boolean-ops shows the basic operators you can use to make boolean statements in *R*.  
+One of the most important features in all computer programming languages is the ability to create statements that will evaluate to a "boolean" value of TRUE or FALSE (a "logical" value in *R* parlance). These kinds of statements are called boolean statements. @tbl-boolean-ops shows the basic operators you can use to make boolean statements in *R*.
 
 | Operator | Meaning               |
 |----------|-----------------------|
 | ==       | equal to              |
 | !=       | not equal to          |
-| <        | less than             |
-| >        | greater than          |
-| >=       | less than or equal    |
-| <=       | greater than or equal |
+| \<       | less than             |
+| \>       | greater than          |
+| \>=      | less than or equal    |
+| \<=      | greater than or equal |
 
 : Boolean operators in *R* {#tbl-boolean-ops}
 
-Note that the "equal to" syntax is two equal signs together. This syntax is necessary because a single equal sign can used for assignment of values to objects. 
+Note that the "equal to" syntax is two equal signs together. This syntax is necessary because a single equal sign can used for assignment of values to objects.
 
 As a simple example, lets say that I wanted to identify all respondents from my data above that were 18 years of age or older:
 
@@ -340,7 +343,7 @@ A very important feature of boolean statements is the ability to string together
 my_data$high_degree=="College" | my_data$high_degree=="HS Diploma"
 ```
 
-Lets say I want to find all respondents who are between the ages of [20,25):
+Lets say I want to find all respondents who are between the ages of 20 (inclusive) and 25 (exclusive):
 
 ```{r}
 my_data$age>=20 & my_data$age<25
@@ -365,13 +368,13 @@ I already snuck a couple of functions into the previous sections. Functions are 
 
 The syntax of a function is:
 
-```r
+``` r
 function_name(argument1, argument2, argument3, ...)
 ```
 
-The function is identified by the opening and closing parenthesis after its name. Within those parenthesis you may feed in *arguments* that the function will process. Not all functions need arguments, so you may run into cases where you just have an empty parenthesis. Some functions can take many arguments and so the arguments should be separated by commas. 
+The function is identified by the opening and closing parenthesis after its name. Within those parenthesis you may feed in *arguments* that the function will process. Not all functions need arguments, so you may run into cases where you just have an empty parenthesis. Some functions can take many arguments and so the arguments should be separated by commas.
 
-Lets look at one of the functions we have already seen, the `mean` function. This function will calculate the mean of a vector of numbers. 
+Lets look at one of the functions we have already seen, the `mean` function. This function will calculate the mean of a vector of numbers.
 
 ```{r}
 mean(my_data$age)
@@ -387,7 +390,7 @@ It reports an NA because some of the values in this vector are NA. You might thi
 
 Every function has a help file that will give you information about the function and the arguments that it can take. To view the help file just give the name of the function with no parenthesis and preceded by the question mark. So to pull up the help file for the mean, you can type:
 
-```r
+``` r
 ?mean
 ```
 
@@ -411,11 +414,11 @@ Keep in mind, that the output of a function will be some kind of object. You can
 
 One of the primary advantages of a using statistical programming language like *R*, *Stata*, or Python is the ability to conduct your analysis in a script. A script is a text file of commands that can be run to do a thing, whether that be some data cleaning, running models, or making a figure. It is good practice to **always** do your work using scripts. The advantage of scripting is that you will have an easily reproducible record of exactly what you did.
 
-You should think of a script as an executable bit of code that does something. It should have a beginning and an end. Running through the commands in the script will walk the user through the thing that the script does. You should most definitely *not* think of your script as a set of notes and random bits of code that you want to remember. While, you may in some cases use scripts that way for learning purposes, for actual research a script should just work, with only the code needed to make it work.  
+You should think of a script as an executable bit of code that does something. It should have a beginning and an end. Running through the commands in the script will walk the user through the thing that the script does. You should most definitely *not* think of your script as a set of notes and random bits of code that you want to remember. While, you may in some cases use scripts that way for learning purposes, for actual research a script should just work, with only the code needed to make it work.
 
 ### A First Script
 
-Lets put together a simple "Hello World! script. To create and open a new script in RStudio, go to File > New File > R Script as shown in @fig-new-script. 
+Lets put together a simple "Hello World! script. To create and open a new script in RStudio, go to File \> New File \> R Script as shown in @fig-new-script.
 
 ![Opening a new script in RStudio. The script will open in the upper left panel by default.](../images/rstudio_new_script.gif){#fig-new-script}
 
@@ -429,10 +432,10 @@ cat("Hello World!")
 
 We now have code from our script in the upper left pane; and the *R* console waiting for that delicious code in the lower right panel. How can we get it there? You can run the code in this script a couple of different ways:
 
-- You could just copy and paste both lines of code to the console manually. This is quick and dirty but is typically not the most efficient way to run code from your script.
-- You could run your entire script by clicking the "Source" button in the upper right corner of the script panel. Note that with this button, you won't get the output, unless you use the drop-down arrow to choose "Source with Echo."
-- You could run a single line of your script where the cursor is located. You can do this by either hitting the "Run" button or by clicking Ctrl+Enter on Windows/OSX or Command+Enter on OSX. When you do execute the code this way, your cursor will automatically move to the next line of code, so you can execute your way through the code simply by clicking Ctrl+Enter repeatedly. Generally, this is the best approach to running your code line by line.
-- If you have saved the script to a file, you can also type in the `source` command in the console to source the script.
+-   You could just copy and paste both lines of code to the console manually. This is quick and dirty but is typically not the most efficient way to run code from your script.
+-   You could run your entire script by clicking the "Source" button in the upper right corner of the script panel. Note that with this button, you won't get the output, unless you use the drop-down arrow to choose "Source with Echo."
+-   You could run a single line of your script where the cursor is located. You can do this by either hitting the "Run" button or by clicking Ctrl+Enter on Windows/OSX or Command+Enter on OSX. When you do execute the code this way, your cursor will automatically move to the next line of code, so you can execute your way through the code simply by clicking Ctrl+Enter repeatedly. Generally, this is the best approach to running your code line by line.
+-   If you have saved the script to a file, you can also type in the `source` command in the console to source the script.
 
 @fig-exec-script shows different ways to execute the code in your script.
 
@@ -442,11 +445,11 @@ We now have code from our script in the upper left pane; and the *R* console wai
 
 Now lets try a slightly more useful script. In this script, I am going to use the politics dataset to do the following:
 
-- re-code the gay marriage support variable into support for gay marriage vs. all else, and the religion variable as evangelical vs. all else
-- Create a two-way table (crosstab) of these two new variables. 
-- Calculate the odds ratio between the two new variables.
+-   re-code the gay marriage support variable into support for gay marriage vs. all else, and the religion variable as evangelical vs. all else
+-   Create a two-way table (crosstab) of these two new variables.
+-   Calculate the odds ratio between the two new variables.
 
-I don't expect you to know how all of this code works yet. I just want to show you an example of a script that actually does something interesting. 
+I don't expect you to know how all of this code works yet. I just want to show you an example of a script that actually does something interesting.
 
 ```{r}
 
@@ -464,7 +467,7 @@ OR
 
 If I source this script, I will get:
 
-```r
+``` r
 > load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/politics.RData"))
 
 > politics$supportgmar <- politics$gaymarriage=="Support gay marriage"
@@ -485,7 +488,7 @@ If I source this script, I will get:
 [1] 0.1979334
 ```
 
-About 72% of non-evangelicals support gay marriage while only 28% of evangelicals support it. That works out to an odds ratio of 0.198, meaning that the odds of gay marriage support were about a fifth as high for evangelicals as for non-evangelicals. 
+About 72% of non-evangelicals support gay marriage while only 28% of evangelicals support it. That works out to an odds ratio of 0.198, meaning that the odds of gay marriage support were about a fifth as high for evangelicals as for non-evangelicals.
 
 ### Not Everything Goes Into Your Script
 
@@ -500,7 +503,7 @@ From there I could see that the category I wanted was called "Support gay marria
 
 ### Commenting for Clarity
 
-There is one big thing missing from the scripts listed above: comments! Comments are crucial for good script writing. Comments are lines in your script that will not be processed by *R*. You can create single line comments by using the pound sign (#). Anything after the pound sign will be ignored by *R* until a new line. You should use these comments to explain what the code is doing. You can also use them to help visually separate the script into sections for easier readability. Comments help you remember what you were doing when you come back to a project you haven't worked on for weeks or months. They are also useful for other people who might end up reading your code (co-authors, advisers, etc). 
+There is one big thing missing from the scripts listed above: comments! Comments are crucial for good script writing. Comments are lines in your script that will not be processed by *R*. You can create single line comments by using the pound sign (#). Anything after the pound sign will be ignored by *R* until a new line. You should use these comments to explain what the code is doing. You can also use them to help visually separate the script into sections for easier readability. Comments help you remember what you were doing when you come back to a project you haven't worked on for weeks or months. They are also useful for other people who might end up reading your code (co-authors, advisers, etc).
 
 Here is the script from above, but now with some helpful commenting:
 
@@ -538,22 +541,92 @@ OR
 
 Even if you don't understand what the code here is doing yet, you can at least get a sense of what it is supposed to be doing. Notice that I use multiple pound signs to draw attention to the header and larger sections. For a script this small, the division between Data Organization and Analysis is probably overkill, but for larger scripts, this sectioning can be useful in helping to easily distinguish different components of the analysis.
 
-One nice feature of RStudio is that if you end your comments with at least four pound signs or dashes at the end, then the outline of your script will show these sections and you can navigate to them. You can also collapse and expand them as needed. You can also go to `Code > Insert Section` to add sectioning comments in this style. 
+One nice feature of RStudio is that if you end your comments with at least four pound signs or dashes at the end, then the outline of your script will show these sections and you can navigate to them. You can also collapse and expand them as needed. You can also go to `Code > Insert Section` to add sectioning comments in this style.
 
 ### Don't Overcomment
 
 While commenting is necessary for good script writing, *more* commenting is not always better. The key issue is that you need to think of commenting as documentation of your code. If you change the code, you also need to change the documentation. If you change the code, but not the documentation, then you will actually make your code more confusing to other readers. The key takeway is that you should **only write documentation that you will actively maintain.**
 
-The most common error that novices make is to use comments to describe the results of their code. This is bad practice, because as you make changes to your data and methods, these results are likely to change and if you don't update your comments, there will be a lack of alignment between your real results and your documentation of the results. Later in the term, we will learn a better way to separate out the reporting of results in a "lab notebook" fashion, from comments in scripts. 
+The most common error that novices make is to use comments to describe the results of their code. This is bad practice, because as you make changes to your data and methods, these results are likely to change and if you don't update your comments, there will be a lack of alignment between your real results and your documentation of the results. Later in the term, we will learn a better way to separate out the reporting of results in a "lab notebook" fashion, from comments in scripts.
 
 ## Adding Packages
 
+*R* is an open-source program and anyone can write their own *package* or *library* that contains a set of custom functions. You can then install and load these packages to gain access to these additional functions. Thousands of packages exist to extend the basic functionality of *R*. We already saw one of these in @sec-using-git with the `usethis` package. The "tidyverse" that we will learn in @sec-becoming-tidyversant is based on a set of packages. Learning how to install and load packages is important for getting the most out of *R*.
 
-::: {.callout-tip}
-### Load Packages at the Top
+Packages that have been vetted are available on the [Comprehensive R Archive Network](https://cran.r-project.org/) (CRAN). You can install these packages with the `install.packages` command. The syntax is as follows:
 
+``` r
+install.packages("package_name")
+```
+
+You want to replace "package_name" here with the actual package name. In RStudio, you can go to Tools \> Install Packages... from the menu to get a searchable graphical tool for installing packages from CRAN.
+
+However you install the package, remember that installing the package is not the same as loading the package. To gain access to all of the functions contained within the package, you need to load the package with the `library` command, like so:
+
+``` r
+library(package_name)
+```
+
+Note that when installing packages, the package name is in quotes but not when you load the library.
+
+Generally, you will load any packages you need in the script at the top of that script. The first section of your script should always basically be a "load libraries" section. When you realize deep into your script that you need another package, the temptation is to just put a `library` command there. Resist that temptation! Go back to the top of your script and put the `library` command at the top to load the new package. The reason we do it this way is that we want anyone reading our script to know what package dependencies the script has so that they can install any required packages.
+
+::: callout-caution
+## Don't Put `install.packages` Commands in Your Script
+
+A common novice mistake is for students to include the `install.packages` command in a script where they want to use the package. You *should* put a `library` command to load the package, but you should *never* put an `install.packages` command in your script. Every time you run your script, the package will be re-installed which wastes unnecessary time.
 :::
+
+You can gain access to the functions of an installed package without loading the entire package. The syntax for using a function from a package without loading the whole package is:
+
+``` r
+package_name::function_name(...)
+```
+
+We already saw an example of this in @sec-using-git with the `usethis` package. For example, to do a git sitep, I told you to run `usethis::git_sitrep()`. Alernatively, we could have loaded the `usethis` package and then run `git_sitrep()`. In the case of `usethis`, you are often running commands from this package interactively and not through scripting, so being able to call functions without loading the package makes sense. 
+
+The other common reason for using this syntax is when you have different packages loaded that hqve functions with identical names. When this kind of conflict occurs, the function for the more recently loaded package will *mask* the function from the previously loaded package. To gain access to that masked function you will have to reference the function in this syntax. 
+
 
 ## Following Norms
 
+Programming languages aren't just the languages themselves but the community of developers and programmers who code with them. Part of this community development is the creation of norms and standard practices that users of that language come to expect even if they are not required by the syntax. *R* is no different in that respect. You have seen already in this book and will continue to see certain coding practices that are the norm among *R* coders. You should follow these practices as well in your coding as it will make your code more legible to others.
 
+The norms I use here are developed from the [tidyverse style guide](https://style.tidyverse.org/index.html). Here are the norms I want you to follow:
+
+* Naming things (e.g. objects, variables, functions, files)
+  * Names should be all lower-case and contain no special characters. To separate distinct words within a name, you should use an underscore `_` (sometimes called "snake case"). So, for example, if you have a variable measuring the highest grade a respondent attained, you could name that `high_grade` but *not* `HIGHGRADE`, `HighGrade`, or `high.grade`. The use of the underscore for separation does co-exist with an older norm in *R* to use the `.` for separation and you will see that in many function names. However, the tidyverse norm is to use the `_` (which is one way you can often differentiate tidyverse and base *R* functions).
+  * When naming things, you should strive for a balance between the name being meaningful and concise. Long object and variable names will make your code harder to read.
+  * Avoid naming things that are already function names (e.g. don't name your object "mean").
+* Spacing
+  * Leave one space before and after the assignment operator `<-`.
+  * Leave one space after commas, either when indexing or separating arguments in functions.
+  * Leave one space after the # when writing a comment.
+* Whenever possible, limit your lines of code to 80 characters for better legibility. You can include long lines of code on multiple lines, properly indented. Using Ctrl+I in RStudio will properly indent multi-line commands. To ensure you stay within 80 lines, you can set a visible line in RStudio. Go to Tools > Global Options, then Code > Display. You will see a "Show Margins option with 80 characters set as the default. 
+
+Let me show you an example of bad coding practice. In this case, I want to load the politics data and use the `cut` function to create five-year age groups from the original age variable.
+
+```{r}
+#load the data
+load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/politics.RData"))
+
+#break age into 5 year groups
+politics$FIVE.Year.Age.Groups<-cut(politics$age,breaks=seq(from=15,to=95,by=5),right=FALSE,labels=paste(seq(from=15,to=90,by=5),seq(from=20,to=95,by=5), sep="-"))
+```
+
+This code works, but it sure is hard to read. There is no spacing at all, so everything is very crunched together. The name of the constructed variable is very long and inconsistent in its naming practice. The `load` command has to be over 80 characters slightly due to the length of the https address for the data, but the line that does the cutting does not need to be so long. Lets clean all that up using proper style.
+
+```{r}
+# load the data
+load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/politics.RData"))
+
+# break age into 5 year groups
+politics$age_group <- cut(politics$age, 
+                          breaks=seq(from=15, to=95, by=5),
+                          right=FALSE,
+                          labels=paste(seq(from=15, to=90, by=5),
+                                       seq(from=20, to=95, by=5), 
+                                       sep="-"))
+```
+
+Even if you aren't sure what this code does, its still a lot easier to read, isn't it?
