@@ -10,7 +10,15 @@ In this chapter, I will cover the basics of "vanilla" *R*. In the next chapter, 
 a <- 3
 ```
 
-I have now assigned the numeric value of 3 to an object called `a`. Note that I could have called this object anything I wanted so long as it was one word (e.g. `bob`, `value`). This object will now show up in the environment tab of RStudio as an object loaded into memory. I can then use this variable in other ways, such as:
+I have now assigned the numeric value of 3 to an object called `a`. Note that I could have called this object anything I wanted so long as it was one word (e.g. `bob`, `value`). This object will now show up in the environment tab of RStudio as an object loaded into memory. 
+
+Note that when you type this into the console, the console will just move on to the next prompt without further output. That is because you assigned the value to an object. If you want to see what is in the object, you can just provide the object name itself and hit return to print its contents to the screen.
+
+```{r}
+a
+```
+
+I can then use this variable in other ways, such as:
 
 ```{r}
 a+2
@@ -29,11 +37,11 @@ The atomic types are the building blocks for other more complex objects. The thr
 `numeric`
 : records a numeric value.
 
-`character`:
-records a set of characters. This is often called a *string* or *character string* in computer science parlance. 
+`character`
+:records a set of characters. This is often called a *string* or *character string* in computer science parlance. 
 
-`logical`:
-records either a TRUE or FALSE value. In computer science parlance, this is called a *boolean*.
+`logical`
+:records either a TRUE or FALSE value. In computer science parlance, this is called a *boolean*.
 
 Lets try creating one of each of these types in *R*.
 
@@ -352,6 +360,52 @@ Another useful option is the ability to put a `!` sign in front of a logical var
 ```
 
 ## Using Functions
+
+I already snuck a couple of functions into the previous sections. Functions are predefined bits of code that take some kind of input and give you output. Base *R* has many, many functions for doing statistical analysis and data wrangling. Additional packages, which I discuss below, add more functions.
+
+The syntax of a function is:
+
+```r
+function_name(argument1, argument2, argument3, ...)
+```
+
+The function is identified by the opening and closing parenthesis after its name. Within those parenthesis you may feed in *arguments* that the function will process. Not all functions need arguments, so you may run into cases where you just have an empty parenthesis. Some functions can take many arguments and so the arguments should be separated by commas. 
+
+Lets look at one of the functions we have already seen, the `mean` function. This function will calculate the mean of a vector of numbers. 
+
+```{r}
+mean(my_data$age)
+```
+
+In this case, the function only needed a single argument which was the actual vector of data for which I want the mean. However, in some cases, you may need additional arguments. Lets try the `mean` function for the height data.
+
+```{r}
+mean(my_data$height)
+```
+
+It reports an NA because some of the values in this vector are NA. You might think a reasonable behavior would be to drop the NA values and just calculate the mean of the non-NA values. The mean function can in fact do this but not as its default behavior. It wants to make sure you are aware of the missing value in this variable.
+
+Every function has a help file that will give you information about the function and the arguments that it can take. To view the help file just give the name of the function with no parenthesis and preceded by the question mark. So to pull up the help file for the mean, you can type:
+
+```r
+?mean
+```
+
+![The help page for the `mean` function in *R*.](../images/r_mean_help.png){#fig-r-help}
+
+@fig-r-help shows the help file for the `mean` function. Mot importantly, we want to look at the arguments section that describes the arguments we can feed into the `mean` function. You can see here that the first expected argument is a numeric/logical vector (described as `x`). The third argument is named `na.rm` and takes a logical value. If TRUE it will strip out NA values before computation. That is the behavior we want. However, if you look to the Usage section of the help file, you can see that this argument is set to FALSE by default. So, we need to change that value to TRUE.
+
+To do that, we need to understand how *R* matches arguments. If I don't name my arguments, which I have not so far, *R* will process the arguments in the expected order shown in the Usage section. I haven't needed to do that so far, because the `mean` function expects my vector to be the first argument and it is. However, I now want to change the value of the third argument without messing with the second `trim` argument. I can do this by feeding in the argument with a name. The syntax for this is `arg_name=arg_value`. In this case, I need to use `na.rm=TRUE`. So, to get the mean of height with missing values dropped, I need:
+
+```{r}
+mean(my_data$height, na.rm=TRUE)
+```
+
+There we go! For the non-missing values, the mean height was 67.25 (inches, presumably).
+
+We will cover many functions throughout the course. The help file can help remind you how to use functions if you forget. The Examples section of the help file is particularly useful as it will provide executable examples of how to use a function.
+
+Keep in mind, that the output of a function will be some kind of object. You can save that output just like any other object. This will be particularly useful when we get to model building as we can save the output of our model estimation and run a variety of additional functions on it,
 
 ## Making Scripts
 
