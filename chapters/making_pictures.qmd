@@ -1,1 +1,1 @@
-# Making Pretty Pictures {#making-pictures}
+# Making Pretty Pictures {#sec-making-pictures}

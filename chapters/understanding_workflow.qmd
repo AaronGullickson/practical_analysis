@@ -1,4 +1,4 @@
-# Understanding Workflow {#working-workflow}
+# Understanding Workflow {#sec-working-workflow}
 
 We are often implicitly trained in academia to treat each of our research projects as a unique, bespoke thing and to approach it in that fashion. After all, one of the defining characteristics of academic work is that it should provide a unique contribution to our existing knowledge. If the research question is unique, shouldn't the research process also be unique? 
 

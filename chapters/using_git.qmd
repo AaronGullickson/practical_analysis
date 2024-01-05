@@ -1,4 +1,4 @@
-# Using Git for Sanity {#using-git}
+# Using Git for Sanity {#sec-using-git}
 
 ![Illustration from the [Openscapes](https://www.openscapes.org) blog [GitHub for supporting, contributing, and failing safely](https://www.openscapes.org/blog/2022/05/27/github-illustrated-series/) by Allison Horst and Julia Lowndes](../images/git_climbing.png)
 

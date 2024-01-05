@@ -1,1 +1,1 @@
-# Writing in Quarto {#writing-quarto}
+# Writing in Quarto {#sec-writing-quarto}
