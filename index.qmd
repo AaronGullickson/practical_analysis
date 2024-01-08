@@ -1,6 +1,6 @@
 # Preface {.unnumbered}
 
-Hello! If you reached this site you are probably taking my sociology course for first year graduate students and advanced undergraduates. This textbook is designed to teach you the practical aspects of data analysis using *R* and *git*. It is **not* a textbook designed to teach you statistics. For that, you should visit the [companion textbook](https://stat-analysis.netlify.app/).
+Hello! If you reached this site you are probably taking my sociology course for first year graduate students and advanced undergraduates. This textbook is designed to teach you the practical aspects of data analysis using *R* and *git*. It is **not** a textbook designed to teach you statistics. For that, you should visit the [companion textbook](https://stat-analysis.netlify.app/).
 
 ::: {.callout-warning}
 
