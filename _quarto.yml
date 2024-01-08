@@ -30,7 +30,7 @@ book:
         - chapters/iterating_speed.qmd
         - chapters/creating_functions.qmd
   appendices:
-        - appendices/useful_code_snippets.qmd
+        - appendices/getting_familiar_rstudio.qmd
 
 
 bibliography: bibliography/references.bib
