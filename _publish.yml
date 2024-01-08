@@ -1,4 +1,4 @@
 - source: project
   netlify:
     - id: cf2244fc-f64f-411c-9f02-bb735695533c
-      url: 'https://practical-data-analysis-r.netlify.app/'
+      url: 'https://practical-data-analysis-r.netlify.app'
