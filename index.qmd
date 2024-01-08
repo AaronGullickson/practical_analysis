@@ -1,9 +1,9 @@
 # Preface {.unnumbered}
 
-This is a Quarto book.
+Hello! If you reached this site you are probably taking my sociology course for first year graduate students and advanced undergraduates. This textbook is designed to teach you the practical aspects of data analysis using *R* and *git*. It is **not* a textbook designed to teach you statistics. For that, you should visit the [companion textbook](https://stat-analysis.netlify.app/).
 
-To learn more about Quarto books visit <https://quarto.org/docs/books>.
+::: {.callout-warning}
 
-```{r}
-1 + 1
-```
+This textbook is currently very much a work in progress. You will probably notice many typos, missing content, and other issues. This textbook is a re-envisioning of a single section of my old textbook and that re-envisioning is going on. Please be patient and bear with me as it develops.
+
+:::
