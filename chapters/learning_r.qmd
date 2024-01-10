@@ -1,5 +1,7 @@
 # Learning R Basics {#sec-learning-r}
 
+![Really, it can happen. Artwork by [\@allison_horst](https://twitter.com/allison_horst).](../images/horst_like_r.png)
+
 In this chapter, I will cover the basics of "base" *R*. In the next chapter, we will build on this foundation to learn additional features available from a set of packages known as the "tidyverse." If you have not done so already, it may be useful to review @sec-familiar-rstudio to understand the basic structure of RStudio and how to interact with *R*.
 
 ## Creating Objects
