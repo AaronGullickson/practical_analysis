@@ -1,5 +1,187 @@
 # Becoming Tidyversant {#sec-becoming-tidyversant}
 
+```{r}
+#| include: false
 
+source("scripts/check_packages.R")
+```
+
+The [tidyverse](https://www.tidyverse.org/) describes itself as "an opinionated collection or R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures. But what does this mean?
+
+It might help to understand what life was like in the dark times, before the tidyverse. *R* inherited much of its syntax and functions from the older S and S-plus programs. Many of these base functions were written decades ago by many different people, and relatively little thought was given to uniformity in the way the syntax operated. For example, while most functions take the variable or object they want to manipulate as their first argument, you will ocassionally running into functions where this is the second argument (the pattern matching functions like `grep` and `sub` are good examples). Thus, base R can feel a little disorganized and aesthetically unpleasing from a coding sense. 
+
+The intent of the tidyverse was to create core data science functions that all used the same "grammar" and thus were easy to learn, use, and read. It is no exaggeration to say that the tidyverse has transformed *R* from a niche programming language for hard-core statisticians and geeks into one of the premier tools for data analysis and data science. In this book (and course, if you are taking it from me), we will largely focus on tidyverse solutions to data wrangling problems. While there are extensions of the tidyverse to the more data analysis side of things, I think the biggest benefit comes in terms of organizing your data. 
+
+## The Tidyverse Packages
+
+You can install the tidyverse with a simple `install.packages` command:
+
+```r
+install.packages("tidyverse")
+```
+
+However, when you install the tidyverse this way, you are actually installing (at last count) eight distinct packages that make up the tidyverse ecosystem. You can also install each of these packages individually if you just need the functionality of a specific one, but generally its just easier to install it all together. When you load the `tidyverse` package with a `library` command, you will see that it is loading these eight different packages. 
+
+```r
+library(tidyverse)
+```
+
+```
+── Attaching packages ────────────────────────────────────────────────────────────── tidyverse 1.3.2 ──
+✔ ggplot2 3.4.0      ✔ purrr   1.0.1 
+✔ tibble  3.1.8      ✔ dplyr   1.0.10
+✔ tidyr   1.3.0      ✔ stringr 1.5.0 
+✔ readr   2.1.3      ✔ forcats 0.5.2 
+── Conflicts ───────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+```
+
+The eight packages that make up the tidyverse are:
+
+`ggplot2`
+: This is the package that started it all. The "gg" stands for the grammar of graphics and `ggplot2` offers an entire grammar for creating beautiful plots. This package has been so popular that it has completely eclipsed the "base" *R* plots people used to make. As someone who used to struggle through making base *R* plots, I am here to tell you that is a great thing. Because this is such a big part of what we do, I have devoted @sec-making-pictures to a discussion of the tidyverse.
+
+`dplyr`
+: This is the workhouse package of the tidyverse and includes a variety of functions designed to manipulate data, all with handy verbs for names. You recode variables by `mutate`. You create subsets of data by `filter`. You pick variables in your dataset to keep by `select`. Most of your basic data manipulations functions will live in `dplyr`.
+
+`tidyr`
+: Wondering what the whole "tidy" thing is about? It usually refers to the concept of "tidy data" where each row is an observation and each column is a variable. Unfortunately, data doesn't always come in this tidy form. The `tidyr` package has functions that allow you to turn messy data into tidy data. Most important for our purposes, the `tidyr` package has functions that allow us to reshape data from wide to long formats and vice versa. 
+
+`readr`
+: The `readr` package is all about getting data *into* *R* in the first place. Base *R* has some functions for reading in data, but the `readr` functions are generally improvements on these functions. They allow you to read in a wide variety of data formats faster and with less errors.
+
+`purrr`
+: This package is designed to replace iteration tools like for-loops and the `lapply` command from base *R* with faster more flexible functions. It is probably the most "advanced" package in the tidyverse. We will cover some of its functionality when we talk about programming at the end of the book.
+
+`tibble`
+: Implicitly, you will use this package more than any other. The `tibble` is an extension to the basic `data.frame` object. It has all the functionality we expect from the `data.frame` plus a lot more. Generally, we will try to work with tibbles rather than data.frames whenever we can.
+
+`stringr`
+: This package is designed for dealing with character strings. You might for example want to check for a certain pattern in character strings. The `stringr` package has you covered. We won't cover it in detail here.
+
+`forcats`
+: Not actually about cats. This package has a variety of functions to make it easier to work with categorical data in the form of factor variables.
+
+## Using Tibbles
+
+Tibbles are the tidyverse version of a `data.frame`. They have all the same functionality of a `data.frame` but with many added features that make them easier to work with. You can convert any `data.frame` into a `tibble` with the `as_tibble` command:
+
+```{r}
+my_data_frame <- data.frame(
+  name = c("Bob", "Juan", "Maria", "Jane", "Howie"),
+  age = c(15, 25, 19, 12, 21), 
+  ate_breakfast = c(TRUE, FALSE, TRUE, TRUE, FALSE), 
+  high_degree= factor(c("Less than HS", "College", "HS Diploma", "HS Diploma", 
+                        "College"),
+                      levels=c("Less than HS", "HS Diploma", "College")),
+  height = c(67, NA, 64, 66, 72))
+
+my_data_frame
+
+my_tibble <- as_tibble(my_data_frame)
+
+my_tibble
+```
+
+The printing of the two objects already reveals some differences. The tibble includes information about the type of variable for each of the variable. In this case "dbl" stands for "double" which is a computer coding way of recording numeric values into memory, the other options being integer ("int") and float ("flt"). 
+
+ The printing differences are more extensive that what you see here. If you simply print a `data.frame` to output, it will always print the *entire* dataset, which can be a bit overwhelming if you have many observations.^[The standard way around this problem is to use the `head` or `foot` command instead to only print out the first or last six rows.] Lets look at how a large tibble is printed instead. 
+ 
+```{r}
+load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/earnings.RData"))
+earnings
+```
+
+By default, the tibble only prints its first ten rows and includes other contextual information, including the total sample size. 
+
+There are other subtler differences between tibbles and data.frames that you can read about [here](https://tibble.tidyverse.org/articles/tibble.html#tibbles-vs-data-frames). In practice, however, you will use tibbles in the same way you use data.frames. So, for example, if you need the mean of a variable in a tibble:
+
+```{r}
+mean(my_tibble$age)
+```
+
+In general, you won't have to worry too much about transforming base data.frames into tibbles. Most of the packages and functions we use to read in data will read in data as a tibble by default. So in general you will usually be working with tibbles by default. Ocassionally, if you use a base *R* function to do some data transformation of a tibble, you may end up with a base data.frame instead. You will be able to tell the first time you try to print the data.frame to the screen and it goes on for thousands of lines. In this case, you can re-convert back to a tibble with the `as_tibble` command (or better yet, replace the base *R* command with a tidyverse equivalent to ensure it remains a tibble).
 
 ## Piping for Power
+
+One of the major innovations introduced by the tidyverse is the ability to "pipe" the output of one command into another command as its primary input. This piping was originally done by the `%>%` pipe syntax. However, piping has become so popular that base *R* implemented its own pipe with the `|>` syntax. There are slight differences in how these two pipes functions, but they are largely equivalent. We will use the base *R* `|>` pipe. 
+
+Pipes are useful because they allow us to combine multiple commands together into a compound command, without using the more common approach of nesting commands inside other commands. The result is more human readable code. Additionally, because we are creating a compound command, we don't litter our environment with a bunch of intermediate objects that were temporarily created to get to the final product. 
+
+Lets start with a simple example. Lets say I want to take some vector of numeric values `x`, log it, sum up the results, and then round it. I could do it like so:
+
+```{r}
+x <- c(3,7,5,6,13)
+log_x <- log(x)
+sum_x <- sum(log_x)
+round(sum_x, 2)
+```
+
+I was able to get to my final result, but I ended up creating two intermediate objects of `log_x` and `sum_x` to get there. This is not a tidy approach - over time we will end up with an environment littered with these sorts of intermediate temporary objects. An alternative would be to do this all in a single line by nesting:
+
+```{r}
+round(sum(log(x)), 2)
+```
+
+This approach works as well and is much more compact, but its also hard to read, because the only way to distinguish which functions we are in is by visually matching the parenthesis. Instead, lets try to pipe it:
+
+```{r}
+x |>
+  log() |>
+  sum() |>
+  round(2)
+```
+
+I first "pipe" the `x` vector itself into the first command. By default, *R* will expect that whatever is piped into a command be the first argument of that command. That will work for all tidyverse commands by design and for most (but not all) *R* base functions. I can then continue to pipe results until I get to the final step. The result is code that is compact, does not create intermediate objects, and is easy to read. I can easily see the sequential steps that were performed.
+
+Note that by convention, I am creating a new line after each pipe command, although I could have done it all on one line. When you do this in *R*, the next line will be indented which tells you that you are in a pipe and the command is not done. If the indentation gets out of order, you can always use Ctrl+I (or Command+I on Mac) to correct your indentation.
+
+Now lets try a more complicated example. In this case, I want to take the earnings dataset and do the following:
+
+1. Create a new variable called `has_children` that is TRUE if the respondnet had more than zero children and FALSE otherwise.
+2. Subset the earnings dataset to only respondents under 45 years of age.
+3. Drop all variables except `wages`, `gender`, `race`, and `has_children`. 
+4. Calculate the mean wages conditional on the three variables of `gender`, `race`, and `has_children`. 
+5. Sort the resulting mean wages aggregate dataset from lowest mean wage to highest mean wage.
+
+The base *R* code below accomplishes that task.
+
+```{r}
+
+# create has_children variable
+earnings$has_children <- earnings$nchild>0
+
+# subset earnings to those under 45 years of age and just the variables 
+# we want
+earnings_sub <- subset(earnings, age<45, 
+                       select=c("wages", "gender", "race", "has_children"))
+
+# calculate mean earnings by gender, race, and children status
+earnings_agg <- aggregate(wages~gender+race+has_children, data=earnings_sub, mean)
+
+# reorder the aggregate earnings from lowest to highest wage
+earnings_agg <- earnings_agg[order(earnings_agg$wages),]
+
+earnings_agg
+```
+
+You don't need to understand all of these functions to get the gist of what is going on here. This code works, but is unpleasing for several reasons. First, I could have tried piping these commands, but it would have been difficult because there is no way to pipe in the creation of a new variable. Furthermore, the `aggregate` command takes the dataset as its second, not first, argument so the default pipe will not work out of the box. You will see that I ended up creating an `earnings_sub` dataset that I could feed into aggregate, leading to clutter in my environment. Finally, each of the commands uses its own bespoke system to do the things that it does. The `subset` command does two things at once (subsetting to respondents under 45 and restricting variables to the four I want). The aggregate command uses a formula to aggregate, and reordering my results has to be done by putting a command inside of indexing brackets. All in all this is not easy code to follow unless you are an expert at the inner workings of *R*.
+
+Instead, lets try this same thing with a tidyverse approach:
+
+```{r}
+earnings_agg <- earnings |>
+  mutate(has_children = nchild>0) |>
+  filter(age<45) |>
+  select(wages, gender, race, has_children) |>
+  group_by(gender, race, has_children) |>
+  summarize(mean_wages=mean(wages)) |>
+  arrange(mean_wages)
+
+earnings_agg
+```
+
+I get the same result and all of the code is more compact, symmetric and easy to read. Tidyverse functions are designed as "verbs" and you can see that in action here. We first mutate, then filter, then select, etc. Even if you don't understand all of the details of these commands yet, the approach is easier to follow. We are also much tidier because we don't create any intermediate objects along the way.
+
+Piping isn't always the right solution, but you should always ask yourself if your current approach couldn't be improved by using piping.
