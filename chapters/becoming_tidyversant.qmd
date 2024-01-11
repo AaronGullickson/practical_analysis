@@ -1,14 +1,28 @@
 # Becoming Tidyversant {#sec-becoming-tidyversant}
 
+::: {layout-nrow=2}
+
+![](../images/dplyr.png){width=20%}
+![](../images/tibble.png){width=20%}
+![](../images/ggplot2.png){width=20%}
+![](../images/tidyr.png){width=20%}
+![](../images/readr.png){width=20%}
+![](../images/stringr.png){width=20%}
+![](../images/forcats.png){width=20%}
+![](../images/purrr.png){width=20%}
+
+:::
+
+
 ```{r}
 #| include: false
 
 source("scripts/check_packages.R")
 ```
 
-The [tidyverse](https://www.tidyverse.org/) describes itself as "an opinionated collection or R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures. But what does this mean?
+The [tidyverse](https://www.tidyverse.org/) describes itself as "an opinionated collection or R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures." But what does this mean?
 
-It might help to understand what life was like in the dark times, before the tidyverse. *R* inherited much of its syntax and functions from the older S and S-plus programs. Many of these base functions were written decades ago by many different people, and relatively little thought was given to uniformity in the way the syntax operated. For example, while most functions take the variable or object they want to manipulate as their first argument, you will ocassionally running into functions where this is the second argument (the pattern matching functions like `grep` and `sub` are good examples). Thus, base R can feel a little disorganized and aesthetically unpleasing from a coding sense. 
+It might help to understand what life was like in the dark times, before the tidyverse. *R* inherited much of its syntax and functions from the older S and S-plus programs. Many of these base functions were written decades ago by many different people, and relatively little thought was given to uniformity in the way the syntax operated. For example, while most functions take the variable or object they want to manipulate as their first argument, you will ocassionally find functions where this is the second argument (the pattern matching functions like `grep` and `sub` are good examples). Thus, base *R* can feel a little disorganized and aesthetically unpleasing from a coding sense. 
 
 The intent of the tidyverse was to create core data science functions that all used the same "grammar" and thus were easy to learn, use, and read. It is no exaggeration to say that the tidyverse has transformed *R* from a niche programming language for hard-core statisticians and geeks into one of the premier tools for data analysis and data science. In this book (and course, if you are taking it from me), we will largely focus on tidyverse solutions to data wrangling problems. While there are extensions of the tidyverse to the more data analysis side of things, I think the biggest benefit comes in terms of organizing your data. 
 
@@ -39,29 +53,16 @@ library(tidyverse)
 
 The eight packages that make up the tidyverse are:
 
-`ggplot2`
-: This is the package that started it all. The "gg" stands for the grammar of graphics and `ggplot2` offers an entire grammar for creating beautiful plots. This package has been so popular that it has completely eclipsed the "base" *R* plots people used to make. As someone who used to struggle through making base *R* plots, I am here to tell you that is a great thing. Because this is such a big part of what we do, I have devoted @sec-making-pictures to a discussion of the tidyverse.
-
-`dplyr`
-: This is the workhouse package of the tidyverse and includes a variety of functions designed to manipulate data, all with handy verbs for names. You recode variables by `mutate`. You create subsets of data by `filter`. You pick variables in your dataset to keep by `select`. Most of your basic data manipulations functions will live in `dplyr`.
-
-`tidyr`
-: Wondering what the whole "tidy" thing is about? It usually refers to the concept of "tidy data" where each row is an observation and each column is a variable. Unfortunately, data doesn't always come in this tidy form. The `tidyr` package has functions that allow you to turn messy data into tidy data. Most important for our purposes, the `tidyr` package has functions that allow us to reshape data from wide to long formats and vice versa. 
-
-`readr`
-: The `readr` package is all about getting data *into* *R* in the first place. Base *R* has some functions for reading in data, but the `readr` functions are generally improvements on these functions. They allow you to read in a wide variety of data formats faster and with less errors.
-
-`purrr`
-: This package is designed to replace iteration tools like for-loops and the `lapply` command from base *R* with faster more flexible functions. It is probably the most "advanced" package in the tidyverse. We will cover some of its functionality when we talk about programming at the end of the book.
-
-`tibble`
-: Implicitly, you will use this package more than any other. The `tibble` is an extension to the basic `data.frame` object. It has all the functionality we expect from the `data.frame` plus a lot more. Generally, we will try to work with tibbles rather than data.frames whenever we can.
-
-`stringr`
-: This package is designed for dealing with character strings. You might for example want to check for a certain pattern in character strings. The `stringr` package has you covered. We won't cover it in detail here.
-
-`forcats`
-: Not actually about cats. This package has a variety of functions to make it easier to work with categorical data in the form of factor variables.
+|                         |                                                                                                                 |
+|-------------------------|-----------------------------------------------------------------------------------------------------------------|
+| ![](../images/ggplot2.png) | This is the package that started it all. The "gg" stands for the grammar of graphics and `ggplot2` offers an entire grammar for creating beautiful plots. This package has been so popular that it has completely eclipsed the "base" *R* plots people used to make. As someone who used to struggle through making base *R* plots, I am here to tell you that is a great thing. Because this is such a big part of what we do, I have devoted @sec-making-pictures to a discussion of the tidyverse. |
+| ![](../images/dplyr.png) | This is the workhouse package of the tidyverse and includes a variety of functions designed to manipulate data, all with handy verbs for names. You recode variables by `mutate`. You create subsets of data by `filter`. You pick variables in your dataset to keep by `select`. Most of your basic data manipulations functions will live in `dplyr`. |
+| ![](../images/tidyr.png) | Wondering what the whole "tidy" thing is about? It usually refers to the concept of "tidy data" where each row is an observation and each column is a variable. Unfortunately, data doesn't always come in this tidy form. The `tidyr` package has functions that allow you to turn messy data into tidy data. Most important for our purposes, the `tidyr` package has functions that allow us to reshape data from wide to long formats and vice versa. |
+| ![](../images/readr.png) | The `readr` package is all about getting data *into* *R* in the first place. Base *R* has some functions for reading in data, but the `readr` functions are generally improvements on these functions. They allow you to read in a wide variety of data formats faster and with less errors. |
+| ![](../images/purrr.png) | This package is designed to replace iteration tools like for-loops and the `lapply` command from base *R* with faster more flexible functions. It is probably the most "advanced" package in the tidyverse. We will cover some of its functionality when we talk about programming at the end of the book. |
+| ![](../images/tibble.png) | Implicitly, you will use this package more than any other. The `tibble` is an extension to the basic `data.frame` object. It has all the functionality we expect from the `data.frame` plus a lot more. Generally, we will try to work with tibbles rather than data.frames whenever we can. |
+| ![](../images/stringr.png) | This package is designed for dealing with character strings. You might for example want to check for a certain pattern in character strings. The `stringr` package has you covered. We won't cover it in detail here. |
+| ![](../images/forcats.png) | Not actually about cats. This package has a variety of functions to make it easier to work with categorical data in the form of factor variables. |
 
 ## Using Tibbles
 
