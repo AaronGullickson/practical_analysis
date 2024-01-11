@@ -182,6 +182,14 @@ earnings_agg <- earnings |>
 earnings_agg
 ```
 
+I start by piping the earnings dataset into the `mutate` command which allows me to create a new variable or recode an existing one. The output of that `mutate` command (which includes the new variable of `has_children`) is then piped into the `filter` command which drops all observations that are not under age 45. The output of that `filter` command is then fed into the `select` command which drops all variables except for the ones listed. The output of that `select` command is then fed into the `group_by` command which creates a "grouped" tibble that can be aggregated along the given dimensions. The output of the `group_by` command is then fed into the `summarize` command which calculates the mean of wages across the three groups. The output of this command, which is still a tibble, is then fed into the `arrange` command which orders the observations from smallest mean wage to largest mean wage. This final output is then assigned to an object called `earnings_agg`. 
+
 I get the same result and all of the code is more compact, symmetric and easy to read. Tidyverse functions are designed as "verbs" and you can see that in action here. We first mutate, then filter, then select, etc. Even if you don't understand all of the details of these commands yet, the approach is easier to follow. We are also much tidier because we don't create any intermediate objects along the way.
 
-Piping isn't always the right solution, but you should always ask yourself if your current approach couldn't be improved by using piping.
+Note that when you use pipes, the first argument is always the object your are piping and can be left out of the function call. For example, the first argument of `filter` is the data.frame/tibble you want to subset and the second argument is the boolean statement which tells `filter` what to keep (in this case observations under age 45). Because, the earnings tibble is already being piped in, we can begin with the second argument.
+
+Another thing to note here is that generally when you reference variables in tidyverse functions, you don't ever have to surround them with quotes. You will notice that in the base *R* code above, I had to feed in a vector of character names for the `select` argument of the `subset` command to reduce the dataset to just those variables. The tidyverse command `select` does the thing but I can just write the raw names of the variables themselves.
+
+## Learning More
+
+I am not going to go into detail about all of the functionality of the tidyverse here, because we will learn that in subsequent chapters. However, you can also learn more by going to the [tidyverse website](https://tidyverse.org). If you click on the links to individual packages, you will get access to handy cheatsheets for each of the packages which are a useful reference. For example, you can [click here](https://github.com/rstudio/cheatsheets/blob/main/data-transformation.pdf) to get the cheatsheet for `dplyr`. 
