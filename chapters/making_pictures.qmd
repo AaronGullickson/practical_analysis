@@ -15,8 +15,8 @@ ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(alpha=0.7, aes(color=borough, size=popn))+
   geom_smooth(method="lm", color="black", se=FALSE, size=1.5)+
   scale_x_continuous(label=scales::percent)+
-    scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+    scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_color_viridis_d()+
   theme_bw()+
   labs(x="family poverty rate",
@@ -177,7 +177,7 @@ Each of the `scale_y_*` and `scale_x_*` commands have arguments that allow you t
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000))
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000))
 ```
 That looks better to me, but I still want the dollar sign in front to help the reader understand how this variable is being measured. You can also specify a `labels` argument that is of the same length as `breaks` but a character vector that actually shows how the tickmarks will be displayed. There are a couple of ways that I can do this, but the easiest approach is to use the handy [scales](https://scales.r-lib.org/) package which is built to handle these types of cases. From that `scales` package, I can just use the `dollar` function to convert my numeric values into a nice tickmark display.
 
@@ -187,8 +187,8 @@ That looks better to me, but I still want the dollar sign in front to help the r
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))
 ```
 Its worthwhile to take the time to adust your tickmarks for a nice display because it can really help a reader to orient themselves to what is being measured in your plot.
 
@@ -200,8 +200,8 @@ In that regard, lets go ahead and adjust the tickmarks on the x-axis as well. Th
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)
 ```
 
@@ -219,8 +219,8 @@ The color palette is controlled by `scale_color_*` commands. The most direct app
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)+
   scale_color_manual(values=c("thistle","steelblue","moccasin","salmon",
                               "seagreen"))
@@ -234,8 +234,8 @@ While designing your own color palettes can be a lot of fun, you are usually bet
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)+
   scale_color_brewer(palette="Dark2")
 ```
@@ -248,8 +248,8 @@ Another built-in option for color palettes is the [viridis](https://cran.r-proje
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)+
   scale_color_viridis_d()
 ```
@@ -278,8 +278,8 @@ To use this palette, I just need to feed in `wes_palette` as values in `scale_co
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)+
   scale_color_manual(values = wesanderson::wes_palette("Moonrise3"))
 ```
@@ -294,8 +294,8 @@ You can also use color in a non-aesthetic direct way. For example, I don't reall
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE, color="grey30", size=2)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)+
   scale_color_viridis_d()
 ```
@@ -312,8 +312,8 @@ You can control all of these labels with the `labs` command. Most of the argumen
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE, color="grey30", size=2)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)+
   scale_color_viridis_d()+
   labs(x="family poverty rate",
@@ -334,8 +334,8 @@ Our figure is really coming together. The last step is to decide on a theme. Rig
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE, color="grey30", size=2)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)+
   scale_color_viridis_d()+
   labs(x="family poverty rate",
@@ -361,8 +361,8 @@ ggplot(nyc, aes(x=poverty, y=amtcapita))+
 p <- ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE, color="grey30", size=2)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)+
   scale_color_viridis_d()+
   labs(x="family poverty rate",
@@ -392,8 +392,8 @@ The [ggthemes](https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggth
 p <- ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE, color="grey30", size=2)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)+
   scale_color_viridis_d()+
   labs(x="family poverty rate",
@@ -405,7 +405,6 @@ p+ggthemes::theme_fivethirtyeight()
 p+ggthemes::theme_economist()
 p+ggthemes::theme_wsj()
 p+ggthemes::theme_tufte()
-
 ```
 
 You can also change specific elements with the `theme` command. The help file for the `theme` command will show you the very long list of parameters that can be adjusted. If you really want to go crazy you can use it to create your own custom theme. The more common use is to use the `theme` command to alter the behavior of another theme. Let me do that now to move the legend to the bottom of the graph and to remove gridlines:
@@ -416,8 +415,8 @@ You can also change specific elements with the `theme` command. The help file fo
 ggplot(nyc, aes(x=poverty, y=amtcapita))+
   geom_point(aes(color=borough, size=popn), alpha=0.7)+
   geom_smooth(method="lm", se=FALSE, color="grey30", size=2)+
-  scale_y_log10(breaks=c(1,10,100,1000,10000),
-                labels=scales::dollar(c(1,10,100,1000,10000)))+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
   scale_x_continuous(labels=scales::percent)+
   scale_color_viridis_d()+
   labs(x="family poverty rate",
@@ -432,6 +431,79 @@ ggplot(nyc, aes(x=poverty, y=amtcapita))+
 
 ### Overlapping Labels
 
+In many cases, your x-axis will be a categorical variable and the tickmarks will identify different categories. This is true of basic barplots and comparative boxplots, for example. One common problem with this approach is that long category labels may start overlapping due to a lack of room. Lets make a comparative boxplot of movie run time from the movies data by genre to see the problem:
+
+```{r}
+#| label: fig-comp-box
+#| fig-cap: Comparative boxplot of movie runtime by genre. Some of the longer category name labels on the x-axis are running into each other which looks poor.
+load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/movies.RData"))
+
+ggplot(movies, aes(x=reorder(genre, runtime, median), y=runtime))+
+  geom_boxplot(fill="grey")+
+  theme_bw()+
+  labs(y="movie runtime in minutes", x=NULL)
+```
+
+As @fig-comp-box shows, some of the genre labels are running into other ones. There simply isn't enough room to fit them all in. You could go deep into the `themes` function to find the parameter to align labels at an angle, but a simpler solution is to just use `coord_flip` to reverse the placement of your x and y axis:
+
+```{r}
+#| label: fig-coord-flip
+#| fig-cap: By using `coord_flip()`, we ensure that there is enough room in the margins to display each genre name fully.
+load(url("https://github.com/AaronGullickson/stat_data/raw/main/output/movies.RData"))
+
+ggplot(movies, aes(x=reorder(genre, runtime, median), y=runtime))+
+  geom_boxplot(fill="grey")+
+  coord_flip()+
+  theme_bw()+
+  labs(y="movie runtime in minutes", x=NULL)
+```
+
+As @fig-coord-flip shows, the genre names will now have no problem with overlap because they each show up on their own row and ggplot will always ensure there is enough room in the margins to list each label.
+
 ### Don't Forget the +!
 
+Probably the most common mistake when using `ggplot` is to forget the "+" sign that connects each command together to form the whole figure. If you do this, the figure will end at the point where there is no "+" and the remaining commands will be run separately and likely give you errors or odd results. for example:
+
+````{r}
+#| label: fig-forget-plus
+#| fig-cap: What happened to our labels? The `labs` command was not connected to the rest of the ggplot by a "+" sign so instead of being applied to the plot, those labels are just printed to the screen.
+ggplot(nyc, aes(x=poverty, y=amtcapita))+
+  geom_point(alpha=0.7, aes(color=borough, size=popn))+
+  geom_smooth(method="lm", color="black", se=FALSE, size=1.5)+
+  scale_x_continuous(label=scales::percent)+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
+  scale_color_viridis_d()+
+  theme_bw()
+  labs(x="family poverty rate",
+       y="amount of funding per capita",
+       caption="data from New York City, 2009-2010",
+       size="population size")
+```
+
+The automatic indenting should give you a hint that a "+" sign is missing. Ideally, this should be obvious when you hit return, but sometimes the "+" sign is missing because you add a layer in the middle somewhere and forget a "+" sign. You can use Ctrl+I (or Command+I on Mac) to check that the indenting is working as you expected.
+
+### Faceting Adds Context
+
+In @fig-nyc-final, I used color to distinguish health areas in different boroughs. This use of aesthetics add another dimension to the figure. Another way to accomplish this same thing is faceting. When you facet, you split a basic graph into a sequence of panels where each panel is a separate category of some categorical variable. This approach is also called a "small multiple." Lets try that with the NYC data.
+
+```{r}
+ggplot(nyc, aes(x=poverty, y=amtcapita))+
+  geom_point(alpha=0.4, aes(size=popn))+
+  geom_smooth(method="lm", color="black", se=FALSE, size=1.5)+
+  scale_x_continuous(label=scales::percent)+
+  scale_y_log10(breaks=c(1, 10, 100, 1000, 10000),
+                labels=scales::dollar(c(1, 10, 100, 1000, 10000)))+
+  facet_wrap(~borough)+
+  theme_bw()+
+  labs(x="family poverty rate",
+       y="amount of funding per capita",
+       caption="data from New York City, 2009-2010",
+       size="population size")
+```
+
+The scatterplot for each borough now shows up in a separate panel. Because the boroughs are separated, I can more clearly see the relationship for each borough than with the color case. Generally, any categorical variable that you want to add with an aesthetic can also be done through faceting. If you want to add even more dimensionality to your figure, you can use both an aesthetic like color *and* faceting to get multiple dimensions into your figure. 
+
 ## Learning More
+
+The `ggplot2` framework is designed to encourage exploration and playfulness, You can make an incredible variety of figures using `ggplot2` once you learn to speak its grammar. To help get you started, you can view the [plotting cookbook](https://stat-analysis.netlify.app/appendices/appendix_plotting_cookbook.html) in this textbook's companion textbook, which provides basic starter code for a variety of basic plot types. I would also recommend Kieran Healy's fantastic [Data Visualization](https://socviz.co/) book which uses `ggplot2`.
