@@ -5,7 +5,7 @@
 #http://www.vikram-baliga.com/blog/2015/7/19/a-hassle-free-way-to-verify-that-r-packages-are-installed-and-loaded
 
 packages = c("here", "tidyverse",
-             "gt")
+             "gt", "scales", "ggthemes")
 
 package.check <- lapply(packages, FUN = function(x) {
   if (!require(x, character.only = TRUE)) {
