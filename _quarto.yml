@@ -39,6 +39,7 @@ format:
   html:
     theme: darkly
     css: styles.css
+    html-table-processing: none
 execute:
   freeze: auto
   warning: false
