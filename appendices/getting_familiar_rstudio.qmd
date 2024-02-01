@@ -34,7 +34,7 @@ getwd()
 
 It is reporting the full path to my working directory from the base of my computer. So I am in "practical_analysis" directory which is a subdirectory of the "teaching" directory which is a subdirectory of the "home" directory of user "aarong" (thats me!). 
 
-However, you don't even need to run this command. If you look at the top of your console tab, you will see that it shows your current working directory right there, as shown in @fig-rstudio_wd.
+However, you don't even need to run this command. If you look at the top of your console tab, you will see that it shows your current working directory right there, as shown in @fig-rstudio-wd.
 
 ![Information at the top of your *R* console will show you the current working directory. The `~` is short for your user's home directory.](../images/rstudio_wd.png){#fig-rstudio-wd}
 

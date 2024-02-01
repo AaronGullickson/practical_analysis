@@ -265,7 +265,7 @@ When you render your document to a PDF format, figures may "float." They may not
 
 ## Adding Tables
 
-Adding nice tables in Quarto is a bit trickier than figures because tables vary enormously in their style and layout. If you want to display a pre-built `tibble` as a simple table in a Quarto document, you can use the `kable` command from the `knitr` package, as shown in the code chunk below and @tbl-movie.summary.
+Adding nice tables in Quarto is a bit trickier than figures because tables vary enormously in their style and layout. If you want to display a pre-built `tibble` as a simple table in a Quarto document, you can use the `kable` command from the `knitr` package, as shown in the code chunk below and @tbl-movie-summary.
 
 ```{r}
 #| label: tbl-movie-summary
@@ -288,7 +288,7 @@ movies |>
 
 You can see from the code chunk above that we use chunk options similar to figures for tables. I define a label that starts with "tbl-" which I can use to cross-reference the table in the text. I also provide a `tbl-cap` for a caption to the table.
 
-The `knitr::kable` command can be good for basic tables, but does not provide a great deal of customization options for more complex tables. If you need a more complicated table, the best option is the [gt](https://gt.rstudio.com/) package, which tries to apply a "grammar" to tables in a way analogous to `ggplot2`. The code chunk below uses `gt` package to create @tbl-movies-summary-gt. 
+The `knitr::kable` command can be good for basic tables, but does not provide a great deal of customization options for more complex tables. If you need a more complicated table, the best option is the [gt](https://gt.rstudio.com/) package, which tries to apply a "grammar" to tables in a way analogous to `ggplot2`. The code chunk below uses `gt` package to create @tbl-movie-summary-gt. 
 
 ```{r}
 #| label: tbl-movie-summary-gt
@@ -327,3 +327,6 @@ Just as with `ggplot2`, the best approach to `gt` is to start with a simple tabl
 
 ## Adding Citations
 
+You may have noticed that the document I rendered in @fig-quarto-chunk-run had citations and references. These citations are also automated and connected to a [Zotero](https://www.zotero.org/) bibliography. Whenever the document is rendered, the citations are updated and a reference list is added to the end of the document. 
+
+To make use of this system, you will need to have a Zotero bibliography. I recommend 
