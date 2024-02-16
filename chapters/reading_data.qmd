@@ -1,1 +1,522 @@
 # Reading Data {#sec-reading-data}
+
+```{r}
+#| include: false
+
+source("scripts/check_packages.R")
+```
+
+We are now ready to start wrangling some raw data into a tidy analytical data set. But before we even get started, we may be stumped by what seems like a pretty fundamental issue. How do we get our data, which will typically exist as a file or set of files, *into* *R* in the first place? This may seem like a pretty basic question. However, it can actually be quite complicated, because data comes to us in so many different forms. Luckily, with a little package help, *R* is very good at reading data in just about any form you can imagine.
+
+## Understanding the Path
+
+Before we talk about actually reading in data, we need to have a conversation about something else. I am assuming in this chapter that you are reading in data from a file that you have locally on your system. This isn't always tru as you can read data from online databases and other online sources as well, like Google Sheets. However, in most cases, you will have downloaded data or an extract of a larger dataset to your local computer. 
+
+In order to access that data, we need to tell *R* what the *path* is to your data. A path is just a character string giving the directories that we need to traverse to get to your file, where each directory is separated by a forward slash. However, you can specify the path in one of two ways: absolute or relative.
+
+All of the datasets that I will use in this chapter are stored on my local system in a subdirectory of this book project called `data`.^[You can also see them on GitHub [here](https://github.com/AaronGullickson/practical_analysis/tree/master/data)] The absolute path to a file called `data.csv` in this directory is:
+
+```bash
+/Users/aarong/teaching/practical_analysis/data/data.csv
+```
+
+This absolute path starts with a forward slash that takes me to the root directory of my computer. From there I traverse first to `Users`, then to `aarong`, then to `teaching` and so on, until I finally get to the data file. If I provide this path to *R*, it will successfully load the file *on this computer at this moment in time.* However, if I decide I want to move my teaching folder to another place, then this path will no longer work. If someone else clones my code, this path will definitely not work. This path is not reliable and should never be used. This leads us to a very important maxim that you **must** follow at all times:
+
+> Never, ever, ever, ever, ever use absolute paths.
+
+Instead of absolute paths, we want to use a relative path. A relative path does not go all the way back to the root directory of my computer. It only goes back to the current working directory of *R*. In this case, my working directory will always be the `practical_analysis` directory because that is the directory of my *R* project. So instead of the absolute path, I can provide a relative path like so:
+
+```bash
+data/data.csv
+```
+
+Notice that there is no leading forward slash. I know the user is already in `practical_analysis` so I can just proceed directly to my `data` directory and then the file. R will now successfully load the file *on any computer at any moment in time* so long as the user has properly loaded my project as an *R* project. The path is now reliable.
+
+If you download this dataset to try out some of the code I use here, you may not put it into a `data` subdirectory relative to your working path, so the path you need to provide to get all of the code below to work may be different. Just remember that you need to specify the location of your file relative to the working directory of *R* (which you can always find with `getwd()`).
+
+## Plaintext vs. Binary Formats
+
+If you ask an experienced coder how to read in your dataset, the first thing they might ask you is whether the data file you have is "text" or "binary." This important distinction will tell us a lot about what tools we will need to read your data. 
+
+The distinction is a little inaccurate because on some level computers store everything in binary. When we talk about "text" or "plaintext" files, we mean files with a simple encoding of text characters. These files can be opened in a variety of text editing programs like TextEdit on Mac and Notepad on Windows. Plaintext files are also what we use to write scripts in R. When you open one of these files, all you see is basic text.^[Sometimes this text is described as "ASCII text" which stands for American Standard Code for Information Interchange. This is a set of codings to represent basic text. However, in practice, these codes have been extended beyond basic ASCII to include a variety of characters not available in American English.] You won't get any nice visual markup, like bolding, headings, bullet points, etc. Plaintext is ... well, plain.
+
+On the other hand, if you write some paragraphs in a Microsoft word document and save it, your resulting file is not a plaintext document, despite the fact that you are writing text. This is because Microsoft Word also wants to save all of the formatting that you have applied to your document, so that when you open it up the next time, you don't have to do all the formatting over again. Therefore, the file you save to is not simply made up of plaintext but rather incorporates all kinds of additional information. That additional information is valuable, but it comes at a cost. To see what that document looks like, I need to open the file again specifically in Microsoft Word.^[In practice, people have figured how to "crack" the binary codes of many formats like Microsoft Word so that you can open Microsoft Word documents in other programs like Google Docs.] If I open it up in TextEdit, it will just be a bunch of weird and seemingly random characters. Typically, a binary file is tied to a particular program that knows how to open it. 
+
+You can encode data as either a plaintext or binary file in this way. To give a simple example, if I enter my data into an Excel spreadsheet, I can save that natively as an Excel file (with a .xlsx file suffix). This is a binary file that is intended to be opened by Microsoft Excel itself. Alternatively, I could have saved it as a "Comma-Delimited Values" (CSV) file which is a plaintext file that can be opened by any program. 
+
+There are tradeoffs to storing your data in either format. Binary files can easily have "value added" formatting applied to them. However, they also will be larger in size than the corresponding plaintext file due to that value added. Additionally, they will be less transportable and open because a person may need access to a specific program to open them. I generally apply a simple rule to the best practices for storing data:
+
+* Raw data that is meant to be shared with others is best stored as plaintext data so that it can be accessed in the program of the user's choice. Documentation of the data to help reading it and encoding it can be provided separately. Unfortunately, because we are usually getting the raw data from somewhere else, we don't typically get to decide how they store the data and so need to be ready to deal with data in both plaintext and binary formats.
+* Analytical data that you construct from the raw data for a particular project is best stored as a binary file because you will typically have added value. For example, if you have encoded a set of character strings into a factor variable, you will want *R* to remember that factor variable the next time you load up your data. This will only happen if you save it as a native binary `.RData` file with the `save` command (which we will discuss at the end of this chapter).
+
+The good news is that *R* is very good at reading in data in both formats as I describe below. In both cases, the goal is to read in *rectangular" data that has observations on the rows and variables on the columns.
+
+## Reading Plaintext Data
+
+Its pretty straightforward to distinguish "rows" in plaintext data - each line of the file is a single observation. But how do we distinguish variables on the same row? There are generally two ways of doing this with plaintext data.
+
+The first approach is a file that uses **delimiter-separated values**. In this case, we use some kind of character delimiter to distinguish where one variable stops and another variable starts. The most common delimiter is the comma which gives us the comma-separated values (or CSV) file. Here is an example of a small comma-separated value file:
+
+::: {#fig-csv}
+
+```md
+name,location,race,gender,yrsed
+"Bobbi","Eugene, OR","Black","Female",12
+"Jim","Seattle, WA","White","Male",11
+"Mary","Oakland, CA","White","Female",16
+```
+
+A basic CSV file for three observations. Note that character strings are surrounded in quotes so we don't confuse delimiters inside strings with real delimiters.
+
+:::
+
+You can see that the first line is a header providing variable names. Most of the remaining variables are character strings. It is important to embed character strings in quotes because they might contain commas that are not intended as delimiters (which is the case here for the location variable).
+
+An older format that is not widely used today, but was common with older data is the tab-separated values file in which the tab character was used to separate values, a TSV file. If you are using modern data, you will almost always see CSV files, but if necessary we can read in other kinds of delimiter-separated values files by just changing the delimiter.
+
+The second approach is a **fixed-width** file. A fixed-width file contains no information in the file itself to distinguish variables. Instead, a separate document will provide the widths or starting positions of each variable in terms of the number of characters. This information can then be used to "slice" each row into the appropriate variables.
+
+Here is an example of the same data file as above but this time as a fixed-width file:
+
+::: {#fig-fwf}
+
+```md
+BobbiEugene,OR BlackFemale12
+Jim  Seattle,WAWhiteMale  11
+Mary Oakland,CAWhiteFemale16
+```
+
+A fixed-width file for three observations. Can you guess the width of each variable?
+
+:::
+
+Because much of the encoding is in words rather than numbers, we can kind of see what the widths must be. The first five characters contain the name of the respondent. The next 10 characters indicate location. The next five characters indicate race. The next six characters indicate gender, and the last two characters indicate years of education. Note that I need to use whitespace either in front of or after values when they don't occupy the full width. 
+
+There are tradeoffs to delimiter-separated values and fixed-width files. Delimiter-separated values files do not require any additional information aside from what is in the file making them more compact. However, when you have large amounts of data and variables, the extra commas and quotation marks can lead to a substantial increase in the size of the file, so fixed-width files are often the obvious choice for large datasets. Fixed-width files also have the advantage that users can just pick out the variables they want from the dataset rather than read in the whole thing. This can be very advantageous if you have a file with a large number of variables you do not need.
+
+Regardless of which type of file we have, we will use the same package to read them. The `readr` package has all the functions we need to read in plaintext data files. In the sections below, I describe how to use `readr` to read in both types of files.
+
+::: {.callout-caution}
+## Don't use the functions with the dot!
+
+Base *R* also has functions for reading in these types of files, but in my experience, those functions are often *much* slower and more prone to error. The `readr` functions just work.
+
+The functions have very similar names, but the difference is that the `readr` functions use underscores and the base *R* functions use a period. For example, to read in fixed-width data with `readr` you will use the `read_fwf` function, **not** the `read.fwf` function. 
+
+:::
+
+### Reading CSV Data
+
+The command in `readr` to read in CSV files is `read_csv`. Lets say that I had the data from @fig-csv stored in file at `data/data.csv`. I could load it into *R* with the simple command:
+
+```{r}
+#| message: true
+my_data <- read_csv("data/data.csv")
+my_data
+```
+The data is read into a `tibble` with no errors. Note that the `read_csv` command assumed that the first line of my data was a "header" row that provided the names of the variables. 
+
+In practice you may often encounter CSV files that are messier than the one in @fig-csv. @fig-messy-csv shows an example of a messier CSV file.
+
+::: {#fig-messy-csv}
+
+```md
+*Some data that I collected
+*I cant remember when
+name of person,location of person,racial category,gender of person,years of education
+name,location,race,gender,yrsed
+"Bobbi","Eugene,OR","Black","Female",12
+"Jim","Seattle,WA","na","Male",11
+"Mary","Oakland,CA","White","Female",16
+```
+
+An example of a somewhat messy CSV file. Two comments are embedded at the top and an extra row of lines provides a longer description of what each variable does. An NA value is also recorded as "na" for race in one of the lines.
+
+:::
+
+We have to go down to line four in this file before we get to the real data. Furthermore, a character string of "na" was meant to designate a missing value. Luckily, the `read_csv` command gives us a few tools for working with this messy data:
+
+* We can use the `comment` argument to indicate a comment character. Any line that starts with this comment character will be ignored. We can use `comment="*"` here to ignore the first two lines. 
+* We can also use the `skip` argument to skip a certain number of lines before reading the file. In this case, I could do `skip=3` to just ignore all three lines (in which I case I don't have to worry about the comments anyway).
+* The `na` argument can be used to indicate a vector of character strings that should be treated as missing values in the data. I can use `na="na"` to pick up that missing value.
+
+When I put this altogether, I get:
+
+```{r}
+#| message: true
+my_data <- read_csv("data/data_messy.csv", skip=3, na="na")
+my_data
+```
+
+Lets move on from these toy examples to the kind of problems reading in data you might experience "in the wild." As an example, I downloaded some data from the [World Development Indicators](https://databank.worldbank.org/source/world-development-indicators) database maintained by the World Bank. This database is an excellent resource for gathering cross-national data over time. I used it to downloaded an extract of data giving me life expectancy at birth, GDP per capita, and CO2 emissions per capita for every country in the world in 2018 and 2019. The data is downloadable as a CSV file, which you can view and download [here](https://github.com/AaronGullickson/practical_analysis/blob/master/data/world_bank.csv). This CSV files has a couple of oddities. Lets address the most egregious one first. If you go to the very bottom of the file you will see the following lines:
+
+```md
+,,,,,
+,,,,,
+,,,,,
+Data from database: World Development Indicators,,,,,
+Last Updated: 12/19/2023,,,,,
+```
+
+This serves as a footnote, but it does not use any comment characters so we can't ignore it with comments and we can't skip it because its at the bottom. If we read the data in as is, we will get a bunch of junk lines full of missing values at the bottom and "Data from database: World Development Indicators" will be recorded as a country name. Why do you do this to us, WDI? 
+
+We can still read this file in with the `n_max` argument. This argument defines a maximum number of lines to read in. By examining the file, we can determine how many lines of *actual* data we have.^[The easiest way to do this is open it directly in RStudio which will give you a line count to the left.] By doing that, I can see that I have 651 lines of real data. So, 
+
+```{r}
+#| message: true
+world_bank <- read_csv("data/world_bank.csv", n_max = 651)
+tail(world_bank)
+```
+
+You can see that my dataset ends correctly with the last actual entry and doesn't include the junk "footnote" lines. 
+
+However, there are still some oddities with this dataset. First, even the numeric rows are showing up as characters, not numeric values. Why might this be the case? The reason is that missing values are recorded in the WDI with `..`. *R* correctly recognizes these values as characters and thus converts the entire column of data to character strings. Luckily, we already know how to  fix that problem by specifying the `na` argument:
+
+```{r}
+#| message: true
+world_bank <- read_csv("data/world_bank.csv", n_max = 651, na = "..")
+world_bank
+```
+
+You can now see that the numeric variables are being properly recorded as `dbl` (double) values.
+
+The final problem with this dataset are the variable names. The WDI uses good names if you want this dataset to be read by a human but very bad names if you want it to be read by a computer. We get full words separated by spaces for most variables, and numbers with special characters for the two numeric value columns. Luckily, tibbles can handle these kinds of variables by surrounding them with grave accents (\\`), but its less than ideal to use these variable names in practice, because we have to do something like:
+
+```{r}
+table(world_bank$`Series Name`)
+```
+
+We want to rename these variables to something more approporiate. There are a couple of different techniques that we can use to rename the variables. The first approach is to apply the `rename` function to the dataset after we load the dataset into *R*. The general syntax of `rename` is:
+
+```r
+dataset <- dataset |>
+    rename(new_var_name = old_var_name, ...)
+```
+
+For this dataset, I would follow the principle of changing everything to lower case and using underscores for space. The final two columns are a little trickier to rename, but since they represent years of data, I will use `year2018` and `year2019`.
+
+```{r}
+world_bank <- world_bank |>
+  rename(country_name = `Country Name`, country_code = `Country Code`,
+         series_name = `Series Name`, series_code = `Series Code`, 
+         year2018 = `2018 [YR2018]`, year2019 = `2019 [YR2019]`)
+world_bank
+```
+
+Another option would have been to change the names when I read them using the `col_names` argument. I can use this to specify a character vector of variable names. However, when I do this, I need to skip the first row because that row is automatically assigned as the header.
+
+```{r}
+world_bank <- read_csv("data/world_bank.csv", 
+                       n_max = 651, 
+                       na = "..",
+                       skip = 1, 
+                       col_names = c("country_name", "country_code", 
+                                     "series_name", "series_code", "year2018",
+                                     "year2019"))
+world_bank
+```
+
+This approach has the satisfying side effect that you don't need to correct variable names in a separate later command. However, it comes with a very significant drawback. You have to know the column names and ordering ahead of time. If you end up adding or removing variables in a new extract, your variable names will not be correct which could lead to confusion and misnamed variables. This is an example of *hard coding* where we depend on things being at certain actual positions in the dataset. Generally, its best to avoid this kind of hard coding, and thus I would recommend you generally use the first approach of renaming columns after you read in the data.
+
+We are now at a point where the World Bank data is usable. You might notice however that the format of the data is a little peculiar. This is an oddly shaped dataset where each row is not an observation. We will learn how to fix that problem in @sec-reshaping-data.
+
+::: {.callout-caution}
+## Don't Manually Edit That Data File!
+
+You might have noticed I left out one easy solution to the formatting problems with the WDI data. I could have just opened up the WDI data in a text editor and manually corrected it before reading it into *R*. This sort of "easy" approach is often appealing to students because they feel like they have the skills to use this approach. However, it is a Very Bad Idea for two reasons. First, you may end up downloading a data extract multiple times as you refine and develop your project. You will then have to repeat this manual process of correction each time you download a new extract. So what seems like a "quick" solution initially will become a tedious one in the long term. 
+
+Second, this approach violates the principles of open and transparent science. You want people to be able to track your analysis from the initial reading in of raw data all the way to the final analysis. If you manually edit raw data files after you extract them from somewhere else, then you have added an invisible step to the process that no one (including your future self) can see. Imagine someone tries to follow your process and downloads the same extract you did. They will now immediately run into problems because their variable names don't match yours. 
+
+If you have to edit a raw data file as a last resort because it is so badly structured that you simply cannot read it in programmatically, then you should be sure to document what you did somewhere in your project. I do this in a README file that goes in the directory containing the raw data.
+
+:::
+
+### Reading Fixed-Width Data
+
+Reading in fixed-width data usually requires more up front work than CSV files because we need to learn the positions for variables in the data and record these positions into the code that we write. For example, lets return to the toy example from above, shown in @fig-fwf2 for convenience.
+
+::: {#fig-fwf2}
+
+```md
+BobbiEugene,OR BlackFemale12
+Jim  Seattle,WAWhiteMale  11
+Mary Oakland,CAWhiteFemale16
+```
+
+A fixed-width file for three observations.
+
+:::
+
+We need to know the starting and ending positions of each variable in our dataset, or alternatively the width (number of characters) of each variable. This information will be provided in the documentation/codebook for the fixed-width data. For example, the codebook giving this information for the example in @fig-fwf2 might look like:
+
+```
+variable        start       end       width
+--------        -----       ---       -----
+name                1         5           5
+location            6        15          10
+race               16        20           5
+gender             21        26           6
+yrsed              27        28           2   
+```
+
+The starting and ending indices identify the breakpoints in each line that can be used to separate one variable from another. Alternatively, the widths provide the same information by telling me how many characters I should use to "slurp" up the data for each variable before moving to the next variable.
+
+I can read this fixed-width data into *R* using the `read_fwf` command from the `readr` package. The argument that we will use to identify positions is `col_positions`. This argument takes one of three functions:
+
+`fwf_positions`
+: Identify starting and ending positions in separate vectors like:
+
+```{r}
+#| message: true
+read_fwf("data/data_fw.txt",
+         col_positions = fwf_positions(start = c(1,  6, 16, 21, 27),
+                                       end   = c(5, 15, 20, 26, 28),
+                                       col_names = c("name","location","race",
+                                                     "gender","yrsed")))
+```
+
+`fwf_widths`
+: Identify column widths with a single vector like:
+
+```{r}
+#| message: true
+read_fwf("data/data_fw.txt",
+         col_positions = fwf_widths(widths = c(5, 10, 5, 6, 2),
+                                    col_names = c("name","location","race",
+                                                  "gender","yrsed")))
+```
+
+`fwf_cols`
+: Identify positions with arguments corresponding to column names. If you provide, a single number to each argument it will be interpreted as a width, while two arguments will be treated as a starting an ending position. Here is an example using starting and ending positions:
+
+```{r}
+#| message: true
+read_fwf("data/data_fw.txt",
+         col_positions = fwf_cols(name = c(1,5),
+                                  location = c(6, 15),
+                                  race = c(16, 20),
+                                  gender = c(21, 26),
+                                  yrsed = c(27, 28)))
+```
+
+All of these methods will work, but I would strongly recommend the use of `fwf_cols` with starting and ending positions. This approach will make it easier to make adjustments if you refine your extracts without having to make sure all of the variable names line up with your indices/widths.  Second, by using this method with starting and ending positions, you can only extract the variables that you need. For example, lets say I decide I don't want to grab the location variable in my raw data because I realize I won't need it. I can just remove tht line from my code:
+
+```{r}
+#| message: true
+read_fwf("data/data_fw.txt",
+         col_positions = fwf_cols(name = c(1,5),
+                                  race = c(16, 20),
+                                  gender = c(21, 26),
+                                  yrsed = c(27, 28)))
+```
+
+If I use widths instead of starting and ending positions, I always have to read in all variables because the position of each variable will depend on adding up all the previous widths. Thus, using `fwf_cols` with starting and ending positions will give you the most flexibility in reading in the raw data.
+
+Lets move from this toy example to another real world case. I have downloaded the 2022 American Community Survey data from the [IPUMS](https://usa.ipums.org/usa/) website. Rather than download the very large full data, I downloaded a small 500,000 person sample of the full data for demonstration purposes. You can download the data [here](https://github.com/AaronGullickson/practical_analysis/blob/master/data/usa_00129.dat.gz) but note that it is currently compressed as a "gzip" file with a "*.gz" suffix. One nice feature of the `read_` functions in `readr` is that they can all read directly from compressed data files. This feature can be extremely useful when you have a large dataset.
+
+If I were to uncompress my file and look at it, here is what the first five lines would look like:
+
+```md
+2022202201000000072022010000420000000876220220000000710100000015020130001000000876220765220000002
+2022202201000000132022010000777000004313620220000001310100000021010140001000004313610216220000002
+2022202201000000202022010001164000000471820220000002010100000020000140001000000471810756110000002
+2022202201000000272022010001383000000404420220000002710100000012010140001000000404420845110000002
+2022202201000000342022010001760000000741420220000003410100000019010130001000000741410552880200001
+```
+
+Not exactly easy to read is it? This is fixed-width data and IPUMS records all values as numeric integers regardless of whether they are categorical or quantitative. We need to look at the codebook to figure out how to slice up these lines into the variables we actually want. Luckily, my extract came with a codebook and the first lines of that codebook include the following:
+
+```md
+  Variable                         Columns        Len   2022    
+  YEAR                         H   1-4            4     X       
+  SAMPLE                       H   5-10           6     X       
+  SERIAL                       H  11-18           8     X       
+  CBSERIAL                     H  19-31          13     X       
+  HHWT                         H  32-41          10     X       
+  CLUSTER                      H  42-54          13     X       
+  STATEFIP                     H  55-56           2     X       
+  STRATA                       H  57-68          12     X       
+  GQ                           H  69              1     X       
+  PERNUM                       P  70-73           4     X       
+  PERWT                        P  74-83          10     X       
+  SEX                          P  84              1     X       
+  AGE                          P  85-87           3     X       
+  MARST                        P  88              1     X       
+  RACE                         P  89              1     X       
+  RACED                        P  90-92           3     X       
+  HISPAN                       P  93              1     X       
+  HISPAND                      P  94-96           3     X       
+  HCOVANY                      P  97              1     X       
+
+Variable Availability Key:
+All Years X - available in this sample
+All Years . - not available in this sample
+```
+Those look like the positions of variables! Now, I don't need all of these variables at the moment, so lets just extract a few things that I need, recognizing I can always add more later.
+
+```{r}
+acs <- read_fwf("data/usa_00129.dat.gz",
+                col_positions = fwf_cols(perwt   = c(74,83),
+                                         sex     = c(84,84),
+                                         age     = c(85,87),
+                                         marst   = c(88,88),
+                                         race    = c(89,89),
+                                         hcovany = c(97,97)))
+acs
+```
+
+This command *almost* worked perfectly. However, you will notice that two of my variables are being recorded as characters and not numeric values. The problem here is that IPUMS uses "0" values as fillers rather than spaces. When `read_fwf` encounters zeroes in front of numbers it automatically treats them as characters. However, we can force particular columns or the whole dataset into a certain type with the `col_types` argument. This argument takes another function `cols` where we can specify the type for each named column or we can use `.default` to specify the default for all columns. In this case, all of our columns should be simply integers, so lets just define the default as "i" for integer.^[The help file for `read_fwf` provides all of he possibilities here. The normal default is "?" for "guess."]
+
+```{r}
+acs <- read_fwf("data/usa_00129.dat.gz",
+                col_positions = fwf_cols(perwt   = c(74,83),
+                                         sex     = c(84,84),
+                                         age     = c(85,87),
+                                         marst   = c(88,88),
+                                         race    = c(89,89),
+                                         hcovany = c(97,97)),
+                col_types = cols(.default = "i"))
+acs
+```
+
+Now all of our variables are being properly recorded as integers. However, its worth noting that setting the default like this can get you into problems if you have variables that cannot be coerced into integers. For example, lets add the "cluster" variable which is 13 characters long to our data:
+
+```{r}
+acs <- read_fwf("data/usa_00129.dat.gz",
+                col_positions = fwf_cols(cluster = c(42,54),
+                                         perwt   = c(74,83),
+                                         sex     = c(84,84),
+                                         age     = c(85,87),
+                                         marst   = c(88,88),
+                                         race    = c(89,89),
+                                         hcovany = c(97,97)),
+                col_types = cols(.default = "i"))
+acs
+```
+
+You will see that a warning pops up. Lets use the `problems()` call as suggested to learn more:
+
+```r
+problems()
+```
+
+```
+# A tibble: 262,657 × 5
+     row   col expected   actual        file 
+   <int> <int> <chr>      <chr>         <chr>
+ 1     1     1 an integer 2022000000071 ""   
+ 2     1     1 an integer 2022000000131 ""   
+ 3     1     1 an integer 2022000000201 ""   
+ 4     1     1 an integer 2022000000271 ""   
+ 5     1     1 an integer 2022000000341 ""   
+ 6     1     1 an integer 2022000000401 ""   
+ 7     1     1 an integer 2022000000471 ""   
+ 8     2     1 an integer 2022000000541 ""   
+ 9     2     1 an integer 2022000000611 ""   
+10     2     1 an integer 2022000000671 ""   
+# ℹ 262,647 more rows
+# ℹ Use `print(n = ...)` to see more rows
+```
+
+The problem is that these numbers are too long to be recorded as integers (whose maximum value is 2147483647). However, I can fix this problem by specifying that this particular column should be recorded as a double (which can accommodate larger values and decimals).
+
+```{r}
+acs <- read_fwf("data/usa_00129.dat.gz",
+                col_positions = fwf_cols(cluster = c(42,54),
+                                         perwt   = c(74,83),
+                                         sex     = c(84,84),
+                                         age     = c(85,87),
+                                         marst   = c(88,88),
+                                         race    = c(89,89),
+                                         hcovany = c(97,97)),
+                col_types = cols(.default = "i", cluster = "d"))
+acs
+```
+
+Now, the cluster variable is recorded as a double without problem while the remaining variables are integers. 
+
+You may be wondering what we are supposed to do with a sex variable that only has values of 1 and 2 in it. Eventually we need to convert many of these numeric variables into factor variables to properly encode their categorical nature. We will learn how to do that in @sec-recoding-variables.
+
+## Reading Binary Data
+
+Reading binary data can be much simpler in some ways than reading text data. You generally need to find a package that will read in binary data in a particular format. So, its not that reading binary data is really simpler, but rather that someone else has done the hard work of doing it for us and putting all of that work into a package. 
+
+Before we discuss some of the common packages you will need, lets talk about some of the common forms of binary data you are likely to come across. @tbl-data-format shows many of the common formats you will come across and what you will need to read them into *R*.
+
+| File suffix    | File type            | Package        |
+|----------------|----------------------|----------------|
+| xls, xlsx      | Microsoft Excel      | readxl         |
+| ods            | OpenOffice Spreadheet| readODS        |
+| dta            | Stata save file      | haven          |
+| sav            | SPSS save file       | haven          |
+| por            | SPSS "portable" file | haven          |
+| sas            | SAS save file        | haven          |
+| xpt            | SAS transport file   | haven          |
+
+: List of common data formats and the package you can use to read them into *R*. {#tbl-data-format}
+
+Most of these formats are data saved in another statistical software program, such as the *.dta files that Stata saves. Additionally, you will often come across data in a spreadsheet format saved in Microsoft Excel, or ocassionally OpenOffice.
+
+All of the output from other statistical programs can be read in easily using the `haven` package, which provides a set of simple `read_` functions for reading in the data. In most cases, you simply need to supply the file path for the function to do its work. For example, I have a version of the toy data in @fig-csv saves as a Stata DTA file. I can easily load that into R with the `read_dta` function from `haven`:
+
+```{r}
+my_data <- read_dta("data/data.dta")
+my_data
+```
+
+You will notice that the race variable looks a bit odd here. This variable was already encoded as a categorical variable in Stata. When `haven` reads in the data, it stores this information in a type called `haven_labelled` which is similar to a factor variable but not a factor variable. The numeric values are kept, but they also come with labels that identify what each number means. You can access the labels with `labelled::get_value_labels` like so:
+
+```{r}
+labelled::get_value_labels(my_data$race)
+```
+
+Personally, I am not a big fan of the labelled class and will just turn this into proper factor variables at my earliest convenience.
+
+The `haven` package will easily read in data from Stata, SAS, and SPSS. If you want to read in Microsoft Excel data, however, you will need to use the `readxl` package and use the function `read_excel` which can read both .xlsx and .xls formatted files. The `read_excel` command has many of the same arguments as `readr::read_csv` including `skip`, `na`, and `n_max` to handle poorly formatted spreadsheets. By default it will read in the first sheet in your spreadsheet. If you have multiple sheets, you can specify which one to read in with the `sheet` command. Here is an example of the `read_excel` function on our toy dataset:
+
+```{r}
+my_data <- read_excel("data/data.xlsx", sheet=1)
+my_data
+```
+
+I didn't actually need the `sheet` argument here because it will read in the first sheet by default, but I wanted to show you how it works. 
+
+In general, reading in binary files is as simple as finding the correct package. I haven't shown you all of the formats you might run into, but you can usually rest assured that *R* will have a package to read in your data.
+
+## Writing Data
+
+If you can read data, it also makes sense that you can write data. All of the functions I have described here have a corrollary `write_` function. So, for example, if you want to output data in CSV format, you can use the `readr::write_csv()` function.
+
+However, in practice, you won't typically want to write back out to a text format or other binary format. Instead, you will want to write your data to the native binary format of *R*. Doing so will allow you to keep all the value you have added like factor variables and encoded missing values. So, when you have finished your data cleaning and wrangling, the last step is to save your dataset as an `.RData` file. You can do this with the `save` command.
+
+```{r}
+save(my_data, file = "data/data.RData")
+```
+
+You can actually include multiple objects here, all separated by commas. You always need to name the `file` argument and provide a *relative* path to where you want this saved file to live. 
+
+You can now access this data with the `load` command, which will reload all the objects stored in that file into your environment:
+
+```{r}
+load("data/data.RData")
+```
+
+Generally, the `save` command will be the final command of your data organization script and the `load` command will be the first command of your analysis script.
+
+## Other Data Forms
+
+In this chapter, I have assumed that you are working with local data in a rectangular format. In practice, data can come in other forms. I won't go into detail on all of the varied ways you might find yourself accessing data, but I will briefly describe a few cases you might run into.
+
+First, you may want to access traditional rectangular data, but that data is stored in a cloud server. The most obvious example would be if you have access to a dataset on Google Sheets, but you might also be accessing another file type on Google Drive or Dropbox, for example. To access data in this way, you will need to use a package that allows you to connect to these services and access the dataset. To access Google Sheets, for example, you can use the [googlesheets4](https://googlesheets4.tidyverse.org/) package. I keep my CV information in a google sheet document. I can access that with the following command:
+
+```{r}
+googlesheets4::read_sheet("https://docs.google.com/spreadsheets/d/1scjvE65qm5YXS-JG4-CRPiLEqsz6p4y34WX6ipEct_w/edit#gid=917338460", skip=1)
+```
+
+Other services can be accessed with similar packages.
+
+Second, some formats can be used for storing data in a variety of formats and structures that are not clearly rectangular. Arguably, the two most common forms are [XML](https://aws.amazon.com/what-is/xml/#:~:text=Extensible%20Markup%20Language%20(XML)%20is,implemented%20for%20structured%20data%20management.) and [JSON](https://www.json.org/json-en.html). *R* provides the [xml](https://cran.r-project.org/web/packages/XML/index.html) and [jsonlite](https://cran.r-project.org/web/packages/jsonlite/vignettes/json-aaquickstart.html) packages, respectively for reading and writing data in these formats.
+
+Third, *R* can connect to many standard database formats like MySQL, MariaDB, and Apache Arrow through affiliated packages. *R* can open these formats as *connections* which is what the "Connections" tab in RStudio shows.
+
+Finally, you may want to try to "scrape" your own data from a web source. Scraping data is a whole book (and more) in and of itself. If you are interested, I would recommend the [chapter on data scraping](https://r4ds.hadley.nz/webscraping) from the [R for Data Science](https://r4ds.hadley.nz/) book.
