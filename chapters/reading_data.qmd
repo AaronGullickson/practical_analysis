@@ -10,7 +10,7 @@ We are now ready to start wrangling some raw data into a tidy analytical data se
 
 ## Understanding the Path
 
-Before we talk about actually reading in data, we need to have a conversation about something else. I am assuming in this chapter that you are reading in data from a file that you have locally on your system. This isn't always tru as you can read data from online databases and other online sources as well, like Google Sheets. However, in most cases, you will have downloaded data or an extract of a larger dataset to your local computer. 
+Before we talk about actually reading in data, we need to have a conversation about something else. I am assuming in this chapter that you are reading in data from a file that you have locally on your system. This isn't always true as you can read data from online databases and other online sources as well, like Google Sheets. However, in most cases, you will have downloaded data or an extract of a larger dataset to your local computer. 
 
 In order to access that data, we need to tell *R* what the *path* is to your data. A path is just a character string giving the directories that we need to traverse to get to your file, where each directory is separated by a forward slash. However, you can specify the path in one of two ways: absolute or relative.
 
@@ -44,7 +44,7 @@ On the other hand, if you write some paragraphs in a Microsoft word document and
 
 You can encode data as either a plaintext or binary file in this way. To give a simple example, if I enter my data into an Excel spreadsheet, I can save that natively as an Excel file (with a .xlsx file suffix). This is a binary file that is intended to be opened by Microsoft Excel itself. Alternatively, I could have saved it as a "Comma-Delimited Values" (CSV) file which is a plaintext file that can be opened by any program. 
 
-There are tradeoffs to storing your data in either format. Binary files can easily have "value added" formatting applied to them. However, they also will be larger in size than the corresponding plaintext file due to that value added. Additionally, they will be less transportable and open because a person may need access to a specific program to open them. I generally apply a simple rule to the best practices for storing data:
+There are trade offs to storing your data in either format. Binary files can easily have "value added" formatting applied to them. However, they also will be larger in size than the corresponding plaintext file due to that value added. Additionally, they will be less transportable and open because a person may need access to a specific program to open them. I generally apply a simple rule to the best practices for storing data:
 
 * Raw data that is meant to be shared with others is best stored as plaintext data so that it can be accessed in the program of the user's choice. Documentation of the data to help reading it and encoding it can be provided separately. Unfortunately, because we are usually getting the raw data from somewhere else, we don't typically get to decide how they store the data and so need to be ready to deal with data in both plaintext and binary formats.
 * Analytical data that you construct from the raw data for a particular project is best stored as a binary file because you will typically have added value. For example, if you have encoded a set of character strings into a factor variable, you will want *R* to remember that factor variable the next time you load up your data. This will only happen if you save it as a native binary `.RData` file with the `save` command (which we will discuss at the end of this chapter).
@@ -92,7 +92,7 @@ A fixed-width file for three observations. Can you guess the width of each varia
 
 Because much of the encoding is in words rather than numbers, we can kind of see what the widths must be. The first five characters contain the name of the respondent. The next 10 characters indicate location. The next five characters indicate race. The next six characters indicate gender, and the last two characters indicate years of education. Note that I need to use whitespace either in front of or after values when they don't occupy the full width. 
 
-There are tradeoffs to delimiter-separated values and fixed-width files. Delimiter-separated values files do not require any additional information aside from what is in the file making them more compact. However, when you have large amounts of data and variables, the extra commas and quotation marks can lead to a substantial increase in the size of the file, so fixed-width files are often the obvious choice for large datasets. Fixed-width files also have the advantage that users can just pick out the variables they want from the dataset rather than read in the whole thing. This can be very advantageous if you have a file with a large number of variables you do not need.
+There are trade offs to delimiter-separated values and fixed-width files. Delimiter-separated values files do not require any additional information aside from what is in the file making them more compact. However, when you have large amounts of data and variables, the extra commas and quotation marks can lead to a substantial increase in the size of the file, so fixed-width files are often the obvious choice for large datasets. Fixed-width files also have the advantage that users can just pick out the variables they want from the dataset rather than read in the whole thing. This can be very advantageous if you have a file with a large number of variables you do not need.
 
 Regardless of which type of file we have, we will use the same package to read them. The `readr` package has all the functions we need to read in plaintext data files. In the sections below, I describe how to use `readr` to read in both types of files.
 
@@ -186,7 +186,7 @@ The final problem with this dataset are the variable names. The WDI uses good na
 table(world_bank$`Series Name`)
 ```
 
-We want to rename these variables to something more approporiate. There are a couple of different techniques that we can use to rename the variables. The first approach is to apply the `rename` function to the dataset after we load the dataset into *R*. The general syntax of `rename` is:
+We want to rename these variables to something more appropriate. There are a couple of different techniques that we can use to rename the variables. The first approach is to apply the `rename` function to the dataset after we load the dataset into *R*. The general syntax of `rename` is:
 
 ```r
 dataset <- dataset |>
@@ -299,7 +299,7 @@ read_fwf("data/data_fw.txt",
                                   yrsed = c(27, 28)))
 ```
 
-All of these methods will work, but I would strongly recommend the use of `fwf_cols` with starting and ending positions. This approach will make it easier to make adjustments if you refine your extracts without having to make sure all of the variable names line up with your indices/widths.  Second, by using this method with starting and ending positions, you can only extract the variables that you need. For example, lets say I decide I don't want to grab the location variable in my raw data because I realize I won't need it. I can just remove tht line from my code:
+All of these methods will work, but I would strongly recommend the use of `fwf_cols` with starting and ending positions. This approach will make it easier to make adjustments if you refine your extracts without having to make sure all of the variable names line up with your indices/widths.  Second, by using this method with starting and ending positions, you can only extract the variables that you need. For example, lets say I decide I don't want to grab the location variable in my raw data because I realize I won't need it. I can just remove that line from my code:
 
 ```{r}
 #| message: true
@@ -455,7 +455,7 @@ Before we discuss some of the common packages you will need, lets talk about som
 
 : List of common data formats and the package you can use to read them into *R*. {#tbl-data-format}
 
-Most of these formats are data saved in another statistical software program, such as the *.dta files that Stata saves. Additionally, you will often come across data in a spreadsheet format saved in Microsoft Excel, or ocassionally OpenOffice.
+Most of these formats are data saved in another statistical software program, such as the *.dta files that Stata saves. Additionally, you will often come across data in a spreadsheet format saved in Microsoft Excel, or occasionally OpenOffice.
 
 All of the output from other statistical programs can be read in easily using the `haven` package, which provides a set of simple `read_` functions for reading in the data. In most cases, you simply need to supply the file path for the function to do its work. For example, I have a version of the toy data in @fig-csv saves as a Stata DTA file. I can easily load that into R with the `read_dta` function from `haven`:
 
@@ -485,7 +485,7 @@ In general, reading in binary files is as simple as finding the correct package.
 
 ## Writing Data
 
-If you can read data, it also makes sense that you can write data. All of the functions I have described here have a corrollary `write_` function. So, for example, if you want to output data in CSV format, you can use the `readr::write_csv()` function.
+If you can read data, it also makes sense that you can write data. All of the functions I have described here have a corollary `write_` function. So, for example, if you want to output data in CSV format, you can use the `readr::write_csv()` function.
 
 However, in practice, you won't typically want to write back out to a text format or other binary format. Instead, you will want to write your data to the native binary format of *R*. Doing so will allow you to keep all the value you have added like factor variables and encoded missing values. So, when you have finished your data cleaning and wrangling, the last step is to save your dataset as an `.RData` file. You can do this with the `save` command.
 
