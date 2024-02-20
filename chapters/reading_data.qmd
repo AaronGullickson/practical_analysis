@@ -362,7 +362,7 @@ acs <- read_fwf("data/usa_00131.dat.gz",
                                          race    = c(58, 58),
                                          hispan  = c(62, 62),
                                          hcovany = c(66, 66),
-                                         educd   = c(68, 71),
+                                         educd   = c(69, 71),
                                          sei     = c(72, 73)))
 acs
 ```
@@ -378,7 +378,7 @@ acs <- read_fwf("data/usa_00131.dat.gz",
                                          race    = c(58, 58),
                                          hispan  = c(62, 62),
                                          hcovany = c(66, 66),
-                                         educd   = c(68, 71),
+                                         educd   = c(69, 71),
                                          sei     = c(72, 73)),
                 col_types = cols(.default = "i"))
 acs
@@ -396,7 +396,7 @@ acs <- read_fwf("data/usa_00131.dat.gz",
                                          race    = c(58, 58),
                                          hispan  = c(62, 62),
                                          hcovany = c(66, 66),
-                                         educd   = c(68, 71),
+                                         educd   = c(69, 71),
                                          sei     = c(72, 73)),
                 col_types = cols(.default = "i"))
 acs
@@ -438,7 +438,7 @@ acs <- read_fwf("data/usa_00131.dat.gz",
                                          race    = c(58, 58),
                                          hispan  = c(62, 62),
                                          hcovany = c(66, 66),
-                                         educd   = c(68, 71),
+                                         educd   = c(69, 71),
                                          sei     = c(72, 73)),
                 col_types = cols(.default = "i", cluster = "d"))
 acs
