@@ -312,69 +312,74 @@ read_fwf("data/data_fw.txt",
 
 If I use widths instead of starting and ending positions, I always have to read in all variables because the position of each variable will depend on adding up all the previous widths. Thus, using `fwf_cols` with starting and ending positions will give you the most flexibility in reading in the raw data.
 
-Lets move from this toy example to another real world case. I have downloaded the 2022 American Community Survey data from the [IPUMS](https://usa.ipums.org/usa/) website. Rather than download the very large full data, I downloaded a small 500,000 person sample of the full data for demonstration purposes. You can download the data [here](https://github.com/AaronGullickson/practical_analysis/blob/master/data/usa_00129.dat.gz) but note that it is currently compressed as a "gzip" file with a "*.gz" suffix. One nice feature of the `read_` functions in `readr` is that they can all read directly from compressed data files. This feature can be extremely useful when you have a large dataset.
+Lets move from this toy example to another real world case. I have downloaded the 2022 American Community Survey data from the [IPUMS](https://usa.ipums.org/usa/) website. Rather than download the very large full data, I downloaded a small 100,000 person sample of the full data for demonstration purposes. You can download the data [here](https://github.com/AaronGullickson/practical_analysis/blob/master/data/usa_00131.dat.gz) but note that it is currently compressed as a "gzip" file with a "*.gz" suffix. One nice feature of the `read_` functions in `readr` is that they can all read directly from compressed data files. This feature can be extremely useful when you have a large dataset.
 
 If I were to uncompress my file and look at it, here is what the first five lines would look like:
 
 ```md
-2022202201000000072022010000420000000876220220000000710100000015020130001000000876220765220000002
-2022202201000000132022010000777000004313620220000001310100000021010140001000004313610216220000002
-2022202201000000202022010001164000000471820220000002010100000020000140001000000471810756110000002
-2022202201000000272022010001383000000404420220000002710100000012010140001000000404420845110000002
-2022202201000000342022010001760000000741420220000003410100000019010130001000000741410552880200001
+2022010000111000007387620220000000210100010000073876105151100000020606444
+2022010001806000037609620220000003510100010000376096201961100000020606316
+2022010003649000022834420220000006910100010000228344105062200000020606418
+2022010005111000017797420220000010210100010000177974205662200000020707100
+2022010007208000022834420220000013610100010000228344209351100000020606300
 ```
 
-Not exactly easy to read is it? This is fixed-width data and IPUMS records all values as numeric integers regardless of whether they are categorical or quantitative. We need to look at the codebook to figure out how to slice up these lines into the variables we actually want. Luckily, my extract came with a codebook and the first lines of that codebook include the following:
+Not exactly easy to read is it? This is fixed-width data and IPUMS records all values as numeric integers regardless of whether they are categorical or quantitative. We need to look at the codebook to figure out how to slice up these lines into the variables we actually want. Luckily, my extract came with a [codebook](https://github.com/AaronGullickson/practical_analysis/blob/master/data/usa_00131.txt) and the first lines of that codebook include the following:
 
 ```md
   Variable                         Columns        Len   2022    
-  YEAR                         H   1-4            4     X       
-  SAMPLE                       H   5-10           6     X       
-  SERIAL                       H  11-18           8     X       
-  CBSERIAL                     H  19-31          13     X       
-  HHWT                         H  32-41          10     X       
-  CLUSTER                      H  42-54          13     X       
-  STATEFIP                     H  55-56           2     X       
-  STRATA                       H  57-68          12     X       
-  GQ                           H  69              1     X       
-  PERNUM                       P  70-73           4     X       
-  PERWT                        P  74-83          10     X       
-  SEX                          P  84              1     X       
-  AGE                          P  85-87           3     X       
-  MARST                        P  88              1     X       
-  RACE                         P  89              1     X       
-  RACED                        P  90-92           3     X       
-  HISPAN                       P  93              1     X       
-  HISPAND                      P  94-96           3     X       
-  HCOVANY                      P  97              1     X       
+  CBSERIAL                     H   1-13          13     X       
+  HHWT                         H  14-23          10     X       
+  CLUSTER                      H  24-36          13     X       
+  STATEFIP                     H  37-38           2     X       
+  PERNUM                       P  39-42           4     X       
+  PERWT                        P  43-52          10     X       
+  SEX                          P  53              1     X       
+  AGE                          P  54-56           3     X       
+  MARST                        P  57              1     X       
+  RACE                         P  58              1     X       
+  RACED                        P  59-61           3     X       
+  HISPAN                       P  62              1     X       
+  HISPAND                      P  63-65           3     X       
+  HCOVANY                      P  66              1     X       
+  EDUC                         P  67-68           2     X       
+  EDUCD                        P  69-71           3     X       
+  SEI                          P  72-73           2     X       
 
 Variable Availability Key:
 All Years X - available in this sample
 All Years . - not available in this sample
 ```
+
 Those look like the positions of variables! Now, I don't need all of these variables at the moment, so lets just extract a few things that I need, recognizing I can always add more later.
 
 ```{r}
-acs <- read_fwf("data/usa_00129.dat.gz",
-                col_positions = fwf_cols(perwt   = c(74,83),
-                                         sex     = c(84,84),
-                                         age     = c(85,87),
-                                         marst   = c(88,88),
-                                         race    = c(89,89),
-                                         hcovany = c(97,97)))
+acs <- read_fwf("data/usa_00131.dat.gz",
+                col_positions = fwf_cols(perwt   = c(43, 52),
+                                         sex     = c(53, 53),
+                                         age     = c(54, 56),
+                                         marst   = c(57, 57),
+                                         race    = c(58, 58),
+                                         hispan  = c(62, 62),
+                                         hcovany = c(66, 66),
+                                         educd   = c(68, 71),
+                                         sei     = c(72, 73)))
 acs
 ```
 
 This command *almost* worked perfectly. However, you will notice that two of my variables are being recorded as characters and not numeric values. The problem here is that IPUMS uses "0" values as fillers rather than spaces. When `read_fwf` encounters zeroes in front of numbers it automatically treats them as characters. However, we can force particular columns or the whole dataset into a certain type with the `col_types` argument. This argument takes another function `cols` where we can specify the type for each named column or we can use `.default` to specify the default for all columns. In this case, all of our columns should be simply integers, so lets just define the default as "i" for integer.^[The help file for `read_fwf` provides all of he possibilities here. The normal default is "?" for "guess."]
 
 ```{r}
-acs <- read_fwf("data/usa_00129.dat.gz",
-                col_positions = fwf_cols(perwt   = c(74,83),
-                                         sex     = c(84,84),
-                                         age     = c(85,87),
-                                         marst   = c(88,88),
-                                         race    = c(89,89),
-                                         hcovany = c(97,97)),
+acs <- read_fwf("data/usa_00131.dat.gz",
+                col_positions = fwf_cols(perwt   = c(43, 52),
+                                         sex     = c(53, 53),
+                                         age     = c(54, 56),
+                                         marst   = c(57, 57),
+                                         race    = c(58, 58),
+                                         hispan  = c(62, 62),
+                                         hcovany = c(66, 66),
+                                         educd   = c(68, 71),
+                                         sei     = c(72, 73)),
                 col_types = cols(.default = "i"))
 acs
 ```
@@ -382,14 +387,17 @@ acs
 Now all of our variables are being properly recorded as integers. However, its worth noting that setting the default like this can get you into problems if you have variables that cannot be coerced into integers. For example, lets add the "cluster" variable which is 13 characters long to our data:
 
 ```{r}
-acs <- read_fwf("data/usa_00129.dat.gz",
-                col_positions = fwf_cols(cluster = c(42,54),
-                                         perwt   = c(74,83),
-                                         sex     = c(84,84),
-                                         age     = c(85,87),
-                                         marst   = c(88,88),
-                                         race    = c(89,89),
-                                         hcovany = c(97,97)),
+acs <- read_fwf("data/usa_00131.dat.gz",
+                col_positions = fwf_cols(cluster = c(24, 36),
+                                         perwt   = c(43, 52),
+                                         sex     = c(53, 53),
+                                         age     = c(54, 56),
+                                         marst   = c(57, 57),
+                                         race    = c(58, 58),
+                                         hispan  = c(62, 62),
+                                         hcovany = c(66, 66),
+                                         educd   = c(68, 71),
+                                         sei     = c(72, 73)),
                 col_types = cols(.default = "i"))
 acs
 ```
@@ -401,34 +409,37 @@ problems()
 ```
 
 ```
-# A tibble: 262,657 × 5
+# A tibble: 50,320 × 5
      row   col expected   actual        file 
    <int> <int> <chr>      <chr>         <chr>
- 1     1     1 an integer 2022000000071 ""   
- 2     1     1 an integer 2022000000131 ""   
- 3     1     1 an integer 2022000000201 ""   
- 4     1     1 an integer 2022000000271 ""   
- 5     1     1 an integer 2022000000341 ""   
- 6     1     1 an integer 2022000000401 ""   
- 7     1     1 an integer 2022000000471 ""   
- 8     2     1 an integer 2022000000541 ""   
- 9     2     1 an integer 2022000000611 ""   
-10     2     1 an integer 2022000000671 ""   
-# ℹ 262,647 more rows
+ 1     1     1 an integer 2022000000021 ""   
+ 2     1     1 an integer 2022000000351 ""   
+ 3     1     1 an integer 2022000000691 ""   
+ 4     1     1 an integer 2022000001021 ""   
+ 5     1     1 an integer 2022000001361 ""   
+ 6     1     1 an integer 2022000001691 ""   
+ 7     1     1 an integer 2022000002031 ""   
+ 8     1     1 an integer 2022000002371 ""   
+ 9     1     1 an integer 2022000002701 ""   
+10     1     1 an integer 2022000003041 ""   
+# ℹ 50,310 more rows
 # ℹ Use `print(n = ...)` to see more rows
 ```
 
 The problem is that these numbers are too long to be recorded as integers (whose maximum value is 2147483647). However, I can fix this problem by specifying that this particular column should be recorded as a double (which can accommodate larger values and decimals).
 
 ```{r}
-acs <- read_fwf("data/usa_00129.dat.gz",
-                col_positions = fwf_cols(cluster = c(42,54),
-                                         perwt   = c(74,83),
-                                         sex     = c(84,84),
-                                         age     = c(85,87),
-                                         marst   = c(88,88),
-                                         race    = c(89,89),
-                                         hcovany = c(97,97)),
+acs <- read_fwf("data/usa_00131.dat.gz",
+                col_positions = fwf_cols(cluster = c(24, 36),
+                                         perwt   = c(43, 52),
+                                         sex     = c(53, 53),
+                                         age     = c(54, 56),
+                                         marst   = c(57, 57),
+                                         race    = c(58, 58),
+                                         hispan  = c(62, 62),
+                                         hcovany = c(66, 66),
+                                         educd   = c(68, 71),
+                                         sei     = c(72, 73)),
                 col_types = cols(.default = "i", cluster = "d"))
 acs
 ```
