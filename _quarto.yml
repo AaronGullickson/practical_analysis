@@ -22,6 +22,7 @@ book:
     - part: "Data Wrangling"
       chapters:
         - chapters/reading_data.qmd
+        - chapters/subsetting_data.qmd
         - chapters/recoding_variables.qmd
         - chapters/reshaping_data.qmd
         - chapters/merging_data.qmd

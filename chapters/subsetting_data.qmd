@@ -1,0 +1,108 @@
+# Subsetting Data {#sec-subsetting-datasets}
+
+```{r}
+#| include: false
+
+source("scripts/check_packages.R")
+```
+
+Now that you have successfully loaded your data into *R* where do we start with data wrangling. Well, many times our dataset may contain more stuff than we actually need. Trimming that dataset down to just what we need will help keep our project tidy. There are two ways that you might want to trim, or subset, your data:
+
+1. You may want to remove certain kinds of observations. For example you may want to remove all respondents below a certain age, or you may want to remove all cases that are missing on a certain key variable. We can remove these observations with the `filter` command from the `dplyr` package.
+2. You may want to remove variables that you don't need. If you specifically defined an extract to have variables you want, you may not need to do this initially. However, you will usually want to do this after you create all the variables you need for your analysis because many of the original variables will now be extraneous. You can keep only the variables you want with the `select` command from the `dplyr` package.
+
+As an example of each case, we will use the ACS data that I loaded in @sec-reading-data:
+
+```{r}
+acs <- read_fwf("data/usa_00131.dat.gz",
+                col_positions = fwf_cols(tech_hhwt    = c(14, 23),
+                                         tech_cluster = c(24, 36),
+                                         tech_perwt   = c(43, 52),
+                                         sex     = c(53, 53),
+                                         age     = c(54, 56),
+                                         marst   = c(57, 57),
+                                         race    = c(58, 58),
+                                         hispan  = c(62, 62),
+                                         hcovany = c(66, 66),
+                                         educd   = c(69, 71),
+                                         sei     = c(72, 73)),
+                col_types = cols(.default = "i", cluster = "d"))
+acs
+```
+
+## Filtering Observations
+
+We can remove observations by creating a boolean vector from our variables where TRUE will indicate observations to keep and FALSE will indicate observations to drop. For example, if we wanted to drop all cases in the ACS data that are under age 18 and have a zero value for sei, we could use the following boolean statement:
+
+```r
+acs$age >= 18 & acs$sei != 0
+```
+
+Note that a TRUE response indicates we want to *keep* the variable, rather than what we want to drop. Therefore, I am not asking for observation below 18 but rather observations that are 18 and over. 
+
+We can then feed this boolean vector into the `filter` command, preferably through a pipe. Because we are feeding the dataset into the `filter` command as well, we don't need to put the `acs$` prefixes on the variable names. 
+
+```{r}
+# pre-filter checks
+nrow(acs)
+summary(acs$age)
+summary(acs$sei)
+
+acs <- acs |>
+  filter(age >= 18 & sei != 0)
+
+# post-filter checks
+nrow(acs)
+summary(acs$age)
+summary(acs$sei)
+
+```
+
+You can see that these two conditions dropped my dataset size from 100,923 respondents to 58,416 respondents. The new minimum values of my summary commands also show that the filtering worked correctly. 
+
+Note that I have assigned the result of the filtering of the `acs` data back to the `acs` object. This effectively overwrites my original `acs` dataset. If I don't assign it back to an object, then it will just print to the screen and be gone. However, you may be concerned that I am overwriting my original `acs` dataset. What if I lose something important? You might be tempted to instead do something like this:
+
+```{r}
+## DO NOT DO THIS! ##
+acs2 <- acs |>
+  filter(age >= 18 & sei != 0)
+```
+
+This approach may seem safer because you keep both the original dataset and your new reduced one, but it is a Very Bad Idea. You will be performing so many operations that if you create a new object each time, your environment will quickly be swimming in datasets and it will be very hard to track which dataset is the correct one. This is messy and is more likely to lead to mistakes. 
+
+But what about this issue of losing stuff? Its a nonexistent one. You can always get the acs data back from before the `filter` command by just re-running your script from the top. Thats the point of a script! Remember that the objects you create are not the product of your labor. the code that you write is. That code makes every object recoverable at any state.
+
+## Selecting Variables
+
+Like filtering, we positively select which variables we want to keep rather than which variables we want to drop. This approach helps keep our dataset tidy. When we get to the ultimate analytical dataset, we want it to include only the variables we definitely need, and not extraneous stuff.
+
+To select variables, simply provide each variable name (with no quotes) in the `select` command separated by commas. This can (and generally should) be done through a pipe:
+
+```{r}
+acs |>
+  select(sex, age, race)
+```
+
+In the case, that you only want to drop a couple of variables and don't want to write down all the variables you want to keep, you can use the `!` syntax in front of variable names to indicate that you want everything but that variable (or set of variables if you surround them with a `c()`).
+
+```{r}
+acs |>
+  select(!tech_perwt)
+
+acs |>
+  select(!c(sex, hcovany, sei))
+```
+
+The `dplyr` package also comes with some additional utilities that can help you identify multiple variables by partial string matching. In particular, the following functions can be very helpful:
+
+* `starts_with()` will identify variables that start with a certain prefix.
+* `ends_with() ` will identify variables that end with a certain prefix.
+* `contains()` will look for a certain character string anywhere within the name.
+* `matches()` will look for a regular expression.
+
+For example, you will see that I put a "tech_" prefix on all of the technical variables I included when reading in the ACS data. I can remove all of these variables easily with:
+
+```{r}
+acs |>
+  select(!starts_with("tech_"))
+```
