@@ -1,1 +1,325 @@
 # Recoding Variables {#sec-recoding-variables}
+
+```{r}
+#| include: false
+
+source("scripts/check_packages.R")
+```
+
+Recoding variables is the most basic and common task in data wrangling. Generally, we recode variables to do the following:
+
+1. Encoding missing values, often from numeric values (e.g. -999 should be missing values).
+2. Transform quantitative variables (e.g. cap the maximum value, take the log value, create a summated scale).
+3. Create a factor variable from a numeric or character string variable or even multiple variables. This may involve collapsing some categories.
+
+However, before we get into the details, let me ask you a question....
+
+<center>
+![](../images/gatekeeper.gif)
+</center>
+
+The answer is, yes....
+
+## You are the Gatekeeper
+
+The goal of data wrangling is to transform raw data (often from other sources) into an analytical dataset. That analytical data should contain only the variables you need to conduct the analysis and nothing more. All variables that are included in the analytical dataset should be vetted by you to determine that they are correct.
+
+To help enforce this idea, I follow two consistent procedures when organizing my data. First, I will use a different naming scheme for variables in the raw data, most commonly referencing them in all capital letters. In contrast, variables in my analytical dataset are all lower-cased. This helps remind me that *every* variable from the raw data needs to be checked and potentially recoded before it enters my final dataset. 
+
+Second, I put something like the following at the bottom of my script where I organize the data:
+
+```r
+analytical_data <- raw_data |>
+    select(final_var1, final_var2, ...)
+```
+
+That `select` command only keeps the variables I want in the final analytical dataset. As I finish recoding and checking variables, I add them to that list in the `select` command. **I am the gatekeeper**. I determine which variables get in and which variables don't.
+rate from a what do I take out perspective, but rather what do I put in perspective
+
+We will use the IPUMS data from @sec-reading-data as an example for this chapter, but I want to first reload that data and use capitalized variable names to help distinguish the original data from my analytical data.
+
+```{r}
+acs <- read_fwf("data/usa_00131.dat.gz",
+                col_positions = fwf_cols(SEX     = c(53, 53),
+                                         AGE     = c(54, 56),
+                                         MARST   = c(57, 57),
+                                         RACE    = c(58, 58),
+                                         HISPAN  = c(62, 62),
+                                         HCOVANY = c(66, 66),
+                                         EDUCD   = c(69, 71),
+                                         SEI     = c(72, 73)),
+                col_types = cols(.default = "i"))
+acs
+```
+
+Notice that all of the values in the ACS data from IPUMS are coded as numeric values (including missing values), even if the underlying variable is categorical. Our major task is to correct this for the analytical data that we want.
+
+## Lets `mutate`!
+
+The `mutate` function from the `dplyr` package will be our standard tool for recoding variables. The `mutate` function can be used to modify existing variables or to create new variables in a dataset. While you can also do this by just assigning values to a new or existing variable manually, the `mutate` function will allow us to use variable names without having to reference the dataset and can be applied within a pipe. 
+
+To demonstrate, lets create a new variable from age by slicing age into ten year age groups. This procedure can be completed with the `cut` command which breaks a quantitative variable into categorical intervals by a `breaks` argument. We will also use the `labels` argument to nicely label our intervals. We could just create this new variable manually like so:
+
+```{r}
+acs$age_group <- cut(acs$AGE, 
+                     right = FALSE,
+                     breaks = seq(from = 0, to = 100, by = 10),
+                     labels = paste(seq(from = 0, to = 90, by = 10),
+                                    seq(from = 9, to = 99, by = 10), 
+                                    sep = "-"))
+```
+
+The `right = FALSE` argument ensures that the intervals are open on the right and closed on the left so we get age group 0-9 rather than 1-10, for example. 
+
+To create a new variable we just assign it to a new variable name with the typical `dataset_name$var_name` syntax. If we instead use the mutate command, we can pipe the full dataset into the mutate command and create the new variable within the `mutate` function itself.
+
+```{r}
+acs <- acs |>
+  mutate(age_group = cut(AGE, 
+                         right = FALSE,
+                         breaks = seq(from = 0, to = 100, by = 10),
+                         labels = paste(seq(from = 0, to = 90, by = 10),
+                                        seq(from = 9, to = 99, by = 10), 
+                                        sep = "-")))
+```
+
+
+The advantages of this approach are several. First, note that in the first argument to the `cut` command, I only need to include the variable name `AGE` rather than the full `acs$AGE`. The `mutate` command will always look for variables of that name before it looks for objects external to the dataset. 
+
+Second, we can include multiple variable changes here in a single mutate command. This allows us to consolidate the variable changes in one place rather than spreading them out. 
+
+Third, we can embed the `mutate` function in a longer pipe allowing us to combine different data wrangling operations together for efficiency.
+
+## Check Yourself Before You Wreck Yourself
+
+Everybody makes mistakes in coding, even people with lots of experience. In fact, in writing the code directly above to cut the age variable, I initially made a couple of errors. What separates experienced coders from novices is that the experienced coders recognize the need to check themselves frequently to ensure that their code is working properly. This leads us to rule \#1 of good data wrangling, explained by the immortal Ice Cube:
+
+<center>
+
+![](../images/check-yourself-before-you-wreck-yourself-ice-cube.gif)
+
+</center>
+
+How can we check ourselves? This will often depend on the exact procedure being performed. You may need to conduct summaries, check subsets of the data, and even make a graph. However, when recoding variables, one simple procedure can be used to ensure that all of the values of the new variable are being coded correctly from the existing variable (or variables, in some cases). We can do this with a basic `table` command where we cross-tabulate the original variable against the new variable. The only catch is that we need to include the argument `exclude=NULL` which will include missing values in the table. Otherwise they are suppressed and you may not see values that incorrectly were turned into missing values.
+
+Lets crosstab the original age variable with the new `age_group` variable I created above to ensure everything is going where I expected:
+
+```{r}
+table(acs$AGE, acs$age_group, exclude = NULL)
+```
+
+What I see here is exactly what I expected to see. All the ages 0-9 are being assigned to the 0-9 group, all of the ages 10-19 are being assigned to the 10-19 age group, and so on. None of my actual age values are being assigned to missing values which means I didn't inadvertently miss some cases. 
+
+Just to see what it would look like if I had made a mistake, I am going to redo this variable without the `right = FALSE` argument and cutting off the maximum value at 89 rather than 99.
+
+```{r}
+age_group_bad <- cut(acs$AGE, 
+                     breaks = seq(from = 0, to = 90, by = 10),
+                     labels = paste(seq(from = 0, to = 80, by = 10),
+                                    seq(from = 9, to = 89, by = 10), 
+                                    sep = "-")) 
+table(acs$AGE, age_group_bad, exclude = NULL)
+```
+
+The results here may look similar but take a closer look. Note that those age zero are being recorded as `NA` rather than in the 0-9 group. Furthermore, the 0-9 group includes 10 year olds (and so on for older groups). Because I cut this off at age 90, the observations aged 91+ are also going to missing values. This should clue me in that I made a mistake. In this case, it literally did as these were the mistakes I made when I first coded this variable. 
+
+## Replace Values with `ifelse`
+
+The `ifelse` command is going to be a very useful command to replace certain values in an existing variable. It has all kinds of uses, but we will start with one of the most common - I need to encode missing values that are currently recorded with a numeric value.
+
+To demonstrate, I will use the `SEI` variable. This "socioeconomic index" variable provides a numeric occupational "prestige" score based on the occupation of the respondent. However, only respondents who are currently working are assigned an occupation and thus an SEI score. If I look at the [codebook](https://usa.ipums.org/usa-action/variables/SEI#codes_section) for the SEI variable on the IPUMS website, I can see that zero values are missing values because the respondent does not currently have an occupation. So, I want to turn zero values in this variable into `NA` values while leaving the remaining values the same. Enter the `ifelse` command.
+
+The `ifelse` command has the following syntax:
+
+```r
+ifelse(<boolean statement>, <value if true>, <value if false>)
+```
+
+The first argument is a boolean statement that returns TRUE or FALSE. The next two arguments determine what to return. If the boolean statement was true, the second argument is returned. If the boolean statement was false, the third argument is returned. Most importantly, this function is *vectorized* which means that if we feed in a vector of TRUE/FALSE responses, the result will be a vector as well. 
+
+Lets see how we can use this function to replace zero values with missing values on the `SEI` variable:
+
+```{r}
+acs <- acs |>
+  mutate(sei = ifelse(SEI == 0, NA, SEI))
+```
+
+The first argument is a boolean which returns TRUE for cases that are zero. These cases are then assigned the second argument which is an `NA` value. If they are not zero, then we proceed to the third argument which is just the SEI variable itself, meaning that the value is unchanged. I then assign this to my lower-case `sei` variable to indicate I have completed my recoding of this variable.
+
+As always I still need to check myself before I wreck myself. Lets do that with a `summary` and `table` command.
+
+```{r}
+summary(acs$sei)
+
+table(acs$sei, acs$SEI == 0, exclude=NULL)
+```
+
+The first command shows me that missing values have been assigned. The second command shows me that only those values of SEI that were originally zero have been assigned missing values.
+
+## Creating Categorical Variables
+
+Most of the variables in this dataset are categorical in nature but have been coded with numerical values. Luckily, the [codebook](https://github.com/AaronGullickson/practical_analysis/blob/master/data/usa_00131.txt) provided with my dataset shows how these numeric values translate to categories. For example, here is what my codebook shows for the `SEX` variable:
+
+```md
+SEX                 Sex
+1                   Male
+2                   Female
+9                   Missing/blank
+```
+
+In this case, I can code this into a factor variable by directly using the `factor` command. I just need to specify the numeric values to my `levels` argument and the category names to my `labels` argument, like so:
+
+```{r}
+acs <- acs |>
+  mutate(sex = factor(SEX, 
+                      levels = c(1, 2),
+                      labels = c("Male", "Female")))
+```
+
+Note that I did not assign the 9 value here. I don't need to assign missing values because any value that is not assigned a value in `levels` will become missing in the factor variable. 
+
+As usual, I need to Check Myself:
+
+```{r}
+summary(acs$sex)
+table(acs$sex, acs$SEX, exclude=NULL)
+```
+
+All of the "1" values are being assigned to "Male" on my new factor variable and all of the "2' values are being assigned to "Female" on the new factor variable. It turns out there were no missing values on this variable in the given dataset.
+
+Another approach to creating categorical variables from numeric variables is to use the `case_when` function in the `dplyr` package. This package provides a very readable syntax for assigning certain observations to certain categories. The general syntax is:
+
+```r
+case_when(
+  <boolean statement 1> ~ "Category 1",
+  <boolean statement 2> ~ "Category 2",
+  <boolean statement 3> ~ "Category 3",
+  ...,
+  TRUE ~ "Residual Category"
+)
+```
+
+Each boolean statement is evaluated in the order listed and values assigned as indicated if a given observation is true on the boolean statement. Note that the order of the boolean statement matters here, because if a case evaluates to true on the first boolean statement, it will not be evaluated on later boolean statements even if it is also true on those statements.
+
+The `TRUE ~ "Residual Category` picks up any remaining cases that have not been picked up by previous statements and assigns them to some categories. You can also leave this residual case out and all the remaining values will be assigned as missing values.
+
+Lets code the sex variable using the `case_when` approach:
+
+```{r}
+acs <- acs |>
+  mutate(sex = case_when(
+    SEX == 1 ~ "Male",
+    SEX == 2 ~ "Female"
+  ))
+# Check Yourself
+summary(acs$sex)
+table(acs$sex, acs$SEX)
+```
+
+Everything seemed to work alright, except for one not-so-minor issue. The output of `case_when` is a character string vector not a factor variable. So we need to surround this in a `factor` call to turn it into a factor variable. So, properly the command should be:
+
+```{r}
+acs <- acs |>
+  mutate(sex = factor(case_when(
+    SEX == 1 ~ "Male",
+    SEX == 2 ~ "Female"
+  )))
+# Check Yourself
+summary(acs$sex)
+table(acs$sex, acs$SEX)
+```
+Now, the `sex` variable is a proper factor variable. In this case, because we wanted to use the original categories of the categorical variable as they were, its probably simpler to just use the `factor` command directly rather than `case_when`. However, `case_when` will really shine when we get to more complex cases as I show below.
+
+### Create a Factor Variable with Collapsed Categories
+
+Lets take a look at the coding of the `educd` variable:
+
+```md
+EDUCD               Educational attainment [detailed version]
+000                 N/A or no schooling
+001                 N/A
+002                 No schooling completed
+010                 Nursery school to grade 4
+011                 Nursery school, preschool
+012                 Kindergarten
+013                 Grade 1, 2, 3, or 4
+014                 Grade 1
+015                 Grade 2
+016                 Grade 3
+017                 Grade 4
+020                 Grade 5, 6, 7, or 8
+021                 Grade 5 or 6
+022                 Grade 5
+023                 Grade 6
+024                 Grade 7 or 8
+025                 Grade 7
+026                 Grade 8
+030                 Grade 9
+040                 Grade 10
+050                 Grade 11
+060                 Grade 12
+061                 12th grade, no diploma
+062                 High school graduate or GED
+063                 Regular high school diploma
+064                 GED or alternative credential
+065                 Some college, but less than 1 year
+070                 1 year of college
+071                 1 or more years of college credit, no degree
+080                 2 years of college
+081                 Associate's degree, type not specified
+082                 Associate's degree, occupational program
+083                 Associate's degree, academic program
+090                 3 years of college
+100                 4 years of college
+101                 Bachelor's degree
+110                 5+ years of college
+111                 6 years of college (6+ in 1960-1970)
+112                 7 years of college
+113                 8+ years of college
+114                 Master's degree
+115                 Professional degree beyond a bachelor's degree
+116                 Doctoral degree
+999                 Missing
+```
+
+That is a lot of categories! Some of these categories aren't even relevant in the current dataset. Clearly this level of granular detail is going to be overkill in most analyses. We want to collapse this baroque set of categories into a smaller more manageable set of categories. For my purposes, I am going to use the following categories:
+
+* **Less than High School** for those with less than a high school diploma/GED (less than value 62, but not 0 or 1).
+* **High School Diploma** for those with a high school diploma/GED and no further degree, including Associate's degree (values 62 through 80).
+* **Associate's Degree** for those with an Associate's Degree but no Bachelor's degree (values 81 through 100).
+* **Bachelor's Degree** for those with a Bachelor's degree but no graduate degree (values 101-113).
+* **Graduate Degree** for all those with a graduate degree of any kind (values 114 or higher, but not 999).
+
+I can do this easily with a `case_when` command:
+
+```{r}
+acs <- acs |>
+  mutate(degree = factor(
+    case_when(
+      EDUCD <= 1 | EDUCD == 999 ~ NA, # Clean out missing values
+      EDUCD < 62 ~ "Less than High School",
+      EDUCD < 81 ~ "High School Diploma",
+      EDUCD < 101 ~ "Associate's Degree",
+      EDUCD < 114 ~ "Bachelor's Degree",
+      TRUE ~ "Graduate Degree"
+    ),
+    levels = c("Less than High School",
+               "High School Diploma",
+               "Associate's Degree",
+               "Bachelor's Degree",
+               "Graduate Degree")))
+```
+
+There are several notable features of this code. First, I am making using of the cascading nature of the boolean statements to make them simpler. Because potential missing values are both high (999) and low (0,1), I clean them out first by making an explicit statement to identify the missing value cases. Because I do this step first, I no longer have to worry about those cases in subsequent boolean statements. 
+
+The same logic applies to my subsequent calls. You will note that I only include the upper bound for each group and not the lower bound. Because I am identifying the groups in sequential order, I don't have to identify the lower bound because all lower groups have already been cleaned out of the data. Thus the upper bound is sufficient to correctly organize the groups. 
+
+Finally, because I have an ordinal variable, I don't want to use alphabetic ordering of the categories. Therefore, I specify a `levels` argument that gives the precise ordering of the variables. These names must *exactly* match the names assigned in the `case_when` statements or all of those values will become `NA`. I find the best approach is to directly copy-paste them from `case_when`. 
+
+As always, I need to Check Myself:
+
+```{r}
+table(acs$EDUCD, acs$degree, exclude=NULL)
+```
+
+Everything is going where I expected it to. I can see that the only actual missing value code in my data was "1" which is correctly being assigned as missing.
