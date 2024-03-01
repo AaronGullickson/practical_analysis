@@ -6,7 +6,7 @@
 
 packages = c("here", "tidyverse",
              "readr", "haven", "readxl", "googlesheets4",
-             "gt", "scales", "ggthemes")
+             "gt", "scales", "ggthemes", "ggvenn")
 
 package.check <- lapply(packages, FUN = function(x) {
   if (!require(x, character.only = TRUE)) {
