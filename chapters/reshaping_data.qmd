@@ -6,6 +6,8 @@
 source("scripts/check_packages.R")
 ```
 
+![Illustrations from the [Openscapes](https://openscapes.org/) blog [Tidy Data for reproducibility, efficiency, and collaboration](https://openscapes.org/blog/2020-10-12-tidy-data/) by Julia Lowndes and Allison Horst](../images/horst_tidy_data.jpg)
+
 Data doesn't always come to us in the form that we need it to be for analysis. I am not speaking here of just the values and types of the variables it contains, but the actual *form* or *shape* of the data. In many cases, we may need to reshape the data to meet our needs.
 
 In particular, I am interested in two kinds of reshaping that we may need to do the original dataset. First, the data might not come to us in a *tidy* format and we may need to reshape it to comply with a tidy format. What do I mean by a tidy format? According to [Hadley Wickham](https://vita.had.co.nz/papers/tidy-data.pdf), a tidy dataset should conform to the following rules:
@@ -179,4 +181,112 @@ world_bank
 
 Reshaping data can be a bit tricky sometimes, but if you can get the dataset into its longest format possible, you can always get it in the ultimate shape that you want.
 
-## Aggregating
+## Aggregating Data
+
+Lets go back to the American Community Survey data that we have been working on for the last few chapters to better understand how to aggregate data. Let me just load and clean up taht data here for our use.
+
+```{r}
+acs <- read_fwf("data/usa_00131.dat.gz",
+                col_positions = fwf_cols(STATEFIP = c(37, 38),
+                                         SEX      = c(53, 53),
+                                         AGE      = c(54, 56),
+                                         HCOVANY  = c(66, 66),
+                                         EDUCD    = c(69, 71)),
+                col_types = cols(.default = "i"))
+
+acs <- acs |>
+  mutate(
+    sex = factor(SEX, levels = c(1, 2), labels = c("Male", "Female")),
+    age = ifelse(AGE == 999, NA, AGE),
+    health_ins = factor(HCOVANY, levels = c(1, 2), 
+                        labels=c("Not covered", "Covered")),
+    degree = factor(case_when(
+      EDUCD <= 1 | EDUCD == 999 ~ NA, # Clean out missing values
+      EDUCD < 62 ~ "LHS",
+      EDUCD < 81 ~ "HS",
+      EDUCD < 101 ~ "AA",
+      EDUCD < 114 ~ "BA",
+      TRUE ~ "Grad"),
+      levels = c("LHS", "HS", "AA", "BA", "Grad")),
+    state = factor(STATEFIP, 
+                      levels = c(1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 15, 16,
+                                 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 
+                                 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 
+                                 37, 38, 39, 40, 41, 42, 44, 45, 46, 47,
+                                 48, 49, 50, 51, 53, 54, 55, 56),
+                      labels = state.name))
+
+#normally we would check here, but leaving out for brevity
+
+acs <- acs |>
+  select(state, sex, age, health_ins, degree) |>
+  filter(!is.na(state))
+
+acs
+```
+
+We have a few interesting variables on individuals from the American Community Survey data. Importantly, we have a variable that identifies each individual's state of residence. Instead of individual data, we might want to get an aggregate dataset of states that includes summary information on the variables. For example, lets say we want a dataset to analyze differences in health insurance coverage across states. We could estimate a state level estimate of the proportion of the population covered by health insurance.
+
+To do this in *R* we are going to use two commands. The first command is `group_by` command that tells us what variable or variables we want to aggregate across. In this case, the variable is `state`.
+
+```{r}
+acs |>
+  group_by(state)
+```
+
+So far, the output seems like the same dataset that we started with. However, hyou will notice an additional header saying `Groups:   state [50]`. This tells us that we now have a *grouped tibble* object. This object has information about our grouping and we can now apply the `summarize` command to summarize characteristics across groups. Typically we would apply both `group_by` and `summarize` in a pipe.
+
+```{r}
+state_acs <- acs |>
+  group_by(state) |>
+  summarize(p_health_cover = mean(health_ins == "Covered"))
+
+state_acs
+```
+
+I now have a dataset with 50 observations, one for each state and one variable `p_health_cover` which gives me an estimate of health insurance coverage in each state.
+
+You can arbitrarily summarize as many things as you want in the `summary` command. The basic syntax is a `name = value` pair where `name` is the name of the summary variable you are creating and `value` is a function applied to one of the statistics to create a summary measure. In this case, I am taking the mean of a TRUE/FALSE variable which gives me a proportion. I could add other summary statistics to this aggregate dataset as well, separating them by commas.
+
+```{r}
+state_acs <- acs |>
+  group_by(state) |>
+  summarize(p_health_cover = mean(health_ins == "Covered"),
+            mean_age = mean(age),
+            sd_age = sd(age),
+            p_female = mean(sex == "Female"))
+
+state_acs
+```
+
+You can also group by more than one variable at a time. For example, I might be interested in looking at health coverage for men and women separately by state to identify different gender gaps in coverage. By adding `sex` to the `group_by` command, I can get a dataset aggregated along two dimensions.
+
+
+```{r}
+state_sex_acs <- acs |>
+  group_by(state, sex) |>
+  summarize(p_health_cover = mean(health_ins == "Covered"))
+
+state_sex_acs
+```
+
+This is interesting, but what if we want to calculate the difference in proportion coverage between men and women? We can't do that with this dataset because men and women are showing up on different lines. However, you may recognize that what we have here is a particularly kind of *long* dataset. We have a particular value (`p_health_cover`) organized by state and gender. So, we can apply what we have learned above about reshaping to reshape this into a wide dataset where men's and women's values are on the same row.
+
+```{r}
+state_sex_acs |> 
+  pivot_wider(names_from = sex, values_from = p_health_cover)
+```
+
+Now we have men and women on the same row. Lets go ahead and do some more housekeeping to get exactly what we want:
+
+```{r}
+state_sex_acs <- state_sex_acs |> 
+  pivot_wider(names_from = sex, values_from = p_health_cover) |>
+  rename(p_hcover_men = Male, p_hcover_women = Female) |>
+  mutate(sex_diff_hcover = p_hcover_men - p_hcover_women) |>
+  arrange(sex_diff_hcover)
+
+state_sex_acs
+```
+
+We can now see that the biggest difference in coverage is in Oklahoma, and that generally men are less likely to be covered than women. Likely this difference is at least partly owing to the fact that women are older than men on average due to longer life expectancy and are thus more likely to be covered under Medicare. However, we could slice age into intervals here and add that to the `group_by` command to check that more formally. I will leave that as an exercise for those so inclined.
