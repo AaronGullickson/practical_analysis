@@ -64,14 +64,14 @@ However, before we proceed with trying to merge on these characteristics, we nee
 ![](../images/keymaster.gif)
 </center>
 
-Yes, it turns out that you are **both* the gatekeeper and the keymaster! So lets vet some keys.
+Yes, it turns out that you are **both** the gatekeeper and the keymaster! So lets vet some keys.
 
 Lets start by thinking through the numbers here. We have two years of data from the VDEM and 358 observations, so that means we have 179 total countries in the VDEM dataset. Similarly, in the World Bank data, there are 434 observations over 2 years, so we have 217 countries. These results suggest that the VDEM dataset has slightly less coverage than the World Bank data. However, we can't assume from this comparison that all of the countries in the VDEM dataset are wholly contained within the World Bank data.
 
 One way to first check our keys is to visualize overlaps using a Venn diagram. We can do this using the `ggvenn` R library. We feed into the `ggvenn` function a list, where each element of the list is a character vector of the country names from each data source. The `ggvenn` function will then figure out the overlaps and produce a Venn diagram as shown in @fig-venn-country-name.
 
 ```{r}
-#| label: fig-venn-country-name
+#| label: fig-Venn-country-name
 #| fig-cap: Venn diagram showing correspondence between country names in the world Bank and VDEM datasets. While there is substantial overlap, *both* datasets contain quite a few country names not found in the other dataset.
 list(`World Bank` = unique(world_bank$country_name),
      VDEM = unique(vdem$country_name)) |>
@@ -104,7 +104,7 @@ world_bank$country_name[!(world_bank$country_name %in% vdem$country_name)] |>
   unique()
 ```
 
-Looking through the list, we can see that there are quite a few micronations (e.g. Faroe Islands, Liechtenstein, Monaco) and small island nations. Its understandable why these small countries may not be in the VDEM. However, we are also missing some alarming cases like the Russian Federation, both North and South Korea, Turkey (notably spelled "Turkiye) and the ... United States. Something clearly is not right here.
+Looking through the list, we can see that there are quite a few micro-nations (e.g. Faroe Islands, Liechtenstein, Monaco) and small island nations. Its understandable why these small countries may not be in the VDEM. However, we are also missing some alarming cases like the Russian Federation, both North and South Korea, Turkey (notably spelled "Turkiye) and the ... United States. Something clearly is not right here.
 
 To help solve this mystery, lets take a look at the 26 country names from VDEM that found no counterpart in the World Bank data.
 
