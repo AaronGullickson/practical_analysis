@@ -1,1 +1,182 @@
 # Reshaping Data {#sec-reshaping-data}
+
+```{r}
+#| include: false
+
+source("scripts/check_packages.R")
+```
+
+Data doesn't always come to us in the form that we need it to be for analysis. I am not speaking here of just the values and types of the variables it contains, but the actual *form* or *shape* of the data. In many cases, we may need to reshape the data to meet our needs.
+
+In particular, I am interested in two kinds of reshaping that we may need to do the original dataset. First, the data might not come to us in a *tidy* format and we may need to reshape it to comply with a tidy format. What do I mean by a tidy format? According to [Hadley Wickham](https://vita.had.co.nz/papers/tidy-data.pdf), a tidy dataset should conform to the following rules:
+
+1. Each variable is a column; each column is a variable.
+2. Each observation is a row; each row is an observation.
+3. Each value is a cell; each cell is a single value.
+
+This is generally the "spreadsheet" view of data that I have been using in this book. However, data is sometimes not distributed in this format, as we will see in the examples below. We may need to *reshape* such data into the desired format. 
+
+Furthermore, sometimes the distinction between observations and variables can be fuzzy. This is particularly true with data where you have repeat observations on units over time. Lets say I have yearly observations on countries. Should this data be organized so that an observation is a country and I have separate variables on the same measurement by year (e.g. `gdp2018`, `gdp2019`, etc.)? This is called a *wide* format and might look something like @tbl-wide.
+
+| Country   | gdp2018 | gdp2019 | gdp2020 | life_exp2018 | life_exp2019 | life_exp2020 |
+|-----------|:-------:|:-------:|:-------:|:------------:|:------------:|:------------:|
+|Afghanistan| ...     | ...     | ...     | ...          |    ...       | ...          |
+|Albania    | ...     | ...     | ...     | ...          |    ...       | ...          |
+|Belarus    | ...     | ...     | ...     | ...          |    ...       | ...          |
+
+: Country data organized in a wide format. Each observation is a country. {#tbl-wide}
+
+Alternatively, I could organize the data by unique country-year observations. In this case, I will have separate variables to identify country and year and only single values for each measurement (e.g. just `gdp`). This *long* format data will look something like @tbl-long.
+
+| Country   | year    | gdp     | life_exp |
+|-----------|:-------:|:-------:|:--------:|
+|Afghanistan| 2018    | ...     | ...      |
+|Afghanistan| 2019    | ...     | ...      |
+|Afghanistan| 2020    | ...     | ...      |
+|Albania    | 2018    | ...     | ...      |
+|Albania    | 2019    | ...     | ...      |
+|Albania    | 2020    | ...     | ...      |
+|Belarus    | 2018    | ...     | ...      |
+|Belarus    | 2019    | ...     | ...      |
+|Belarus    | 2020    | ...     | ...      |
+
+: Country data organized in a long format. Each observation is a country-year. {#tbl-long}
+
+These kinds of issues can be resolved by learning how to *reshape* data from wide to long formats and vice-versa. The `pivot_wider` and `pivot_longer` functions from the `tidyr` package will allow us to do this.
+
+Another kind of reshaping is the case of aggregation. In this case, the data you have are on the wrong *unit of analysis*. Your data will have a *nested* structure such that lower-level units are nested within higher-level units. For example, you might have individual workers nested within organizations, or you might have individual students nested within classrooms which are nested within schools. You might want to calculate summary statistics like means and proportions at one of the higher levels of nesting. For example, you might want to know mean wages and years of education of workers by organization. Or you might want to know mean test scores of students and racial composition of schools.
+
+In both of these cases, you want to *aggregate* the data from a lower unit of analysis to a higher unit of analysis. We can do this in *R* using the `group_by` and `summarize` functions.
+
+## Reshaping Wide and Long
+
+To better understand the need for reshaping, lets take a look again at the world bank data we read into *R* in @sec-reading-data.
+
+```{r}
+world_bank <- read_csv("data/world_bank.csv", 
+                       n_max = 651, 
+                       na = "..",
+                       skip = 1, 
+                       col_names = c("country_name", "country_code", 
+                                     "series_name", "series_code", "year2018",
+                                     "year2019"))
+world_bank
+```
+
+The data is supposed to contain information by country on GDP per capita, life expectancy, and CO2 emissions for the years 2018 and 2019. However, take a close look at the data. What does one row of this data represent? Its not a single country because we have three lines of data for each country. However, its not a country-year either because we have year specific variables. There is only one way to describe this dataset:
+
+<center>
+![](../images/abomination.gif)
+</center>
+
+We are mad scientists, though, so we can still make it work. Lets first figure out whats going on. If you take a close look what you will realize is that the multiple rows for each country represent the different variables, as indicated by the `series_name` and `series_code` variables. The variables of `year2018` and `year2019` thus record measurements on *different* variables in the *same* year. On line 1, we have GDP per capita for Afghanistan. On line 2, we have life expectancy at birth in Afghanistan. On line 3, we have CO2 emissions for Afghanistan. In its current form, the dataset is so bizarrely structured that it is useless. However, the `tidyr::pivot_` commands will allow us to make it useful.
+
+Its best to start by thinking how we *do* want this data to be structured. We can choose either a *long* or a *wide* format. In a long format, each row will be a country-year observation and will look something like @fig-long above.
+
+However, because of the unusual structure of this dataset, regardless of how I want the ultimate data, I will need to reshape the dataset as long as possible first in order to reshape it into the ultimate forme that I want. Before I get started, it will help to do some prepatory work. I don't need the `series_name` variable, so I am dropping that. Furthermore, I want to use more intuitive labels for the values of the `series_code` variable than what is showing. Because these names will ultimately become variable names, I am going to use the kind of syntax I want for variable names.
+
+```{r}
+world_bank <- world_bank |> 
+  select(!series_name) |>
+  mutate(series_code = case_when(
+     series_code == "NY.GDP.MKTP.CD" ~ "gdp_capita",
+     series_code == "SP.DYN.LE00.IN" ~ "life_exp",
+     series_code == "EN.ATM.CO2E.PC" ~ "carbon_emissions"
+  ))
+
+world_bank
+```
+
+Now, that I have done this preparatory work, I can use the `pivot_longer` command to make this dataset as long and thin as possible.
+
+```{r}
+world_bank <- world_bank |>
+  pivot_longer(cols = c(year2018, year2019), 
+               names_to = "year", 
+               names_prefix = "year")
+
+world_bank
+```
+
+Notice that while I use to have three observations per country, I now have *six* observations per country. That is because I am not representing `year` as a variable with two values (for 2018 and 2019). All the actual values of the variables are represented in the `value` column. 
+
+How did `pivot_longer` do that. The only required argument for `pivot_longer` is `cols`. Here I specify columns that I want to be combined in a longer format. The variable names will then be represented by a `names` column and their value will be represented by a `values` column. The remaining variables will just be duplicated across all observations. Notice that I also used `names_prefix` to remove the word "year" from the front of each variable.
+
+In this case, I used the `names_to` column to indicate an alternative column name for the `names` column. I now have this data as long as it can possibly be where each country is indexed by both a variable and year column and all values are recorded in a single `values` column. From this state, I can now reshape it wider to either a more traditional country-year long format or a country wide format.
+
+Before I do that I want to make one quick change. While I removed the word "year" from the `year` column, it is still being recorded as a character string. I want to recast that as a numeric value.
+
+```{r}
+world_bank <- world_bank |>
+  mutate(year = as.numeric(year))
+
+world_bank
+```
+
+Now, I am prepared to reshape this into a wider format. I want to keep country names, country codes, and year on each line but I want the values in `series_code` to be separate variables in the final output.
+
+```{r}
+world_bank <- world_bank |>
+  pivot_wider(names_from = series_code,
+              values_from = value)
+
+world_bank
+```
+
+Now, you can see that each row is a unique country-year observation. For example, the first line is Afghanistan in 2018 and the second is Afghanistan in 2019. The three values from `series_code` have been converted to separate columns in the new dataset. If you compare the size of the two datasets, you will see that the one in longest format was 1302 rows. The current one is 434 rows. The ratio of the two is 3 to 1 because, for each country-year, we converted three rows with a single column to one row with three columns.
+
+How did the `reshape_wide` work? We basically did the opposite of `reshape_long`. First, we have to specify a `names_from` column which will identify the new columns we want to create. Second, we have to specify a `values` column that indicates where the values for this new column will come from. All of the remaining variables will be treated as variables that uniquely identify the observation.
+
+This is a more traditional "long" format for longitudinal datasets like this one. For most modeling purposes, this is the kind of dataset we want, where each observation is a country-year. However, in some cases we might want an even wider format where each observation is a country and we duplicate columns of the same type by year. For example, lets say we wanted to look at the correlation between a country's GDP in 2018 and that same country's GDP in 2019.
+
+We can do that by employing another `pivot_wider` to make this dataset even wider. In this case, the `values` argument will need to identify all three of our substantive variables and `names_from` will be year.
+
+```{r}
+world_bank <- world_bank |> 
+  pivot_wider(names_from = year, 
+              values_from = c(gdp_capita, life_exp, carbon_emissions),
+              names_sep = ".")
+
+world_bank
+```
+
+Notice that `pivot_wider` smartly created combined variable names that reflect both the original variable type and the year. Notice as well that I used the `names_sep` argument to specify a specific separator character (".") to use when combining the year and variable names. This separator is going to help me later if I need to reshape this dataset long again.
+
+Now that we have this in wide format, we can make that scatterplot:
+
+```{r}
+#| label: tbl_gdp_compare
+#| tbl-cap: Comparison of GDP per capita in 2018 and 2019. It looks like a pretty strong association!
+ggplot(world_bank, aes(x = gdp_capita.2018, y = gdp_capita.2019))+
+  geom_point()+
+  labs(x = "GDP per capita (USD), 2018", x = "GDP per capita (USD), 2019")+
+  theme_bw()
+```
+
+Now that we have our figure built, we might want to reshape the dataset long again to run some models. This is slightly tricky. We unfortunately, can't just reshape by year. Instead we have to reshape into the longest format possible again with both a variable and year column. From there we can then reshape wide again to get the kind of country-year dataset we want. 
+
+The trick to using `pivot_longer` with multiple desired name variables (e.g. variable and year) is to use that separator information in the argument `names_sep` above to tell `pivot_wider` where to split each column name to produce two different columns in the long format. There is a slight issue here however, because the "." is a special character and it won't be handled correctly unless I "double-escape" it by using two backslashes in front. The full code to get the longest format possible is:
+
+```{r}
+world_bank <- world_bank |>
+  pivot_longer(cols = c(gdp_capita.2018, gdp_capita.2019, 
+                        life_exp.2018, life_exp.2019,
+                        carbon_emissions.2018, carbon_emissions.2019),
+               names_sep = "\\.",
+               names_to = c("variable", "year"))
+
+world_bank
+```
+
+From here, its a quick `pivot_wider` to get my country-year observations:
+
+```{r}
+world_bank <- world_bank |>
+  pivot_wider(names_from = "variable", values_from = "value")
+
+world_bank
+```
+
+Reshaping data can be a bit tricky sometimes, but if you can get the dataset into its longest format possible, you can always get it in the ultimate shape that you want.
+
+## Aggregating
