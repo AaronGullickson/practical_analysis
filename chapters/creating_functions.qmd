@@ -82,7 +82,7 @@ prop_county <- tracts_lane |>
   colSums() |>
   prop.table()
 
-entropy_county <- sum(prop_county * log(1/prop_county))
+entropy_county <- sum(prop_county * log(1/prop_county), na.rm =TRUE)
 entropy_county
 ```
 
@@ -181,7 +181,7 @@ calc_theil_h <- function(tracts_county) {
     colSums() |>
     prop.table()
   
-  entropy_county <- sum(prop_county * log(1/prop_county))
+  entropy_county <- sum(prop_county * log(1/prop_county), na.rm = TRUE)
   
   # now get tract entropy
   tracts_county <- tracts_county |>
