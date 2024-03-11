@@ -28,8 +28,8 @@ book:
         - chapters/merging_data.qmd
     - part: "Programmming"
       chapters:
-        - chapters/iterating_speed.qmd
         - chapters/creating_functions.qmd
+        - chapters/iterating_speed.qmd
   appendices:
         - appendices/getting_familiar_rstudio.qmd
 
