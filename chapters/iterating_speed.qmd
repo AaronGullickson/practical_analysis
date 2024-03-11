@@ -1,1 +1,320 @@
 # Iterating for Speed {#sec-iterating-speed}
+
+```{r}
+#| include: false
+
+set.seed(39)
+source("scripts/check_packages.R")
+```
+
+```{r}
+#| include: false
+tracts <- read_csv("data/social_explorer/R13598833_SL140.csv",
+                   col_types = cols(.default = "i", 
+                                    Geo_QName = "c",
+                                    Geo_NAME = "c",
+                                    Geo_STUSAB = "c",
+                                    Geo_FIPS = "c")) |>
+  mutate(pop_race_indigenous = SE_B04001_005 + SE_B04001_007,
+         county_id = Geo_STATE * 1000 + Geo_COUNTY,
+         county_name = str_remove(Geo_QName, paste0(Geo_NAME, ", ")),
+         tract_id = as.numeric(Geo_FIPS)) |>
+  rename(pop_total = SE_B04001_001,
+         pop_race_white = SE_B04001_003,
+         pop_race_black = SE_B04001_004,
+         pop_race_asian = SE_B04001_006,
+         pop_race_other = SE_B04001_008,
+         pop_race_multi = SE_B04001_009,
+         pop_race_latino = SE_B04001_010) |>
+  select(tract_id, starts_with("county_"), starts_with("pop_")) |>
+  filter(pop_total > 0)
+
+tracts
+```
+
+```{r}
+#| include: false
+calc_theil_h <- function(tracts_county) {
+  
+  # first get county entropy and population
+  pop_county <- sum(tracts_county$pop_total)
+  
+  prop_county <- tracts_county |>
+    select(starts_with("pop_race_")) |>
+    colSums() |>
+    prop.table()
+  
+  entropy_county <- sum(prop_county * log(1/prop_county), na.rm = TRUE)
+  
+  # now get tract entropy
+  tracts_county <- tracts_county |>
+    pivot_longer(cols=starts_with("pop_race_"), 
+                 names_prefix = "pop_race_",
+                 names_to="race",
+                 values_to = "pop") |>
+    mutate(prop = pop / pop_total,
+           e = prop * log(1/prop)) |>
+    select(tract_id, county_id, county_name, race, pop, prop, e) |>
+    group_by(tract_id) |>
+    summarize(entropy = sum(e, na.rm=TRUE),
+              pop_total = sum(pop))
+  
+  return(sum(tracts_county$pop_total * tracts_county$entropy) / 
+           (pop_county * entropy_county))
+}
+```
+
+In this chapter, we want to continue working on the challenge introduced in @sec-creating-functions of calculating *Theil's H* - a measure of racial segregation - for every county in the United States. If you haven't read that chapter, you should probably do so before continuing on here. 
+
+The dataset we used for this analysis is based on tract level data of population counts by race extracted from [Social Explorer](https://socialexplorer.com). You can see a snippet below:
+
+```{r}
+tracts
+```
+
+In @sec-creating-functions, we developed a handy function for calculating Theil's H from census tract data for a given county. This saves us a lot of time and code, because that function allows us to reuse the code for calculating Theil's H for any county we want. For example, if I want the Theil's H of Alameda County, California:
+
+```{r}
+tracts |> 
+  filter(county_name == "Alameda County, California") |>
+  calc_theil_h()
+```
+
+However, we still have a bit of a problem. If I want to calculate Theil's H for all 3,222 counties in the dataset, entering them in one by one is going to be extremely laborious. How can I get *R* to do the hard work here? 
+
+Computers are great at *iteration*. We basically want to tell *R* to repeat the same procedure over and over again across all counties in my dataset. There are two approaches to iteration in *R*: loops and mapping.
+
+## Looping
+
+Looping is a common procedure in most computer programming languages. In this case, we want a for loop which will iterate across a vector of values and repeat the same code.^[The other option is a while loop which will repeat the same code until a condition is met.] Here is a simple example of a for loop:
+
+```{r}
+for(i in 1:10) {
+  print(i)
+}
+```
+
+The value `i` is a placeholder that can be referenced within the for loop itself. The first time the for loop is run, it uses the value of 1 and processes the code in the curly brackets. The next time, the for loop is run, it uses the value of 2, and so on until the final value of 10 is reached. 
+
+We want to loop across every county. In order to do that, I need a unique identifier for a county. I could use name or ID in this case. Generally, names are not as reliable, but for more intuitive display, I will use names here as I know that no county names are duplicated within states. To get the unique county names, I can use the `unique` function:
+
+```{r}
+counties <- unique(tracts$county_name)
+length(counties)
+```
+
+For expository purposes, I am going to take a small sample of these counties to iterate across so that you don't have to look at output for all 3,222 counties. Once we get the code working for the small sample, we will go back to the full set.
+
+```{r}
+counties_sample <- sample(counties, 10)
+```
+
+First, lets test out a simple for loop where we print out county names:
+
+```{r}
+for(county in counties_sample) {
+  print(county)
+}
+```
+
+Note that I used `county` rather than `i` as my placeholder value name because its more intuitive. You can use any name you like here. The for loop seems to be working, so lets try to actually calculate Theil's H within the loop.
+
+```{r}
+for(county in counties_sample) {
+  tracts |>
+    filter(county_name == county) |>
+    calc_theil_h() |>
+    print()
+}
+```
+
+That seemed to work. However, at this point, I am just spitting out the results to the screen. I would prefer to save these results back to *something*. I could just save the results back to a vector, but I would rather save them back to a `tibble` that includes both the county name and Theil's H. Either way, I do this by initializing a `NULL` object and then adding to that object within the loop. For a vector, I can do this by simply concatenating the new value onto the old with `c`:
+
+```{r}
+theil_h <- NULL
+for(county in counties_sample) {
+  h <- tracts |>
+    filter(county_name == county) |>
+    calc_theil_h()
+  theil_h <- c(theil_h, h)
+}
+theil_h
+```
+
+However, when I only return a vector, I lose information on which value belongs to which county. Instead, I am going to save the results to a `tibble` and then use the `bind_rows` command to add this `tibble` to my existing `tibble`:
+
+```{r}
+theil_h <- NULL
+for(county in counties_sample) {
+  
+  # calculate Theil's H for this county
+  h <- tracts |>
+    filter(county_name == county) |>
+    calc_theil_h()
+  
+  # add this county's values to our dataset of values
+  theil_h <- theil_h |>
+    bind_rows(tibble(county_name = county, theil_h = h))
+}
+theil_h
+```
+
+One thing to keep in mind is that if you end up rerunning your for loop, you also need to remember to re-initialize your object of returned value as a `NULL` object. Otherwise, your results will be added on to the pre-existing object.
+
+Now that I have this code working for a small sample, lets run it for all 3,222 counties.
+
+```{r}
+theil_h <- NULL
+for(county in counties) {
+  
+  # calculate Theil's H for this county
+  h <- tracts |>
+    filter(county_name == county) |>
+    calc_theil_h()
+  
+  # add this county's values to our dataset of values
+  theil_h <- theil_h |>
+    bind_rows(tibble(county_name = county, theil_h = h))
+}
+theil_h
+```
+
+This is too many values to display, so lets go ahead and look at a histogram of Theil's H across counties in the US:
+
+```{r}
+#| label: fig-theil-h
+#| fig-cap: "Distribution of Theil's H across US counties."
+ggplot(theil_h, aes(x = theil_h))+
+  geom_histogram(color = "grey20", fill = "grey70")+
+  theme_bw()+
+  labs(x = "Theil's H")
+```
+
+## Mapping
+
+For loops are fairly intuitive but have a bad reputation in *R*. Historically, for loops in *R* have been much slower than in many other programming languages (for reasons are that are technically complex). For that reason, many people prefer to use the methods of mapping rather than looping in *R* for speedier results. In more recent version of *R*, looping has improved considerably and so the advantages of mapping may be somewhat overstated. Nonetheless, it is useful to know both methods as mapping can sometimes offer other efficiencies over looping, or provide more compact code. 
+
+Our primary tool is going to be the `map` function from the `purrr` package. However, you can also use the `lapply` function from base *R* in the same manner. Both functions allow you to apply some other function to every element of a list. 
+
+Whats a list, you say? You may want to @sec-learning-r, but the short answer is that lists are collections of objects. The objects within lists can be of different types, but for the purposes of `map` and `lapply` we want lists that contain objects of the same type, since we are going to apply the same function to each element of the list.
+
+The first step to getting `map` to work is to create the list. In our case, we want to split up our single dataset of all tracts to a list of datasets where each county is a separate element of the list. Each dataset within the list will have the same structure. 
+
+To split a dataset into a list of datasets, we can use the `group_by` command to define what variable should be used to split the list (county name and id, in this case), followed by a `group_split` command. For expository purposes, rather than splitting the full tract dataset, I am going to use the sample of ten counties from above.
+
+```{r}
+county_list <- tracts |>
+  filter(county_name %in% counties_sample) |>
+  group_by(county_name, county_id) |>
+  group_split()
+
+length(county_list)
+```
+
+Lets take a look at the first element of this list:
+
+```{r}
+county_list[[1]]
+```
+
+The first element is the dataset for Alger County, Michigan. Each of the ten elements contains a dataset for a given county.
+
+Now that I have my data structured the way that `map` wants the input, I can use the `map` function itself. The other required argument for `map` is a function that will be applied to each element of the list. I can use a pre-defined function or I can create a custom function. I will first demonstrate how it works by getting a `summary` for each dataset:
+
+```{r}
+map(county_list, summary)
+```
+
+This is a lot of information! By default, `map` returns a list of the same dimension as the input (in this case, 10 elements). In some cases, we can simplify this output, but not in this case. 
+
+Lets try creating a custom function within `map` itself. In this case, I want to get the sum of `pop_total` within each dataset.
+
+```{r}
+map(county_list, function(x) { sum(x$pop_total) })
+```
+
+In this case, I am actually writing the code for a custom function *within* another function. In this case, my function is quite simple, but you can use this feature to do some quite complex stuff if you want.
+
+Again, the output is formatted as a list. However, I am returning a simple number for each value, so I would prefer that this output just be displayed as a simple vector of results. You can do this by using a variety of `map_*` functions where the second part indicates the return type you expect. In this case, I can use `map_dbl` because I expect the output to be a numeric value.^[The equivalent approach to `lapply` is to use `sapply` which simplifies the list to a vector if possible.] Lets try it:
+
+```{r}
+map_dbl(county_list, function(x) { sum(x$pop_total) })
+```
+ 
+My result is now displayed as a vector of numbers, which is more compact. 
+
+Now that we can see how it works, lets try out map with our custom `calc_theil_h` function:
+
+```{r}
+map_dbl(county_list, calc_theil_h)
+```
+
+That seemed to work perfectly and gives me the same output as the for loop above. However, I would also like to get the county information returned in a table format. How, can I do that? I can use a custom function to output a tibble that includes the county name and id in the result:
+
+```{r}
+map(county_list, function(x) {
+  tibble(county_name = unique(x$county_name),
+         county_id = unique(x$county_id),
+         theil_h = calc_theil_h(x))
+})
+```
+
+This approach worked, but because I am returning a `tibble` each time, I am back to the list format for my output. What I want is each of these results as rows of a shared `tibble`. Luckily, `bind_rows` will do this for me. I just have to pipe the results of `map` into a `bind_rows` to get everything formatted nicely:
+
+```{r}
+map(county_list, function(x) {
+  tibble(county_name = unique(x$county_name),
+         county_id = unique(x$county_id),
+         theil_h = calc_theil_h(x))
+  }) |>
+  bind_rows()
+```
+
+Now the format is working perfectly. Lets go ahead and apply this to the full dataset in one pipe:
+
+```{r}
+tracts |>
+  group_by(county_name, county_id) |>
+  group_split() |>
+  map(function(x) {
+    tibble(county_name = unique(x$county_name),
+           county_id = unique(x$county_id),
+           theil_h = calc_theil_h(x))
+  }) |>
+  bind_rows()
+```
+
+Students often go with the for loop approach because it feels more natural and intuitive. In particular, students are often scared off by the custom function business. However, mapping offers you more flexibility and often speed, and so its worth learning. In this case, it was much easier to get both county name and id in the final output using mapping rather than looping.
+
+We can also wrap each command in `system.time` to see how they actually perform in terms of time. 
+
+```{r}
+theil_h <- NULL
+system.time(
+  for(county in counties) {
+    
+    # calculate Theil's H for this county
+    h <- tracts |>
+      filter(county_name == county) |>
+      calc_theil_h()
+    
+    # add this county's values to our dataset of values
+    theil_h <- theil_h |>
+      bind_rows(tibble(county_name = county, theil_h = h))
+  }
+)
+
+system.time(
+  tracts |>
+    group_by(county_name, county_id) |>
+    group_split() |>
+    map(function(x) {
+      tibble(county_name = unique(x$county_name),
+             county_id = unique(x$county_id),
+             theil_h = calc_theil_h(x))
+    }) |>
+    bind_rows()
+)
+```
+
+The difference in speed is pretty minimal here. The for loop takes about 10% more time, which amounts to 2 seconds in this case. For many operations, this gain is probably not enough to warrant a decision on looping vs. mapping. However, for  computationally intensive operations, a 10% savings in time may make a big difference in absolute time.
