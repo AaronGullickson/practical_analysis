@@ -1,1 +1,308 @@
 # Creating Functions {#sec-creating-functions}
+
+```{r}
+#| include: false
+
+source("scripts/check_packages.R")
+```
+
+This is the first chapter in the final section on "Programming." I know what you are thinking - haven't we been programming all along? We have been writing *code* after all and the computer has been processing that code. In some sense, we could consider everything we have done already as programming. However, I am using the term here to describe more traditional programming operations that leverage a computer's ability to do repetitive tasks very quickly. Although that capability is going on "under the hood" in many functions that we use, here we are going to explicit utilize that ability to deal with specific challenges. Specifically, we are going to focus on two ways we can "program" in *R*:
+
+1. We can create custom functions to generalize and re-use code that we write.
+2. We can use iteration to repeat the same procedure many times over.
+
+In this chapter, we will first focus on writing functions. You have already used many functions throughout this book. It turns out, that you can fairly easily write your own functions. Custom functions can be very useful if you find yourself repeating the same coding procedure in more than one place. 
+
+For example, lets say that you need to encode a certain categorical variable like race for all members of a household, where each member's original race code is a separate variable. This procedure will be identical for each member of the household, which means you will be copy-pasting the same code snippet many times over to accomplish the task. Most importantly, what if you then discover there was an error in your original code snippet? Or you decide later that you want to change the coding to collapse two categories together? You now have to make sure that your correction/changes to the original code snippet are also made to all the other places you copy-pasted that code snippet. That leads to a lot of extra labor and the potential for errors to creep in.
+
+This is the perfect case for a custom function. You can create a custom function that reads in the original race variable and returns a properly encoded factor variable. You then just have to call up this custom function in all the places you need to encode a race variable. If you discover an error or want to make a change, you only have to make it in one place - the function itself. Although coding the function may seem like a hassle initially, it can save you a lot of time in the end.
+
+## Example: Measuring Segregation with Theil's H
+
+To get started, we are going to load some American Community survey tract level data from [Social Explorer](https://socialexplorer.com). You can find this data [here](https://github.com/AaronGullickson/practical_analysis/tree/master/data/social_explorer).
+
+```{r}
+#| warning: false
+tracts <- read_csv("data/social_explorer/R13598833_SL140.csv",
+                   col_types = cols(.default = "i", 
+                                    Geo_QName = "c",
+                                    Geo_NAME = "c",
+                                    Geo_STUSAB = "c",
+                                    Geo_FIPS = "c")) |>
+  mutate(pop_race_indigenous = SE_B04001_005 + SE_B04001_007,
+         county_id = Geo_STATE * 1000 + Geo_COUNTY,
+         county_name = str_remove(Geo_QName, paste0(Geo_NAME, ", ")),
+         tract_id = as.numeric(Geo_FIPS)) |>
+  rename(pop_total = SE_B04001_001,
+         pop_race_white = SE_B04001_003,
+         pop_race_black = SE_B04001_004,
+         pop_race_asian = SE_B04001_006,
+         pop_race_other = SE_B04001_008,
+         pop_race_multi = SE_B04001_009,
+         pop_race_latino = SE_B04001_010) |>
+  select(tract_id, starts_with("county_"), starts_with("pop_")) |>
+  filter(pop_total > 0)
+
+tracts
+```
+
+The data consists of population counts by race at the census tract level. I also keep identifiers for the county in which the census tract is located. My interest is in estimating a measure of racial segregation at the county level. In general, measures of racial segregation are calculated by measuring the unevenness in the spatial distribution of racial groups across some geographical unit (in this case, counties, but more commonly metropolitan areas). We do that by examining the racial distribution within each census tract. If there were no racial segregation across the county, we would expect the racial distribution within each census tract to be similar to the racial distribution within the county.
+
+To measure segregation, we are going to use a measure called *Theil's H*. The first step in measuring Theil's H is to calculate a summary measure of diversity known as *entropy* within each census tract. Entropy ($E$) is measured with the following formula:
+
+$$E=\sum_{j=1}^J p_j\log(1/p_j)$$
+
+where $p_j$ is the proportion of racial group $j$ in the area and $J$ is the number of racial groups in total. Entropy will be at its maximum value when the proportion $p_j$ is the same for each group, and entropy will be at its minimum value of zero when the area is made up entirely of one group. Lets take a simple example where we have three groups and the first group is 60% of the population of an area and the remaining two groups are 20% each. Entropy would be:
+
+$$E=(0.6)*\log(1/0.6)+0.2*\log(1/0.2)+0.2*log(1/0.2)=0.95$$
+
+With the natural log used here for three groups, the maximum value of entropy is $\log(3)=1.0986123$, so this area would be considered fairly diverse.
+
+Entropy by itself doesn't measure segregation, but it does provide us a convenient summary measure of the racial distribution of an area. In this case, we want to compare how diverse census tracts are relative to the overall county. If the county has a much higher diversity overall than the tracts it contains, then we have evidence of substantial racial segregation. Formally, we measure this with Theil's H as follows:
+
+$$H=1-\sum_{i=1}^n \frac{t_i*E_i}{T*E}$$
+
+Where $t_i$ and $E_i$ are the population and entropy of census tract $i$, respectively, and $T$ and $E$ are the population and entropy of the county overall, respectively. Theil’s H is a weighted average of of how much the diversity of each sub-region varies from the total region. Higher values of H indicate more segregation in the sense that the diversity of the sub-regions is low relatively to the overall diversity of the region. Theil's H is maximized at 1 (complete evenness) and minimized at 0 (complete segregation).
+
+So, how can we do this in *R*? Lets try to figure it out for an example county by pulling one set of tracts for a given county from our full dataset. Specifically, lets look at Lane County, Oregon.
+
+```{r}
+tracts_lane <- tracts |>
+  filter(county_name == "Lane County, Oregon")
+```
+
+Lets start with the easy part which is calculating population size ($T$) and ($E$) for the entire county. To do this , I need to sum up all of my population variables across all rows. I am introducing a new function from base *R* called `colSums` that will do that for us.
+
+```{r}
+pop_county <- sum(tracts_lane$pop_total)
+pop_county
+
+prop_county <- tracts_lane |>
+  select(starts_with("pop_race_")) |>
+  colSums() |>
+  prop.table()
+
+entropy_county <- sum(prop_county * log(1/prop_county))
+entropy_county
+```
+
+These two numbers will give me the denominator for the Theil's H calculation. Now I need to get the entropy and population count for each census tract. I already have total population counts, but getting entropy is a trickier nut to crack. I first need to calculate proportions for each group and then use the entropy formula to get $p*log(1/p)$ for each group and then sum those values together. I could get all of this manually for each group with a simple mutate command. However, that will lead to a lot of code and variables. A more efficient way to do this will be to reshape the data longer so that each racial group is on a separate line. I can then calculate the entropy component for each group separately and then use a `group_by |> summarize` pipe to add them up by tracts again. 
+
+Lets try the fist part of that by reshaping the data longer.
+
+```{r}
+# now get tract entropy
+tracts_lane <- tracts_lane |>
+  pivot_longer(cols=starts_with("pop_race_"), 
+               names_prefix = "pop_race_",
+               names_to="race",
+               values_to = "pop") |>
+  mutate(prop = pop / pop_total,
+         e = prop * log(1/prop)) |>
+  select(tract_id, race, pop, prop, e)
+
+tracts_lane
+```
+
+That seemed to work. Keep in mind  that cases with a zero population will have an `NA` value for the entropy component so I will need to make sure to have `na.rm=TRUE` turned on when I sum them up. Before doing that summing, lets just check that our proportions add up to one for every census tract.
+
+```{r}
+tracts_lane |>
+  group_by(tract_id) |>
+  summarize(check = sum(prop)) |>
+  summary()
+```
+
+That looks good, so lets now go ahead and sum up by tract to get both tract total population ($t_i$) and tract entropy ($E_i$). 
+
+```{r}
+tracts_lane <- tracts_lane |>
+  group_by(tract_id) |>
+  summarize(entropy = sum(e, na.rm=TRUE),
+            pop_total = sum(pop))
+
+tracts_lane
+```
+
+I now have all the pieces in places to calculate the overall Theil's H value for Lane County:
+
+```{r}
+sum(tracts_lane$pop_total * tracts_lane$entropy) / (pop_county * entropy_county)
+```
+Remember the maximum value possible here is 1, so the results suggest that Lane County is not very segregated by race.
+
+This code works well for one county, but we have a lot of counties in our dataset. How many counties do we have altogether?
+
+```{r}
+length(unique(tracts$county_id))
+```
+
+Now consider copy-pasting that code for Lane County 3221 more times to get the entropy of each county. You don't want to do that! This is perfectly set up for a custom function.
+
+## Creating a Custom Function
+
+We want a custom function that will return a single entropy value for a given county. The input to this function will be a single argument that consists of all the tract data for the county.
+
+The general syntax for creating a function is:
+
+```r
+my_func_name <- function(arg1, arg2 = FALSE, ...) {
+  
+  ## put R code here to do what your function does ##
+  
+  return(some_value)
+}
+```
+
+You can name your function whatever you like. You can specify multiple arguments for your function as well. Note that in the example above, I have specified a default value for `arg2`. If you don't specify a default value, then the argument will be required by the function.
+
+Your function also needs to return something. You can specify what is returned explicitly on the last line of your function with `return`. Otherwise, the function will return whatever is returned from the last line of code in your function.
+
+In my case, I only need a single required argument, so the basic structure of my function should look like:
+
+```r
+calc_theil_h <- function(tracts_county) {
+
+  ...
+
+}
+```
+
+I already have the code I need from the Lane county example above. I just need to put that code here while remembering to replace `tracts_lane` with `tracts_county`. 
+
+```{r}
+calc_theil_h <- function(tracts_county) {
+  
+  # first get county entropy and population
+  pop_county <- sum(tracts_county$pop_total)
+  
+  prop_county <- tracts_county |>
+    select(starts_with("pop_race_")) |>
+    colSums() |>
+    prop.table()
+  
+  entropy_county <- sum(prop_county * log(1/prop_county))
+  
+  # now get tract entropy
+  tracts_county <- tracts_county |>
+    pivot_longer(cols=starts_with("pop_race_"), 
+                 names_prefix = "pop_race_",
+                 names_to="race",
+                 values_to = "pop") |>
+    mutate(prop = pop / pop_total,
+           e = prop * log(1/prop)) |>
+    select(tract_id, county_id, county_name, race, pop, prop, e) |>
+    group_by(tract_id) |>
+    summarize(entropy = sum(e, na.rm=TRUE),
+              pop_total = sum(pop))
+  
+  return(sum(tracts_county$pop_total * tracts_county$entropy) / 
+           (pop_county * entropy_county))
+}
+```
+
+Now lets try out the function by feeding in different counties to it. Because the first argument is the tracts object, I can easily add it to a pipe.
+
+```{r}
+tracts |>
+  filter(county_name == "Lane County, Oregon") |>
+  calc_theil_h()
+
+tracts |>
+  filter(county_name == "King County, Washington") |>
+  calc_theil_h()
+
+tracts |>
+  filter(county_name == "Wayne County, Michigan") |>
+  calc_theil_h()
+```
+
+It looks like its working! I can see that Lane County (Eugene, OR) and King County (Seattle, WA) are less segregated than Wayne County (Detroit, MI). That is what I expected, so it seems to be operating correctly. I have just saved myself a lot of time! 
+
+### Danger: Scoping in *R*
+
+One *gotcha* issue with *R* functions has to do with *scoping*. Scoping refers to the accessibility of different objects in *R*. In many computer programming languages, a function only has access to objects that are entered as arguments to the function. In *R*, however, functions have access to global objects that are already declared in the environment, even if they are not input into the function. For example, 
+
+```{r}
+x <- 2
+
+what_is_x <- function() {
+  print(x)
+}
+
+what_is_x()
+
+x <- 5
+what_is_x()
+```
+
+In this case, `x` is not an input within the function but *R* still had access to it because it was declared in the global environment. The ability to reference global objects can be useful, it can also lead to a lot of confusion and error when first learning to write function. A function might initially work because it implicitly depends on something in the environment. The function then breaks later in a fresh environment. Even worse, the function may call upon the wrong object and produce an incorrect result. 
+
+This latter problem is particularly prevalent when you copy-paste specific code into the function without changing object names to reflect argument names. For example, lets say I copy-pasted my Lane County test code into the function but forgot to change `tracts_lane` to `tracts_county`:
+
+```{r}
+calc_theil_h <- function(tracts_county) {
+  
+  ## This is bad because I am referencing the global object tracts_lane!! ##
+  
+  # first get county entropy and population
+  pop_county <- sum(tracts_lane$pop_total)
+  
+  prop_county <- tracts_lane |>
+    select(starts_with("pop_race_")) |>
+    colSums() |>
+    prop.table()
+  
+  entropy_county <- sum(prop_county * log(1/prop_county))
+  
+  # now get tract entropy
+  tracts_lane <- tracts_lane |>
+    pivot_longer(cols=starts_with("pop_race_"), 
+                 names_prefix = "pop_race_",
+                 names_to="race",
+                 values_to = "pop") |>
+    mutate(prop = pop / pop_total,
+           e = prop * log(1/prop)) |>
+    select(tract_id, county_id, county_name, race, pop, prop, e) |>
+    group_by(tract_id) |>
+    summarize(entropy = sum(e, na.rm=TRUE),
+              pop_total = sum(pop))
+  
+  return(sum(tracts_lane$pop_total * tracts_lane$entropy) / 
+           (pop_county * entropy_county))
+}
+```
+
+Now, lets try running this function on the same three counties:
+
+```{r}
+#| include: false
+tracts_lane <- tracts |>
+  filter(county_name == "Lane County, Oregon")
+```
+
+```{r}
+tracts |>
+  filter(county_name == "Lane County, Oregon") |>
+  calc_theil_h()
+
+tracts |>
+  filter(county_name == "King County, Washington") |>
+  calc_theil_h()
+
+tracts |>
+  filter(county_name == "Wayne County, Michigan") |>
+  calc_theil_h()
+```
+
+You will notice that the function repeats the exact same value back for all three counties. This is because it is ignoring the user-fed object of `tracts_county` and instead using the pre-existing `tracts_lane` object. So, this function will always return the Theil's H of Lane County. If, I remove that object, I will get an error:
+
+```{r}
+#| error: true
+rm(tracts_lane)
+tracts |>
+  filter(county_name == "Lane County, Oregon") |>
+  calc_theil_h()
+```
+
+The lesson here is that you want to be very careful when copy-pasting code into your function to make sure you are not relying on existing objects. Clearing out your environment before testing the function will help to diagnose errors as well.
