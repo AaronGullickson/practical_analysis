@@ -68,7 +68,7 @@ Yes, it turns out that you are **both** the gatekeeper and the keymaster! So let
 
 Lets start by thinking through the numbers here. We have two years of data from the VDEM and 358 observations, so that means we have 179 total countries in the VDEM dataset. Similarly, in the World Bank data, there are 434 observations over 2 years, so we have 217 countries. These results suggest that the VDEM dataset has slightly less coverage than the World Bank data. However, we can't assume from this comparison that all of the countries in the VDEM dataset are wholly contained within the World Bank data.
 
-One way to first check our keys is to visualize overlaps using a Venn diagram. We can do this using the `ggvenn` R library. We feed into the `ggvenn` function a list, where each element of the list is a character vector of the country names from each data source. The `ggvenn` function will then figure out the overlaps and produce a Venn diagram as shown in @fig-venn-country-name.
+One way to first check our keys is to visualize overlaps using a Venn diagram. We can do this using the `ggvenn` R library. We feed into the `ggvenn` function a list, where each element of the list is a character vector of the unique country names from each data source. The `ggvenn` function will then figure out the overlaps and produce a Venn diagram as shown in @fig-venn-country-name.
 
 ```{r}
 #| label: fig-Venn-country-name
@@ -78,7 +78,7 @@ list(`World Bank` = unique(world_bank$country_name),
   ggvenn(auto_scale = TRUE, fill_color = c("navy","seagreen"))
 ```
 
-As you can see from @fig-venn-country-name, we have many country names that do not find a match in the other dataset for *both* datasets. The World bank dataset contains 64 country names that are not matched in the VDEM dataset. We expected to see at least 38 cases like this because the World Bank has 38 countries than the VDEM data. However, the difference in country size between the two datasets is substantially larger than 38, suggesting a problem. 
+As you can see from @fig-venn-country-name, we have many country names that do not find a match in the other dataset for *both* datasets. The World bank dataset contains 64 country names that are not matched in the VDEM dataset. We expected to see at least 38 cases like this because the World Bank has 38 more countries than the VDEM data. However, number of missing countries is substantially larger than 38, suggesting a problem. 
 
 We also have 26 cases in the VDEM data that are not found in the World Bank data. This is even more concerning because we generally expect the World Bank data to have better scope and thus expect the VDEM countries to be wholly contained within the World Bank data.^[You may also note that 64-26 equals 38 which is the difference in size between the two datasets. Mathematically this always has to be true.] Overall, the results suggest that our key of country name has some problems.
 
