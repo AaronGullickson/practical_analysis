@@ -71,7 +71,7 @@ Lets start by thinking through the numbers here. We have two years of data from 
 One way to first check our keys is to visualize overlaps using a Venn diagram. We can do this using the `ggvenn` R library. We feed into the `ggvenn` function a list, where each element of the list is a character vector of the unique country names from each data source. The `ggvenn` function will then figure out the overlaps and produce a Venn diagram as shown in @fig-venn-country-name.
 
 ```{r}
-#| label: fig-Venn-country-name
+#| label: fig-venn-country-name
 #| fig-cap: Venn diagram showing correspondence between country names in the world Bank and VDEM datasets. While there is substantial overlap, *both* datasets contain quite a few country names not found in the other dataset.
 list(`World Bank` = unique(world_bank$country_name),
      VDEM = unique(vdem$country_name)) |>
