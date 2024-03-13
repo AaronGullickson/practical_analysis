@@ -147,7 +147,7 @@ Notice that `pivot_wider` smartly created combined variable names that reflect b
 Now that we have this in wide format, we can make that scatterplot:
 
 ```{r}
-#| label: fig_gdp_compare
+#| label: fig-gdp-compare
 #| fig-cap: Comparison of GDP per capita in 2018 and 2019. It looks like a pretty strong association!
 ggplot(world_bank, aes(x = gdp_capita.2018, y = gdp_capita.2019))+
   geom_point()+
