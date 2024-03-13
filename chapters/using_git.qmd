@@ -149,6 +149,7 @@ The first step to cloning is to get the address of the remote repository. On the
 Now I can use RStudio to clone the repository on my local computer. To do this, we need to create a new project in RStudio. Go to "File > New Project" from the menu (or click the gelatinous cube icon). This will bring up the new project wizard dialog. We will choose the following options: Version Control > Git. From here, you can paste the address we copied earlier. You can also specify a name and location for the project directory. Be sure to remember where you put your git repo! @fig-rstudio-clone illustrates the process of cloning a new repository.
 
 ![Cloning a repository from RStudio. Don't forget to specify where you want the project to be on your system in the final step.](../images/rstudio_clone.gif){#fig-rstudio-clone}
+
 You now have an identical copy of the repository from GitHub on your local computer. Additionally, the local git repository recognizes the remote repository on GitHub as the "origin" repository and so it will already know where to push and pull. 
 
 To use the git tools in RStudio, you will need to open the RStudio project you just created within RStudio. You can do this from the drop down project menu in the upper right of RStudio or from the File menu. The easiest way to open up a project however is to navigate to it in your computer's filesystem and double click the "*.Rproj" file located in the project directory. This will open up RStudio with the project loaded.
