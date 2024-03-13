@@ -59,7 +59,7 @@ calc_theil_h <- function(tracts_county) {
     summarize(entropy = sum(e, na.rm=TRUE),
               pop_total = sum(pop))
   
-  return(sum(tracts_county$pop_total * tracts_county$entropy) / 
+  return(1-sum(tracts_county$pop_total * tracts_county$entropy) / 
            (pop_county * entropy_county))
 }
 ```

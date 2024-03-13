@@ -127,9 +127,9 @@ tracts_lane
 I now have all the pieces in places to calculate the overall Theil's H value for Lane County:
 
 ```{r}
-sum(tracts_lane$pop_total * tracts_lane$entropy) / (pop_county * entropy_county)
+1-sum(tracts_lane$pop_total * tracts_lane$entropy) / (pop_county * entropy_county)
 ```
-Remember the maximum value possible here is 1, so the results suggest that Lane County is not very segregated by race.
+Remember the minimum value possible here is 0, so the results suggest that Lane County is not very segregated by race.
 
 This code works well for one county, but we have a lot of counties in our dataset. How many counties do we have altogether?
 
@@ -196,7 +196,7 @@ calc_theil_h <- function(tracts_county) {
     summarize(entropy = sum(e, na.rm=TRUE),
               pop_total = sum(pop))
   
-  return(sum(tracts_county$pop_total * tracts_county$entropy) / 
+  return(1-sum(tracts_county$pop_total * tracts_county$entropy) / 
            (pop_county * entropy_county))
 }
 ```
@@ -268,7 +268,7 @@ calc_theil_h <- function(tracts_county) {
     summarize(entropy = sum(e, na.rm=TRUE),
               pop_total = sum(pop))
   
-  return(sum(tracts_lane$pop_total * tracts_lane$entropy) / 
+  return(1-sum(tracts_lane$pop_total * tracts_lane$entropy) / 
            (pop_county * entropy_county))
 }
 ```
