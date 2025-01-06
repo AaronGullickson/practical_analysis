@@ -30,13 +30,13 @@ Git is a version control system designed by the legendary open-source programmer
 
 Git should not be confused with a commercial service like [GitHub](https://github.com). GitHub provides users with remote git repositories for sharing and collaborating on projects, but it is not git itself.
 
-Git itself is a command-line program which means you type in commands to a terminal, but I am going to primarily show you how to interact with it through the RStudio interface. However, all of the basic commands that I will discuss below can be run by opening up a console/terminal on your operating system and typing them in. At the bottom of this document, I discuss the basic commands you can run from the command line with git as well as some additional useful commands.
+Git itself is a command-line program, which means you type in commands to a terminal, but I am going to primarily show you how to interact with it through the RStudio interface. However, all of the basic commands that I will discuss below can be run by opening up a console/terminal on your operating system and typing them in. At the bottom of this document, I discuss the basic commands you can run from the command line with git as well as some additional useful commands.
 
-@fig-workflow shows a basic git workflow as illustrated by the amazing [Allison Horst](https://allisonhorst.com). Lets walk briefly walk through what this illustration is showing us.
+@fig-workflow shows a basic git workflow as illustrated by the amazing [Allison Horst](https://allisonhorst.com). Lets walk briefly through what this illustration is showing us.
 
 ![A Basic Git Workflow. Artwork by [\@allison_horst](https://twitter.com/allison_horst).](../images/git_workflow.png){#fig-workflow}
 
-We start with our *working directory*. This is the directory on our local computer that contains all of the files for our project, including scripts, data, and other assorted files. Living inside of this working directory is a local *git repository* (or "repo" for short). This git repository keeps track of all the files and when it notes that files have been changed, added, or deleted, it will let us know. We can then add those changes to a *staging area*. When we are ready, we *commit* all of the changes in the staging area to our local repo. our local repository will then have a history of all the changes to our project, including a brief commit message that accompanies every commit.
+We start with our *working directory*. This is the directory on our local computer that contains all of the files for our project, including scripts, data, and other assorted files. Living inside of this working directory is a local *git repository* (or "repo" for short). This git repository keeps track of all the files and when it notes that files have been changed, added, or deleted, it will let us know. We can then add those changes to a *staging area*. When we are ready, we *commit* all of the changes in the staging area to our local repo. Our local repository will then have a history of all the changes to our project, including a brief commit message that accompanies every commit.
 
 All of this is happening on our local computer. However, we will also have a *remote* repo somewhere else. In our case, that repo will live on GitHub. That repo may be shared with other collaborators. To ensure that those collaborators get any changes that we have made, we then *push* all changes from our local repo to the remote repo. Its also possible that our collaborators made changes that we don't have, so we also can *pull* changes from the remote repo to our local repo and working directory.
 
@@ -58,7 +58,7 @@ Later instructions will give you similar code using `usthis` to copy into your R
 
 You can install git on your system by downloading the appropriate files [here](https://git-scm.com/downloads) and installing them on your computer. On most computers, this will not give you a graphical client to open, but it will install git "under the hood" of your computer and make it accessible to RStudio. You may need to restart RStudio to get it to recognize your new git installation.
 
-In order to use git properly, you will need to do configure it. Most importantly, you need to provide a user name and a user email. This name and email will be associated with any commits that you make. 
+In order to use git properly, you will need to configure it. Most importantly, you need to provide a user name and a user email. This name and email will be associated with any commits that you make. 
 
 The easiest way to configure this information is via the `usethis` package, specifically the `use_git_config` command. You can copy and paste the command below, changing the name and email as appropriate.
 
@@ -70,7 +70,7 @@ usethis::use_git_config(user.name = "Your Name Here",
 ::: {.callout-tip}
 ## Sync your email with GitHub
 
-I would recommend that you use the same email as the one you use to register with GitHub as this will help to link your commits on GitHub to your GitHub user name. 
+I would recommend that you use the same email as the one you used to register with GitHub as this will help to link your commits on GitHub to your GitHub user name. 
 :::
 
 While we are here, we will go ahead and run a command called `git_vaccinate` that will set up some standard files that git should ignore:
@@ -91,7 +91,7 @@ usethis::git_sitrep()
 
 ## Connecting to GitHub
 
-If you are taking this course from me, we will use GitHub for shared remote repositories. Its important to keep in mind the distinction between git and GitHub. GitHub is just a service that provides free remote git repositories and a variety of additional bells and whistles like wiki's and issue tracking (mostly associated with software development, but also useful for researchers). There are other git repository service providers such as [GitLab](https://gitlab.com/) and [BitBucket](https://bitbucket.org). You can even run remote git repositories off of your own server, if you are daring enough.
+If you are taking a course from me, we will use GitHub for shared remote repositories. Its important to keep in mind the distinction between git and GitHub. GitHub is just a service that provides free remote git repositories and a variety of additional bells and whistles like wiki's and issue tracking (mostly associated with software development, but also useful for researchers). There are other git repository service providers such as [GitLab](https://gitlab.com/) and [BitBucket](https://bitbucket.org). You can even run remote git repositories off of your own server, if you are daring enough.
 
 When you set up a repository on GitHub, you can decide whether to make it public or private. Public repositories are accessible by anyone on the internet. Private repositories are only accessible by the owner and any specified collaborators. 
 
@@ -99,7 +99,7 @@ When you set up a repository on GitHub, you can decide whether to make it public
 ::: {.callout-caution}
 ## Pay attention to GitHub file size limits 
 
-The maximum size for a single file in a GitHub repository is 100 megabytes. This can create problems because git will allow you to commit a file larger than this size but you will not be able to push it up to GitHub, which means you will have to remove it from your commit history to push. If you are writing a script over 100MB, then you are doing it wrong. However, datasets can often be larger than 100MB. R can usually read datasets that have been compressed (e.g. .zip, .gz, .bz2 extension) so keeping your datasets zipped is a good practice to avoid this problem. For really big datasets, you may need to either break up the dataset or host it somewhere else and read it remotely.
+The maximum size for a single file in a GitHub repository is 100 megabytes. This can create problems because git will allow you to commit a file larger than this size but you will not be able to push it up to GitHub, which means you will have to remove it from your commit history to push. If you are writing a script over 100MB, then you are doing it wrong. However, datasets can often be larger than 100MB. *R* can usually read datasets that have been compressed (e.g. .zip, .gz, .bz2 extension) so keeping your datasets zipped is a good practice to avoid this problem. For really big datasets, you may need to either break up the dataset or host it somewhere else and read it remotely.
 :::
 
 The first step to setting up [GitHub](https://github.com) is to register a free user account. You can then create unlimited private and public repositories.
@@ -179,7 +179,7 @@ You will be able to see files that have changes to them (or new/deleted files) i
 
 ![Making a commit from within RStudio. Don't forget to click the stage button and write a commit message. If you forget these two things, the commit won't happen.](../images/rstudio_commit.gif){#fig-commit}
 
-As @fig-commit shows, committing is as simple as clicking the "Commit" button from the git tab. You can then choose which file changes you want to commit by clicking the "Stage" check box. You also must write a commit message. Notice how I then use the "History" dialog to check to make sure my commit went through. Thats all there is to it. If you make it a practice, it will become habitual.
+As @fig-commit shows, committing is as simple as clicking the "Commit" button from the git tab. You can then choose which file changes you want to commit by clicking the "Stage" check box. You also must write a commit message. Notice how I then use the "History" dialog to check to make sure my commit went through. That is all there is to it. If you make it a practice, it will become habitual.
 
 Lets linger for a moment on the commit message that I wrote. A good commit message should be short and start with a verb (whether past or present tense I leave to you). Make it a practice to start all of your commit messages with verbs and to explain briefly what the commit does. Don't be in such a hurry that you just starting writing "stuff" or "things." Again, your future self will not appreciate it.
 
@@ -205,7 +205,7 @@ If you are working with collaborators, they may also be pushing up changes to th
 
 As you can see from @fig-pull, there were no changes to be applied in this case. If there were changes my files would now reflect those changes. 
 
-One important issue you can run into when you pull is a conflict. A conflict occurs when you have made a change to your local repository that changes the same line of code as another change you pull down from the remote repository. When this happens, you will need to resolve the conflict on your local machine and then commit and push the resolution. Generally, conflicts can be avoided in bigger projects by branching and pull requests which I discuss below in the Advanced Git section.
+One important issue you can run into when you pull is a conflict. A conflict occurs when you have made a commit to your local repository that changes the same line of code as another commit you pull down from the remote repository. When this happens, you will need to resolve the conflict on your local machine and then commit and push the resolution. Generally, conflicts can be avoided in bigger projects by branching and pull requests which I discuss below in the Advanced Git section.
 
 ## Thinking in Git
 
@@ -213,11 +213,11 @@ I know that git can seem confusing if you have never used anything like it befor
 
 ### Stop Making Messes
 
-In practice, academics often practice a form of version control that I call "horizontal version control." You want to try something out but not sure if it will work out? Just make a copy of the script and ad something like "V2" or the date or some other way of tracking differences. Although it may seem initially like an easy and quick fix to a problem, this approach will lead over time to a very messy workspace. Your directory will be littered with nearly identical scripts all with slightly different names (and an often inconsistent version naming system). Figuring what is what can become nearly impossible - only you know the correct way through this thicket of scripts and files to produce your results. And over time, even you may forget how to navigate the jungle. 
+Academics often practice a form of version control that I call "horizontal version control." You want to try something out but you aren't sure if it will work out. So, you make a copy of the file and ad something like "V2" or the date or some other way of tracking differences. Although it may seem initially like an easy and quick fix to a problem, this approach will lead over time to a very messy workspace. Your directory will be littered with nearly identical scripts all with slightly different names (and an often inconsistent version naming system). Figuring what is what can become nearly impossible - only you know the correct way through this thicket of scripts and files to produce your results. And over time, even you may forget how to navigate the jungle. 
 
-This approach to version control is fear-based. The fear is that if we make changes to an existing script we may lost something valuable and the new thing that we are trying may not work. The illustration at the top of this chapter uses the analogy of rock climbing. Your fear comes from the fact that you are scaling a cliff without any protection. But if you practice proper "vertical" version control, then you can code without fear. Every change to your project has been recorded in the git repository and can be retrieved at any point. Your commits are like your pitons - you can always fall back on them.
+This approach to version control is fear-based. The fear is that if we make changes to an existing script we may lose something valuable and the new thing that we are trying may not work. The illustration at the top of this chapter uses the analogy of rock climbing. Your fear comes from the fact that you are scaling a cliff without any protection. But if you practice proper "vertical" version control, then you can code without fear. Every change to your project has been recorded in the git repository and can be retrieved at any point. Your commits are like your pitons - you can always fall back on them.
 
-In fact, let me show you two ways you can recover your project state at any point when you use git. @fig-browse-git-history shows how you can use GitHub to browse your project at any given state. You simply click on the commit history and then the `<>` icon for a given commit and you will be able to browse your project as it was at that state. Nothing is every lost.
+In fact, let me show you two ways you can recover your project state at any point when you use git. @fig-browse-git-history shows how you can use GitHub to browse your project at any given state. You simply click on the commit history and then the `<>` icon for a given commit and you will be able to browse your project as it was at that state. Nothing is ever lost.
 
 ![You can browse your project at any commit state on GitHub.](../images/gh_browse_history.gif){#fig-browse-git-history}
 
@@ -229,13 +229,13 @@ There are other ways that we can recover changes to, some of which are covered i
 
 ### Work Discretely
 
-What do I mean by discrete? I mean that you should organize your work with a care to producing logical and thematic commits to your repository. These commits can often be small, and there is power in the feeling of a small victory when you push that commit button. By thinking through your to-do list in terms of "what commits can I do today?" you can organize your work more efficiently. As you get used to this style of work, you will find that you will begin to habitually organize your work into small discrete tasks.
+What do I mean by discrete? I mean that you should organize your work with a care to producing logical and thematic commits to your repository. These commits can often be small, and there is power in the feeling of a small victory when you push that commit button. By thinking through your to-do list in terms of "what commits can I do today?" you can organize your work more efficiently. As you get used to this style of work, you will find that you will begin to habitually organize your thinking into small discrete tasks.
 
 ### Plain Text is Better
 
 Version control systems like git work best when your files are written in a simple plain text format rather than as binary files. Git can get inside of a plain text file and document changes line to line. Git can only tell that a binary file was changed, without information about the changes within the binary file. This makes is much easier to log, document, and merge changes in plain text files than in binary files.
 
-All of the scripts that we typically write are plain text files. A lot of the datasets that we use (but not all) are in plain text CSV or fixed-width format. Most academics, however, are more familiar with writing their papers in a WYSIWIG document processing format like Microsoft Word, which saves files as a binary. You can still use binary documents like Word documents in a version control system but will not see as much benefit. To fully embrace the git approach to project managaement, you should use plain text documents whenever possible. Later in this book, we will learn how to write papers using Quarto which will allow you to use plain text throughout your project, including for writing manuscripts and making presentations.
+All of the scripts that we typically write are plain text files. A lot of the datasets that we use (but not all) are in plain text CSV or fixed-width format. Most academics, however, are more familiar with writing their papers in a WYSIWIG document processing format like Microsoft Word, which saves files as a binary. You can still use binary documents like Word documents in a version control system but will not see as much benefit. To fully embrace the git approach to project managagement, you should use plain text documents whenever possible. Later in this book, we will learn how to write papers using [Quarto](htps://quarto.org) which will allow you to use plain text throughout your project, including for writing manuscripts and making presentations.
 
 ## Advanced Git
 
@@ -251,9 +251,9 @@ I am assuming that you already have an existing project directory on your comput
 
 Now that we have the working directory set up we can use commands from the usethis package to do the following:
 
-1. `usethis::create_project(".")` to turn the working directory into a RStudio project.
-2. `usethis::use_git()` to initialize a git repository for the project. You can choose from the options to have all files committed in an initial commit, or you can make the first commit yourself manually.
-3. `usethis::use_github(private=TRUE)` to create a GitHub remote repository and push your commits to it. You can set `private=FALSE` if you want to make it public.
+1. `usethis::create_project(".")` to turn the working directory into an RStudio project.
+2. `usethis::use_git()` to initialize a git repository for the project. You can choose from the prompts presented to have all files committed in an initial commit, or you can make the first commit yourself manually.
+3. `usethis::use_github(private = TRUE)` to create a GitHub remote repository and push your commits to it. You can set `private = FALSE` if you want to make it public.
 
 @fig-setup-repo shows the entire process in action. Note that `usethis` will also create a `.gitignore` file and an `Rproj` file as part of this process.
 
@@ -263,13 +263,13 @@ With these tools, its almost too easy to create a new git repository. However, i
 
 ### Branching and Pull Requests
 
-So far, I have shown you how to commit and push your changes. But what if other people are also making changes, committing, and pushing them. Sooner or later, you will run into a conflict where two different commits change the same line of code. Such conflicts can be resolved, but the easier approach is to avoid them by branching and pull request. If you are working on a solo project or one with a clear division of labor, branching might not be necessary. However, if you are working on a project with even a small number of collaborators contributing code, you should probably branch and use pull requests to make changes. If you are taking this course from me, then the primary way you will see pull requests is when I make corrections to your code.
+So far, I have shown you how to commit and push your changes. But what if other people are also making changes, committing, and pushing them? Sooner or later, you will run into a conflict where two different commits change the same line of code. Such conflicts can be resolved, but the easier approach is to avoid them in the first place by branching and pull request. If you are working on a solo project or one with a clear division of labor, branching might not be necessary. However, if you are working on a project with even a small number of collaborators contributing code, you should probably branch and use pull requests to make changes. If you are taking a course from me, then the primary way you will see pull requests is when I make corrections to your code.
 
 By default, when you commit to your git repository, you are working on a "main" or "master" branch. This is the default branch, but at any given commit you can create a separate branch of the code and make commits to it. Once you are satisfied with your code, you can then *merge* the changes in that branch back into to the main/master branch (handling conflicts at that point). In practice, most people do the merging via a *pull request* on GitHub. @fig-branch visualizes a simple case of branching and merging.
 
 ```{mermaid}
 %%| label: fig-branch
-%%| fig-cap: Visualization of branching in a git repository.A separate branch is created off of commit `1-6e992e3`. Two commits are then made to this branch while an additional commit (`4-107fae6`) is made to the main branch. The commits from the try-a-thing branch are then merged back into the main branch.
+%%| fig-cap: Visualization of branching in a git repository.A separate branch is created off of commit `1-91f4729`. Two commits are then made to this branch while an additional commit (`4-10d346`) is made to the main branch. The commits from the try-a-thing branch are then merged back into the main branch.
 %%{init: { 'logLevel': 'debug', 'theme': 'default' , 'themeVariables': {
               'git0': '#87ceeb',
               'git1': '#FFD700',
@@ -292,11 +292,11 @@ Creating and switching branches is easy in RStudio. The most important thing to 
 
 ![You can use the tools in the git tab to create new branches. Note that RStudio will sync your new local branch with the same branch on your remote repo, so you can start committing and pushing right away.](../images/rstudio_branch.gif){#fig-rstudio-branch}
 
-When you are satisfied that the code in your branch is working, you can merge it back into the main/master branch. While you can merge your branch back into the main branch using command line tools, the easiest approach is to use a *pull request* on GitHub. On GitHub, you can create a pull request from any branch of your repository. This will create a web page for your branch where you can write a summary of what the code does and others can review the code. Typically developers use this to review code before merging it into the main branch. One of the most useful features of the pull request is that it will tell you whether there is a conflict with the main/master branch before you merge. It will also offers tools to help resolve the conflict. 
+When you are satisfied that the code in your branch is working, you can merge it back into the main/master branch. While you can merge your branch back into the main branch using command line tools, the easiest approach is to use a *pull request* on GitHub. On GitHub, you can create a pull request from any branch of your repository. This will create a web page for your branch where you can write a summary of what the code does and others can review the code. Typically, developers use this to review code before merging it into the main branch. One of the most useful features of the pull request is that it will tell you whether there is a conflict with the main/master branch before you merge. It will also offers tools to help resolve the conflict. 
 
 ![How to create and merge a pull request on GitHub. If there is a conflict, the button for merging will not be available. Remember to pull down the changes to your main/master branch after merging the pull request.](../images/gh_create_pr.gif){#fig-create-pr}
 
-@fig-create-pr shows how to create and merge a pull request on GitHub. If you are taking this course from me, then the pull request screen will show you changes that I have made to your code along with a variety of comments that you can review. More generally, pull requests are great for when you want to work on a large task that will likely take multiple commits. Even if you are working on a solo project, pull requests can help you keep different tasks organized and well-documented.
+@fig-create-pr shows how to create and merge a pull request on GitHub. If you are taking a course from me, then the pull request screen will show you changes that I have made to your code along with a variety of comments that you can review. More generally, branching and pull requests are great for when you want to work on a large task that will likely take multiple commits. Even if you are working on a solo project, pull requests can help you keep different tasks organized and well-documented.
 
 ::: {.callout-caution}
 ## Don't Forget to Pull after you Merge
@@ -309,14 +309,14 @@ When you merge the pull request on GitHub, the code is *only* merged into the ma
 
 In most cases, you will not want to commit every file in your project directory to your git repository (or "put under version control" to use git lingo). A few common cases are:
 
-1. Junk files created by your operating system like the .DS_Store file that is created in OSX anytime you navigate into a director in the finder, or the temporary backup files that are created as you work in Microsoft Office applications.
-2. "Invisible" files like .Rhistory or .bashrc that are specific to your local system.
+1. Junk files created by your operating system like the `.DS_Store` file that is created in OSX anytime you navigate into a directory in the finder, or the temporary backup files that are created as you work in Microsoft Office applications.
+2. "Invisible" files like `.Rhistory` or `.bashrc` that are specific to your local system.
 3. Files (often data) that due to privacy concerns you don't want to share in the repository.
-4. Files that are generated by scripts like image PNGs or HTML/PDF documents from quarto.
+4. Files that are generated by scripts like image PNGs or HTML/PDF documents from Quarto.
 
-You can just ignore these files in the git tab manually, but over time, your git tab will become quite cluttered with stuff you are not committing and it will be hard to track and easy to accidentally commit something you did not want to. The solution is the `.gitignore` file. This is a simple text file that lives in your project home directory and lists all of the files that are being ignored. The path to each file that you want ignored should be listed on a single line. You can also [globbing parameters](https://web.mit.edu/racket_v612/amd64_ubuntu1404/racket/doc/file/glob.html) to identify types of files or groups of files by wildcards.
+You can just try to ignore these files in the git tab, but over time, your git tab will become quite cluttered with stuff you are not committing and it will be hard to track and easy to accidentally commit something you did not want to. The solution is the `.gitignore` file. This is a simple text file that lives in your project home directory and lists all of the files that are being ignored. The path to each file that you want ignored should be listed on a single line. You can also use [globbing parameters](https://web.mit.edu/racket_v612/amd64_ubuntu1404/racket/doc/file/glob.html) to identify types of files or groups of files by wildcards.
 
-Remember when I had you run `git_vaccinate()` way up above? That command creates a standard .gitignore file that is created in time you clone a git repository using RStudio's new project feature. So, you should see a `.gitignore` file already on any cloned repo. That file will look something like:
+Remember when I had you run `git_vaccinate()` way up above? That command creates a standard .gitignore file that is created any time you clone a git repository using RStudio's new project feature. So, you should see a `.gitignore` file already on any cloned repo. That file will look something like:
 
 ```bash
 .Rproj.user
@@ -333,7 +333,7 @@ You can add to this list any additional files you don't want to be tracked. Lets
 *.docx
 ```
 
-The `*` will match any document in your directory with a `.docx` suffix. You will never see a Word document in your git tab. If later you realize you do want to track a word document you can remove this line (or comment it out with a #).
+The `*` will match any document in your directory with a `.docx` suffix. You will never see a Word document in your git tab. If later you realize you do want to track a word document you can remove this line (or comment it out with a `#`).
 
 Another quick and easy way to ignore a document is to right click on it in the git tab. This will bring up a context menu with "Ignore" as one of the options. This will add a line to your `.gitignore` file to start ignoring the file.
 
@@ -349,9 +349,9 @@ The important lesson to take from this is that you should be careful about what 
 
 ### Using the Command Line
 
-I have shown you how to use git through the RStudio interface, but at its core, bit is a *command line* driven program. Just like R, you execute commands by typing them into a console interface. All of the tools in RStudio are just a shell for running that command line interface. You can also interact directly with git from the command line. In most cases, you don't need to do so to do basic tasks, but for more complicated git commands, you may need to use the command line. Thus, it pays to know how to use it.
+I have shown you how to use git through the RStudio interface, but at its core, git is a *command line* driven program. Just like R, you execute commands by typing them into a console interface. All of the tools in RStudio are just a graphical tool for running that underlying command line interface. You can also interact directly with git from the command line. In most cases, you don't need to do so to do basic tasks, but for more complicated git commands, you may need to use the command line. Thus, it pays to know how to use it.
 
-You can't type git commands from the R console - git commands are run directly from the command line of your operating system. On an OSX or unix-based machine, you can open up a "terminal" to run such commands. The equivalent on Windows is the DOS prompt, but git is designed to work with a unix-style command line inteface. So instead of the command line, git installs a program called "git bash" onto Windows machines that can be used to run unix-style commands. 
+You can't type git commands from the R console - git commands are run directly from the command line of your operating system. On an OSX or unix-based machine, you can open up a "terminal" to run such commands. The equivalent on Windows is the DOS prompt, but git is designed to work with a unix-style command line interface. So instead of the command line, git installs a program called "git bash" onto Windows machines that can be used to run unix-style commands. 
 
 The easiest way to access the prompt you need to run git commands is within RStudio. In the lower left panel where the *R* console lives, you will also see a tab for a "Terminal." If you click on this tab, you will now have access to the operating system command line and you can use it to run git commands (among other things).
 
@@ -363,13 +363,13 @@ All git commands are at least two words and start with "git." Here are the most 
 : Probably the most used command, this command will give you a report of the current status of your git repository, including modified or new files that need to be committed.
 
 `git add`
-: This command will stage files for committing. Its like pushing the checkbox button in RStudio. The command needs to be followed by the names and paths to all files you want to commit. You can use `*` wildcards to stage multiple files at once. Using `git add *` is generally considered bad practice as you can easily end up committing some junk files.
+: This command will stage files for committing. Its like pushing the checkbox button in RStudio. The command needs to be followed by the names and paths to all files you want to commit. You can use `*` wildcards to stage multiple files at once. Using `git add *` will work to add all new and changed files, but is considered bad practice as you can easily end up committing junk files.
 
 `git commit -m "A commit message"`
-: This command will commit files that you have staged. Note that if you have not run `git add` yet, this command will have nothing to commit. I use the `-m` flag to add a commit message here. If you don't you will end up in a vim text editor (by default) for writing the commit message. Unless you are a real nerd, you want to avoid this, as the vi, text editor is infamous for being [inescapable](https://tutorials.releaseworksacademy.com/learn/how-the-hell-do-i-exit-a-beginners-guide-to-vim). 
+: This command will commit files that you have staged. Note that if you have not run `git add` yet, this command will have nothing to commit. I use the `-m` flag to add a commit message here. If you don't, you will end up in a vim text editor (by default) for writing the commit message. Unless you are a real nerd, you want to avoid this, as the vim text editor is infamous for being [inescapable](https://tutorials.releaseworksacademy.com/learn/how-the-hell-do-i-exit-a-beginners-guide-to-vim). 
 
 `git push`
-: This will push commits up to your remote repository. Technically, you should tell it the name of your remote repository which will usually be "origin" and the name of the branch you are pushing. However, in most cases you should be set up to already push to origin by default and you will push from your current branch, so generally `git push` will work. 
+: This will push commits up to your remote repository. Technically, you should tell it the name of your remote repository, which will usually be "origin" and the name of the branch you are pushing. However, in most cases you should be set up to already push to origin by default and you will push from your current branch, so generally `git push` will work. 
 
 `git pull`
 : This will pull down commits from your default remote repository into your current branch.
