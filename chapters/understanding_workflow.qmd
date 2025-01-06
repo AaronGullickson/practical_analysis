@@ -103,7 +103,7 @@ flowchart LR
     classDef artifact fill:orange,color:#000
 ```
 
-For many researchers, coding ends at the second phase and the transition to final products would be done using some form of [WYSIWYG](https://en.wikipedia.org/wiki/WYSIWYG) product like Microsoft Word or Powerpoint. However, in this book, we will use reproducible coding practices throughout all three phases. To produce full manuscripts or presentations, we will use [Quarto](https://quarto.org) documents which provide a way to render code and text into a single final document such as a PDF document. This removes any concern over transcription errors and makes it much easier and faster to update the paper when necessary. 
+For many researchers, coding ends at the second phase and the transition to final products would be done using some form of [WYSIWYG](https://en.wikipedia.org/wiki/WYSIWYG) product like Microsoft Word or Powerpoint. However, in this book, we will use reproducible coding practices throughout all three phases. To produce full manuscripts or presentations, we will use [Quarto](https://quarto.org) documents which provide a way to render code and text into a single final document such as a PDF document. This removes any concern over transcription errors and makes it much easier and faster to update the paper or presentation when necessary. 
 
 Notice the parts of this workflow marked in orange. These are all artifacts from the scripts. If you are following good practices, you should feel confident in deleting all the files associated with these parts on demand. They can always be reproduced by re-running the analysis.
 
