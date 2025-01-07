@@ -28,9 +28,9 @@ a+2
 
 *R* is smart enough to realize that I want to add 2 to the value in `a`, and reports that the result is 5.
 
-If you are looking for the `<-` key on your keyboard, you are searching in vain. This symbol is created by combining the less than `<` and dash `-` signs. You can also use a single equals sign `=` to indicate assignment. The `=` is a more common assignment operator in many computer languages, but using `<-` is the norm in *R*.
+If you are looking for the `<-` key on your keyboard, you are searching in vain. This symbol is created by combining the less than (`<`) and dash (`-`) signs. You can also use a single equals sign `=` to indicate assignment. The `=` is a more common assignment operator in many computer languages, but using `<-` is the norm in *R*.
 
-Objects can come in many different forms. By far the most common object you will use throughout this book and in your daily practice is some form of a `data.frame` which has the typical format we expect of a dataset - observations on the row and variables on the columns. However, the `data.frame` object is a complex object composed of several other different object types. Its useful to build from the ground up the different kinds of standard object types that you will encounter in *R*.
+Objects can come in many different forms. By far the most common object you will use throughout this book and in your daily practice is some form of a `data.frame` which has the typical format we expect of a dataset - observations on the rows and variables on the columns. However, the `data.frame` object is a complex object composed of several other different object types. Its useful to build from the ground up the different kinds of standard object types that you will encounter in *R*.
 
 ### Atomic Types
 
@@ -71,7 +71,7 @@ It still looks like a number but the quotes give us a hint that it is actually a
 as.character(a)+2
 ```
 
-We can also force logicals into numeric values where TRUE=1 and FALSE=0. Alternatively, if we have a 1 or 0 numeric value, we can recast it as a logical.
+We can also force logicals into numeric values where `TRUE=1` and `FALSE=0`. Alternatively, if we have a 1 or 0 numeric value, we can recast it as a logical.
 
 ```{r}
 as.numeric(c)
@@ -90,7 +90,7 @@ The result here is an `NA` value which is a special value tracked in *R* and gen
 
 You can combine a bunch of values of the same atomic type together into a single *vector*. A vector is what we use to record all of the values for a single variable.
 
-To manually construct a vector, you can use the concatenation function `c()`. Inside the parenthesis we put all the values we want separated by commas. Lets do that to create several variables for a fictitious dataset.
+To manually construct a vector, you can use the concatenation function `c()`. Inside the parenthesis we put all the values we want, separated by commas. Lets do that to create several variables for a fictitious dataset.
 
 ```{r}
 name <- c("Bob", "Juan", "Maria", "Jane", "Howie")
@@ -98,14 +98,14 @@ age <- c(15, 25, 19, 12, 21)
 ate_breakfast <- c(TRUE, FALSE, TRUE, TRUE, FALSE)
 ```
 
-One thing to note is that the atomic type of each value must be the same. if you feed in different atomic types, *R* will recast them to a shared common type. For example:
+One thing to note is that the atomic type of each value must be the same. if you feed in different atomic types to the same vector, *R* will recast them to a shared common type. For example:
 
 ```{r}
 x <- c(TRUE, "bob", 3)
 x
 ```
 
-All of the values became character strings, because that was the only thing they could all be recast into.
+All of the values became character strings, because that was the only type to which they could all be recast.
 
 Many functions that we use in data analysis expect a vector of values as input. A useful example is the `mean` which will calculate the mean of a vector of values:
 
@@ -114,7 +114,7 @@ mean(age)
 mean(ate_breakfast)
 ```
 
-A mean for the age variable makes sense, but how did *R* calculate the mean of the `ate_breakfast` vector? *R* attempted to recast the vector into a numeric type, which led to a vector of zeroes and ones. The mean here is equivalent to the proportion of ones or true values. So 60% of respondents ate breakfast.
+A mean for the age variable makes sense, but how did *R* calculate the mean of the `ate_breakfast` vector? *R* attempted to recast the vector into a numeric type, which led to a vector of zeroes and ones. The mean here is equivalent to the proportion of true values. So 60% of respondents ate breakfast.
 
 Vectors are one-dimensional objects with a length (i.e. the number of values). The `length` function will tell you how many values are in a given vector.
 
@@ -150,7 +150,7 @@ name[3:5]
 
 ### Matrices
 
-A `matrix` is just an extention of a vector into two dimensions. We can use the `matrix` command to turn a vector into a matrix, by specifying the number of rows and columns.
+A `matrix` is just an extension of a vector into two dimensions. We can use the `matrix` command to turn a vector into a matrix, by specifying the number of rows and columns.
 
 ```{r}
 x <- matrix(c(4,5,3,9,7,8), 3, 2)
@@ -172,13 +172,13 @@ A matrix may seem like a natural way to represent a full dataset. However, there
 cbind(name, age, ate_breakfast)
 ```
 
-Like a vector, all the values in a matrix must be of the same atomic type. In most cases, if there is any character vector in the binding, everything will be recast into character stings which is not every useful. We will see a better way to create a dataset with the `data.frame` object below.
+Like a vector, all the values in a matrix must be of the same atomic type. In most cases, if there is any character vector in the binding, everything will be recast into character stings, which is not every useful. We will see a better way to create a dataset with the `data.frame` object below.
 
-You can extract values from a matrix by indexing just like a vector. Because a matrix is two dimensional you need to include a comma inside the square brackets. Values before the comma indicate row indices and values after the comma indicate column indices. If you leave the values in one dimension blank you will get all of the rows/columns.
+You can extract values from a matrix by indexing just like a vector. However, because a matrix is two dimensional, you need to include a comma inside the square brackets. Values before the comma indicate row indices and values after the comma indicate column indices. If you leave the values in one dimension blank you will get all of the rows/columns.
 
 ```{r}
 #value in 2nd row, 1st column
-x[2,1]
+x[2, 1]
 #2nd row
 x[2,]
 #1st column
@@ -197,9 +197,9 @@ high_degree <- c("Less than HS", "College", "HS Diploma", "HS Diploma",
 summary(high_degree)
 ```
 
-The values of the character string indicate categories of my categorical variable. However, *R* will not be able to do much with this variable as you can see from the `summary` command. Toe represent categorical variables we instead want to use a `factor`.
+The values of the character string indicate categories of my categorical variable. However, *R* will not be able to do much with this variable as you can see from the `summary` command. To represent categorical variables, we instead want to use a `factor`.
 
-A factor in *R* is the standard object for coding categorical variables. Each value is actually recorded as a numeric value but the factor object also contains a set of labels that links the numeric values to a category name. Most functions in *R* will then know how to handle factors intelligently.
+A factor in *R* is the standard type for coding categorical variables. Each value is actually recorded as a numeric value but the factor object also contains a set of labels that link the numeric values to category names. Most functions in *R* will then know how to handle factors intelligently.
 
 To create a factor object, I can just apply the `factor` function to my vector:
 
@@ -211,20 +211,37 @@ summary(high_degree_fctr)
 
 Now the `summary` command gives me a table of frequencies for each category.
 
-The only problem with my factor is that this is an ordinal variable and the categories are backwards with "College" first and "Less than HS" last. This is because R sorts alphabetically by default. In order to ensure a specific order to the categories in the factor, I will need to specify the `levels` argument in the `factor` function and explicitly write out the order I want:
+The only problem with my factor is that the underlying categorical variable is an ordinal variable and the categories are backwards with "College" first and "Less than HS" last. This is because *R* sorts alphabetically by default. In order to ensure a specific order to the categories in the factor, I will need to specify the `levels` argument in the `factor` function and explicitly write out the order I want:
 
 ```{r}
 high_degree_fctr <- factor(high_degree,
-                           levels=c("Less than HS","HS Diploma","College"))
+                           levels=c("Less than HS", "HS Diploma", "College"))
 levels(high_degree_fctr)
 summary(high_degree_fctr)
 ```
 
 The factor levels are now appearing in my desired order.
 
+::: callout-caution
+## Watch for Mispelled Factor Levels!
+
+When specifying levels manually, you will need to be careful to spell the categories *exactly* as they appear in the names. When converting character strings to factors, if there is no corresponding factor level for a character string, it receives an `NA` value. If you see that a large number of your observations went into a missing value code and a category is missing from your final factor, you likely misspelled or forgot a level. 
+
+For example, lets intentionally misspell "HS Diploma" by not capitalizing the second word:
+
+```{r}
+high_degree_miss <- factor(high_degree,
+                           levels=c("Less than HS", "HS diploma", "College"))
+summary(high_degree_miss)
+```
+
+You can see that we now have no observations in the "HS diploma" category and two missing values (which are actually HS diploma holders). 
+
+:::
+
 ### Lists
 
-Lists are one of the most flexible types of standard objects. Lists are just collections of objects and the objects can be of different types and dimensions. You can even put lists into lists and end up with lists of lists.
+Lists are one of the most flexible types of standard objects. Lists are just collections of other objects and the objects can be of different types and dimensions. You can even put lists into lists and end up with lists of lists (or go crazy and make lists of lists of lists).
 
 Lets put the five variables we have created so far into a list:
 
@@ -233,9 +250,9 @@ my_list <- list(name, age, ate_breakfast, high_degree_fctr, height)
 my_list
 ```
 
-In this case, each item in the list is a vector of the same length but that is not required.
+In this case, each item in the list is a vector of the same length, but that is not required.
 
-You will notice a lot of brackets in the list output above. To access an object at a specific index of the list, I need to use double square brackets. Lets say, I wanted to access the third object (ate_breakfast):
+You will notice a lot of brackets in the list output above. To access an object at a specific index of the list, I need to use double square brackets. Lets say I wanted to access the third object (ate_breakfast):
 
 ```{r}
 my_list[[3]]
@@ -249,37 +266,37 @@ my_list[[3]][4]
 
 My fourth respondent did eat breakfast. Good to know.
 
-There is another way to access objects within the list but to do this, I need to provide a name for each object in the list. I can do this within the initial list command by using a `name=value` syntax for each object:
+There is another way to access objects within the list but to do this, I need to provide a name for each object in the list. I can do this within the initial list command by using a `name = value` syntax for each object:
 
 ```{r}
-my_list <- list(name=name, age=age, ate_breakfast=ate_breakfast, 
-                high_degree=high_degree_fctr, height=height)
+my_list <- list(name = name, age = age, ate_breakfast = ate_breakfast, 
+                high_degree = high_degree_fctr, height = height)
 ```
 
-Now, I can call up any object by its name with the basic syntax `list_name$object_name`. Lets do that for age:
+Now, I can call up any object by its name with the syntax `list_name$object_name`. Lets do that for age:
 
 ```{r}
 my_list$age
 mean(my_list$age)
 ```
 
-You will notice in RStudio that when you type the "\$", it brings up a list of all the names you could want. You can select the one you want and tab to complete. Thanks, RStudio!
+You will notice in RStudio that when you type the "\$", it brings up a list of all the names you might want. You can select the one you want and tab to complete. Thanks, RStudio!
 
 ### Data Frames
 
-The list was not an ideal way to represent my dataset because it didn't represent data in the two-dimensional observations-on-the-row and variables-on-the-columns way we expect most datasets to be organized. This is where the `data.frame` object comes in. This is the object that we work most directly with for data analysis. In practice, when we move to the tidyverse approach in the next chapter, we will use an extension of the `data.frame` called a `tibble` but we will start in this chapter with the basic `data.frame`.
+The list was not an ideal way to represent my dataset because it didn't represent data in the two-dimensional observations-on-the-rows and variables-on-the-columns way we expect most datasets to be organized. This is where the `data.frame` object comes in. This is the object that we work most directly with for data analysis. In practice, when we move to the tidyverse approach in the next chapter, we will use an extension of the `data.frame` called a `tibble` but we will start in this chapter with the basic `data.frame`.
 
-The `data.frame` object is basically a special form of a list in which each object in the list is required to be a vector of the same length, but not necessarily of the same type The results are displayed like a matrix and the same kinds of options for indexing that are available for matrices can be used on data.frames.
+The `data.frame` object is basically a special form of a list in which each object in the list is *required* to be a vector of the same length, but not necessarily of the same type. The results are displayed like a matrix and the same kinds of options for indexing that are available for matrices can be used on data.frames.
 
 Lets put our variables into a `data.frame`:
 
 ```{r}
-my_data <- data.frame(name, age, ate_breakfast, high_degree=high_degree_fctr,
+my_data <- data.frame(name, age, ate_breakfast, high_degree = high_degree_fctr,
                       height)
 my_data
 ```
 
-Now that looks like a dataset! The display shows us the expected "spreadsheet" look with observations on the rows and variables on the columns. The type of each variable has been preserved. Note that by default, it just used the name of the object as the column name. However, I specifically changed this behavior for high_degree with the same `name=object` syntax I used for lists.
+Now that looks like a dataset! The display shows us the expected "spreadsheet" look with observations on the rows and variables on the columns. The type of each variable has been preserved. Note that by default, it just used the name of the object as the column name. However, I specifically changed this behavior for `high_degree_fctr` with the same `name=object` syntax I used for lists.
 
 We can run a summary on the whole dataset now and get some nice output.
 
@@ -303,9 +320,9 @@ my_data$age_squared <- my_data$age^2
 I can also use the same indexing as for matrices to retrieve particular values. Columns can also be referenced by their name rather than index.
 
 ```{r}
-my_data[c(1,3),] # first and third observations
-my_data[c(1,4), "height"] # height of first and fourth observations
-my_data[,c("age","height")] # age and height of all observations
+my_data[c(1, 3),] # first and third observations
+my_data[c(1, 4), "height"] # height of first and fourth observations
+my_data[,c("age", "height")] # age and height of all observations
 ```
 
 ## Boolean Statements
@@ -323,12 +340,12 @@ One of the most important features in all computer programming languages is the 
 
 : Boolean operators in *R* {#tbl-boolean-ops}
 
-Note that the "equal to" syntax is two equal signs together. This syntax is necessary because a single equal sign can used for assignment of values to objects.
+Note that the "equal to" syntax is two equal signs together. This syntax is necessary because a single equal sign can be used for assignment of values to objects.
 
 As a simple example, lets say that I wanted to identify all respondents from my data above that were 18 years of age or older:
 
 ```{r}
-my_data$age>=18
+my_data$age >= 18
 ```
 
 I can see that the second, third, and fifth respondents were 18 years or older.
@@ -336,29 +353,29 @@ I can see that the second, third, and fifth respondents were 18 years or older.
 You can use factor variables in boolean statements of equality as well, but you need to use character strings matching the names of the levels. Lets say I want to identify all respondents with a college degree:
 
 ```{r}
-my_data$high_degree=="College"
+my_data$high_degree == "College"
 ```
 
-A very important feature of boolean statements is the ability to string together multiple boolean statements with an `&` (AND) or `|` (OR) to make a compound statement. Lets say I wanted to identify all respondents who had either a high school diploma or a college degree:
+A very important feature of boolean statements is the ability to string together multiple boolean statements with an `&` (AND) or `|` (OR) to make a compound statement. Lets say I wanted to identify all respondents who had *either* a high school diploma *or* a college degree:
 
 ```{r}
-my_data$high_degree=="College" | my_data$high_degree=="HS Diploma"
+my_data$high_degree == "College" | my_data$high_degree == "HS Diploma"
 ```
 
 Lets say I want to find all respondents who are between the ages of 20 (inclusive) and 25 (exclusive):
 
 ```{r}
-my_data$age>=20 & my_data$age<25
+my_data$age >= 20 & my_data$age < 25
 ```
 
 You can (and generally should) use parenthesis to ensure that your compound boolean statements are interpreted in the correct order.
 
 ```{r}
-(my_data$age>=20 & my_data$age<25) & 
-  (my_data$high_degree=="College" | my_data$high_degree=="HS Diploma")
+(my_data$age >= 20 & my_data$age < 25) & 
+  (my_data$high_degree == "College" | my_data$high_degree == "HS Diploma")
 ```
 
-Another useful option is the ability to put a `!` sign in front of a logical variable to indicate "not". Lets say I wanted to find all respondents who had NOT eaten breakfast:
+Another useful option is the ability to put a `!` sign in front of a logical variable to indicate "not". Lets say I wanted to find all respondents who had *not* eaten breakfast:
 
 ```{r}
 !my_data$ate_breakfast
@@ -366,7 +383,7 @@ Another useful option is the ability to put a `!` sign in front of a logical var
 
 ## Using Functions
 
-I already snuck a couple of functions into the previous sections. Functions are predefined bits of code that take some kind of input and give you output. Base *R* has many, many functions for doing statistical analysis and data wrangling. Additional packages, which I discuss below, add more functions.
+We have already seen a couple of functions in the previous sections. Functions are predefined bits of code that take some kind of input and give you output. Base *R* has many, many functions for doing statistical analysis and data wrangling. Additional packages, which I discuss below, add more functions.
 
 The syntax of a function is:
 
@@ -376,7 +393,7 @@ function_name(argument1, argument2, argument3, ...)
 
 The function is identified by the opening and closing parenthesis after its name. Within those parenthesis you may feed in *arguments* that the function will process. Not all functions need arguments, so you may run into cases where you just have an empty parenthesis. Some functions can take many arguments and so the arguments should be separated by commas.
 
-Lets look at one of the functions we have already seen, the `mean` function. This function will calculate the mean of a vector of numbers.
+Lets look at one of the functions we have already seen - the `mean` function. This function will calculate the mean of a vector of numbers.
 
 ```{r}
 mean(my_data$age)
@@ -388,7 +405,7 @@ In this case, the function only needed a single argument which was the actual ve
 mean(my_data$height)
 ```
 
-It reports an NA because some of the values in this vector are NA. You might think a reasonable behavior would be to drop the NA values and just calculate the mean of the non-NA values. The mean function can in fact do this but not as its default behavior. It wants to make sure you are aware of the missing value in this variable.
+It reports an `NA` because some of the values in this vector are `NA`. You might think a reasonable behavior would be to drop the `NA` values and just calculate the mean of the non-missing values. The mean function can in fact do this but not as its default behavior. It wants to make sure you are aware of the missing value in this variable.
 
 Every function has a help file that will give you information about the function and the arguments that it can take. To view the help file just give the name of the function with no parenthesis and preceded by the question mark. So to pull up the help file for the mean, you can type:
 
@@ -398,9 +415,9 @@ Every function has a help file that will give you information about the function
 
 ![The help page for the `mean` function in *R*.](../images/r_mean_help.png){#fig-r-help}
 
-@fig-r-help shows the help file for the `mean` function. Mot importantly, we want to look at the arguments section that describes the arguments we can feed into the `mean` function. You can see here that the first expected argument is a numeric/logical vector (described as `x`). The third argument is named `na.rm` and takes a logical value. If TRUE it will strip out NA values before computation. That is the behavior we want. However, if you look to the Usage section of the help file, you can see that this argument is set to FALSE by default. So, we need to change that value to TRUE.
+@fig-r-help shows the help file for the `mean` function. Most importantly, we want to look at the arguments section that describes the arguments we can feed into the `mean` function. You can see here that the first expected argument is a numeric or logical vector (described as `x`). The third argument is named `na.rm` and takes a logical value. If TRUE it will strip out NA values before computation. That is the behavior we want. However, if you look to the Usage section of the help file, you can see that this argument is set to FALSE by default. So, we need to change that value to TRUE.
 
-To do that, we need to understand how *R* matches arguments. If I don't name my arguments, which I have not so far, *R* will process the arguments in the expected order shown in the Usage section. I haven't needed to do that so far, because the `mean` function expects my vector to be the first argument and it is. However, I now want to change the value of the third argument without messing with the second `trim` argument. I can do this by feeding in the argument with a name. The syntax for this is `arg_name=arg_value`. In this case, I need to use `na.rm=TRUE`. So, to get the mean of height with missing values dropped, I need:
+To do that, we need to understand how *R* matches arguments. If I don't name my arguments, which I have not so far, *R* will process the arguments in the expected order shown in the Usage section of the help file. I haven't needed to do that so far, because the `mean` function expects my vector to be the first argument. However, I now want to change the value of the third argument without messing with the second `trim` argument. I can do this by feeding in the argument with a name. The syntax for this is `arg_name=arg_value`. In this case, I need to use `na.rm=TRUE`. So, to get the mean of height with missing values dropped, I need:
 
 ```{r}
 mean(my_data$height, na.rm=TRUE)
@@ -408,13 +425,13 @@ mean(my_data$height, na.rm=TRUE)
 
 There we go! For the non-missing values, the mean height was 67.25 (inches, presumably).
 
-We will cover many functions throughout the course. The help file can help remind you how to use functions if you forget. The Examples section of the help file is particularly useful as it will provide executable examples of how to use a function.
+We will cover many functions throughout the course. The help file can remind you how to use functions if you forget. The Examples section of the help file is particularly useful as it will provide executable examples of how to use a function.
 
-Keep in mind, that the output of a function will be some kind of object. You can save that output just like any other object. This will be particularly useful when we get to model building as we can save the output of our model estimation and run a variety of additional functions on it,
+Keep in mind that the output of a function will be some kind of object. You can save that output just like any other object. This will be particularly useful when we get to model building as we can save the output of our model estimation and run a variety of additional functions on it.
 
 ## Making Scripts
 
-One of the primary advantages of a using statistical programming language like *R*, *Stata*, or Python is the ability to conduct your analysis in a script. A script is a text file of commands that can be run to do a thing, whether that be some data cleaning, running models, or making a figure. It is good practice to **always** do your work using scripts. The advantage of scripting is that you will have an easily reproducible record of exactly what you did.
+One of the primary advantages of using a statistical programming language like *R*, *Stata*, or python is the ability to conduct your analysis in a script. A script is a text file of commands that can be run to do a thing, whether that be some data cleaning, running models, or making a figure. It is good practice to **always** do your work using scripts. The advantage of scripting is that you will have an easily reproducible record of exactly what you did.
 
 You should think of a script as an executable bit of code that does something. It should have a beginning and an end. Running through the commands in the script will walk the user through the thing that the script does. You should most definitely *not* think of your script as a set of notes and random bits of code that you want to remember. While, you may in some cases use scripts that way for learning purposes, for actual research a script should just work, with only the code needed to make it work.
 
@@ -463,7 +480,7 @@ politics$evangelical <- politics$relig=="Evangelical Protestant"
 tab <- table(politics$supportgmar, politics$evangelical)
 prop.table(tab, 2)
 
-OR <- tab[1,1]*tab[2,2]/(tab[1,2]*tab[2,1])
+OR <- tab[1, 1]*tab[2, 2]/(tab[1, 2]*tab[2, 1])
 OR
 ```
 
@@ -484,13 +501,13 @@ If I source this script, I will get:
   FALSE 0.3355322 0.7184035
   TRUE  0.6644678 0.2815965
 
-> OR <- tab[1,1]*tab[2,2]/(tab[1,2]*tab[2,1])
+> OR <- tab[1, 1]*tab[2, 2]/(tab[1, 2]*tab[2, 1])
 
 > OR
 [1] 0.1979334
 ```
 
-About 72% of non-evangelicals support gay marriage while only 28% of evangelicals support it. That works out to an odds ratio of 0.198, meaning that the odds of gay marriage support were about a fifth as high for evangelicals as for non-evangelicals.
+About 66% of non-evangelicals support gay marriage while only 28% of evangelicals support it. That works out to an odds ratio of 0.198, meaning that the odds of gay marriage support were about a fifth as high for evangelicals as for non-evangelicals.
 
 ### Not Everything Goes Into Your Script
 
@@ -501,7 +518,7 @@ You don't need to put every command into your script. The script should provide 
 levels(politics$gaymarriage)
 ```
 
-From there I could see that the category I wanted was called "Support gay marriage" and I could use that in my script. However, there was no need to put this command into my script because it wasn't necessary for later commands in the script. This kind of interactive coding belongs in the console not in the script.
+From there I could see that the category I wanted was called "Support gay marriage" and I could use that in my script. However, there was no need to put this command into my script. This kind of interactive coding belongs in the console not in the script.
 
 ### Commenting for Clarity
 
@@ -537,7 +554,7 @@ tab <- table(politics$supportgmar, politics$evangelical)
 prop.table(tab, 2)
 
 #Calculate the odds ratio of support
-OR <- tab[1,1]*tab[2,2]/(tab[1,2]*tab[2,1])
+OR <- tab[1, 1]*tab[2, 2]/(tab[1, 2]*tab[2, 1])
 OR
 ```
 
@@ -571,12 +588,12 @@ library(package_name)
 
 Note that when installing packages, the package name is in quotes but not when you load the library.
 
-Generally, you will load any packages you need in the script at the top of that script. The first section of your script should always basically be a "load libraries" section. When you realize deep into your script that you need another package, the temptation is to just put a `library` command there. Resist that temptation! Go back to the top of your script and put the `library` command at the top to load the new package. The reason we do it this way is that we want anyone reading our script to know what package dependencies the script has so that they can install any required packages.
+Generally, you should load any packages you need in the script at the top of that script. The first section of your script should always basically be a "load libraries" section. When you realize deep into your script that you need another package, the temptation is to just put a `library` command there. Resist that temptation! Go back to the top of your script and put the `library` command at the top to load the new package. The reason we do it this way is that we want anyone reading our script to know what package dependencies the script has so that they can install any required packages.
 
 ::: callout-caution
 ## Don't Put `install.packages` Commands in Your Script
 
-A common novice mistake is for students to include the `install.packages` command in a script where they want to use the package. You *should* put a `library` command to load the package, but you should *never* put an `install.packages` command in your script. Every time you run your script, the package will be re-installed which wastes unnecessary time.
+A common novice mistake is for students to include the `install.packages` command in a script where they want to use the package. You *should* put a `library` command to load the package, but you should *never* put an `install.packages` command in your script. Every time you run your script, the package will be re-installed which is a waste of time.
 :::
 
 You can gain access to the functions of an installed package without loading the entire package. The syntax for using a function from a package without loading the whole package is:
@@ -585,9 +602,9 @@ You can gain access to the functions of an installed package without loading the
 package_name::function_name(...)
 ```
 
-We already saw an example of this in @sec-using-git with the `usethis` package. For example, to do a git sitep, I told you to run `usethis::git_sitrep()`. Alernatively, we could have loaded the `usethis` package and then run `git_sitrep()`. In the case of `usethis`, you are often running commands from this package interactively and not through scripting, so being able to call functions without loading the package makes sense. 
+We already saw an example of this in @sec-using-git with the `usethis` package. For example, to do a git sitep, I told you to run `usethis::git_sitrep()`. Alternatively, we could have loaded the `usethis` package and then run `git_sitrep()`. In the case of `usethis`, you are often running commands from this package interactively and not through scripting, so being able to call functions without loading the package makes sense. 
 
-The other common reason for using this syntax is when you have different packages loaded that hqve functions with identical names. When this kind of conflict occurs, the function for the more recently loaded package will *mask* the function from the previously loaded package. To gain access to that masked function you will have to reference the function in this syntax. 
+The other common reason for using this syntax is when you have different packages loaded that have functions with identical names. When this kind of conflict occurs, the function for the more recently loaded package will *mask* the function from the previously loaded package. To gain access to that masked function you will have to reference the function using this syntax. 
 
 
 ## Following Norms
@@ -597,7 +614,7 @@ Programming languages aren't just the languages themselves but the community of 
 The norms I use here are developed from the [tidyverse style guide](https://style.tidyverse.org/index.html). Here are the norms I want you to follow:
 
 * Naming things (e.g. objects, variables, functions, files)
-  * Names should be all lower-case and contain no special characters. To separate distinct words within a name, you should use an underscore `_` (sometimes called "snake case"). So, for example, if you have a variable measuring the highest grade a respondent attained, you could name that `high_grade` but *not* `HIGHGRADE`, `HighGrade`, or `high.grade`. The use of the underscore for separation does co-exist with an older norm in *R* to use the `.` for separation and you will see that in many function names. However, the tidyverse norm is to use the `_` (which is one way you can often differentiate tidyverse and base *R* functions).
+  * Names should be all be lower-case and contain no special characters. To separate distinct words within a name, you should use an underscore `_` (sometimes called "snake case"). So, for example, if you have a variable measuring the highest grade a respondent attained, you could name that `high_grade`  *not* `HIGHGRADE`, `HighGrade`, or `high.grade`. The use of the underscore for separation does co-exist with an older norm in *R* to use the `.` for separation and you will see that in many function names. However, the tidyverse norm is to use the `_` (which is one way you can often differentiate tidyverse and base *R* functions).
   * When naming things, you should strive for a balance between the name being meaningful and concise. Long object and variable names will make your code harder to read.
   * Avoid naming things that are already function names (e.g. don't name your object "mean").
 * Spacing
